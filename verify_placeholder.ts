@@ -5,6 +5,7 @@ const testData: DataRow[] = [
     { 'Address': '695원', 'ID': '2' },  // 3 digits
 ];
 
+export { };
 const prompt = "'Address' 컬럼의 [%4d]원을 빈칸으로 변경";
 const result = processDataLocal(testData, prompt);
 

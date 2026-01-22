@@ -4,6 +4,7 @@ const testData: DataRow[] = [
     { 'Address': '[xxx원]', 'ID': '4' }
 ];
 
+export { };
 const prompt = "'Address' 컬럼의 [xxx원] 데이터는 빈칸으로 변경 해줘";
 const result = processDataLocal(testData, prompt);
 

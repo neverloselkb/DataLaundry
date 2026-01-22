@@ -1,3 +1,4 @@
+export { };
 const prompt = "'Address' 컬럼의 [%4d]원을 빈칸으로 변경";
 const lowerPrompt = prompt.toLowerCase();
 

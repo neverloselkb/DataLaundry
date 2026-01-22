@@ -8,6 +8,7 @@ const mockData: any[] = [
     { 'Address': '123456', '이름': '초과3 (영문컬럼)' }
 ];
 
+export { };
 const prompt = "우편번호가 5자리가 넘어가는 건 빈칸으로 변경";
 
 const options = {
@@ -15,6 +16,7 @@ const options = {
     formatMobile: false,
     formatGeneralPhone: false,
     formatDate: false,
+    formatDateTime: false,
     formatNumber: false,
     cleanEmail: false,
     formatZip: true, // User might have checked this, or relying on NLP
