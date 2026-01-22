@@ -1,6 +1,6 @@
 export { };
-const prompt = "'Address' 컬럼의 [%4d]원을 빈칸으로 변경";
-const lowerPrompt = prompt.toLowerCase();
+const localPrompt = "'Address' 컬럼의 [%4d]원을 빈칸으로 변경";
+const lowerPrompt = localPrompt.toLowerCase();
 
 // Current regex
 const mappingRegex = /([\[\]%A-Za-z0-9가-힣_\-]+)\s*(?:데이터|값|문구|텍스트|형식|패턴)?(?:\s*의)?\s*(?:데이터|값|문구|텍스트)?\s*(?:는|은|->|:|를|을)\s*([\[\]%A-Za-z0-9가-힣_\-\s]+)/g;

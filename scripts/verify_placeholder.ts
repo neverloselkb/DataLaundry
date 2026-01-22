@@ -1,4 +1,4 @@
-import { processDataLocal, DataRow } from './src/lib/data-processor';
+import { processDataLocal, DataRow } from '../src/lib/data-processor';
 
 const testData: DataRow[] = [
     { 'Address': '1234원', 'ID': '1' }, // 4 digits
@@ -6,8 +6,8 @@ const testData: DataRow[] = [
 ];
 
 export { };
-const prompt = "'Address' 컬럼의 [%4d]원을 빈칸으로 변경";
-const result = processDataLocal(testData, prompt);
+const localPrompt = "'Address' 컬럼의 [%4d]원을 빈칸으로 변경";
+const result = processDataLocal(testData, localPrompt);
 
 console.log('Result for [%4d]원 -> blank:');
 result.forEach((r, i) => {

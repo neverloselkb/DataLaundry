@@ -1,5 +1,5 @@
 
-import { processDataLocal } from './src/lib/data-processor';
+import { processDataLocal } from '../src/lib/data-processor';
 
 const mockData: any[] = [
     { '우편번호': '12345', '이름': '정상1' },
@@ -9,7 +9,8 @@ const mockData: any[] = [
 ];
 
 export { };
-const prompt = "우편번호가 5자리가 넘어가는 건 빈칸으로 변경";
+const localPrompt = "우편번호가 5자리가 넘어가는 건 빈칸으로 변경";
+
 
 const options = {
     removeWhitespace: false,
@@ -28,11 +29,11 @@ const options = {
 
 // Case 1: Option Checked
 console.log("--- Case 1: Option Checked ---");
-const result1 = processDataLocal(mockData, prompt, options);
+const result1 = processDataLocal(mockData, localPrompt, options);
 console.log(JSON.stringify(result1, null, 2));
 
 // Case 2: Option Unchecked (relying on NLP trigger)
 console.log("--- Case 2: Option Unchecked ---");
 const options2 = { ...options, formatZip: false };
-const result2 = processDataLocal(mockData, prompt, options2);
+const result2 = processDataLocal(mockData, localPrompt, options2);
 console.log(JSON.stringify(result2, null, 2));
