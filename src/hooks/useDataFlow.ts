@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { DataRow, DataIssue, ProcessingOptions, ProcessingStats, ColumnLimits } from '@/types';
+import { DataRow, DataIssue, ProcessingOptions, ProcessingStats, ColumnLimits, ColumnSpecificOptions, ColumnOptionType } from '@/types';
 import { parseFile } from '@/lib/core/parsers';
-import { detectDataIssues } from '@/lib/core/analyzers';
+import { detectDataIssues, detectDateCandidateColumns } from '@/lib/core/analyzers';
 import { WorkerMessage, WorkerResponse } from '@/lib/worker';
 
 /**
@@ -29,6 +29,8 @@ export function useDataFlow() {
     // 4. Configuration State
     const [lockedColumns, setLockedColumns] = useState<string[]>([]);
     const [columnLimits, setColumnLimits] = useState<ColumnLimits>({});
+    const [columnOptions, setColumnOptions] = useState<ColumnSpecificOptions>({});
+    const [detectedDateColumns, setDetectedDateColumns] = useState<number>(0);
 
     // Worker 초기화
     useEffect(() => {
@@ -87,6 +89,11 @@ export function useDataFlow() {
             setIssues(initialIssues);
             setStats({ totalRows: parsedData.length, changedCells: 0, resolvedIssues: 0 });
 
+            // 날짜 컬럼 자동 감지
+            const dateColCount = detectDateCandidateColumns(parsedData, initialHeaders);
+            setDetectedDateColumns(dateColCount);
+            setColumnOptions({}); // Reset column options
+
         } catch (err) {
             setError(String(err));
             setFile(null);
@@ -110,11 +117,12 @@ export function useDataFlow() {
             prompt,
             options,
             lockedColumns,
-            columnLimits
+            columnLimits,
+            columnOptions
         };
 
         workerRef.current.postMessage(message);
-    }, [data, lockedColumns, columnLimits]); // data가 바뀌면 의존성 변경
+    }, [data, lockedColumns, columnLimits, columnOptions]); // data나 설정이 바뀌면 의존성 변경
 
     // 데이터 직접 수정 핸들러 (Cell Edit)
     const updateCell = useCallback((rowIdx: number, col: string, newVal: string) => {
@@ -126,6 +134,15 @@ export function useDataFlow() {
             return newData;
         });
         // TODO: 수정 후 이슈 재검사 또는 통계 업데이트 로직이 필요할 수 있음 (선택적)
+        // TODO: 수정 후 이슈 재검사 또는 통계 업데이트 로직이 필요할 수 있음 (선택적)
+    }, []);
+
+    // 컬럼별 옵션 설정 (날짜/일시 지정)
+    const updateColumnOption = useCallback((header: string, type: ColumnOptionType) => {
+        setColumnOptions(prev => ({
+            ...prev,
+            [header]: type
+        }));
     }, []);
 
     // 헤더 이름 수정 핸들러
@@ -178,6 +195,19 @@ export function useDataFlow() {
         // 훅 사용자(Component)가 setIssues를 호출하도록 유도하거나, 여기서 effect를 사용.
     }, []);
 
+    // 데이터 초기화 (Reset)
+    const resetData = useCallback(() => {
+        if (data.length === 0) return;
+
+        setProcessedData(data);
+        const initialIssues = detectDataIssues(data);
+        setIssues(initialIssues);
+        setStats({ totalRows: data.length, changedCells: 0, resolvedIssues: 0 });
+        setError(null);
+        setProgress(0);
+        setProgressMessage("");
+    }, [data]);
+
     return {
         file,
         data,              // Original
@@ -199,6 +229,10 @@ export function useDataFlow() {
         updateHeader,
         toggleLock,
         updateColumnLimit,
-        setError
+        updateColumnOption,
+        columnOptions,
+        detectedDateColumns,
+        setError,
+        resetData // Export
     };
 }

@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Sparkles, Search, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { ProcessingOptions } from '@/types';
+import { ProcessingOptions, ColumnSpecificOptions } from '@/types';
 import { ProcessingStatus } from './ProcessingStatus';
+import { CLEANING_OPTIONS_SCHEMA, TIPS, OptionCategory } from '@/lib/constants';
 
 interface CleaningOptionsProps {
     options: ProcessingOptions;
@@ -18,22 +20,15 @@ interface CleaningOptionsProps {
     progress: number;
     progressMessage: string;
     onProcess: () => void;
+    onReset: () => void;
     fileLoaded: boolean;
+    detectedDateColumns?: number; // Optional to prevent breaking other usages immediately
+    columnOptions?: ColumnSpecificOptions;
 }
 
 /**
  * 정제 옵션 및 요청 섹션 컴포넌트
- * 체크박스 옵션, 자연어 프롬프트 입력, 실행 버튼을 포함합니다.
- * 
- * @param options 현재 선택된 정제 옵션
- * @param setOptions 옵션 변경 함수
- * @param prompt 자연어 프롬프트
- * @param setPrompt 프롬프트 변경 함수
- * @param isProcessing 현재 처리 중 여부
- * @param progress 처리 진행률
- * @param progressMessage 처리 상태 메시지
- * @param onProcess 정제 시작 핸들러
- * @param fileLoaded 파일 업로드 여부 (비활성화 처리용)
+ * 설정 기반(Configuration-Driven)으로 UI를 동적 생성하며, 탭과 검색 기능을 제공합니다.
  */
 export function CleaningOptions({
     options,
@@ -44,110 +39,212 @@ export function CleaningOptions({
     progress,
     progressMessage,
     onProcess,
-    fileLoaded
+    onReset,
+    fileLoaded,
+    detectedDateColumns = 0,
+    columnOptions = {}
 }: CleaningOptionsProps) {
     const [tipIndex, setTipIndex] = useState(0);
-
-    const tips = [
-        "'주소에서 시/도만 남겨줘'",
-        "'[%3d]원 형식의 데이터는 빈칸으로 변경해줘' (와일드카드 활용)",
-        "'[%d]는 숫자, [%s]는 문자를 뜻해요'",
-        "'Inactive는 [정지]로, active는 [정상]으로 변경해줘'",
-        "'Name 컬럼에서 숫자랑 특수문자 빼줘'",
-        "'우편번호가 5자리가 넘으면 지워줘'",
-        "'Price, Cost 컬럼에 콤마 찍어줘'",
-        "'날짜 형식을 yyyy-mm-dd로 통일해줘'"
-    ];
+    const [activeTab, setActiveTab] = useState<OptionCategory>('basic');
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setTipIndex((prev) => (prev + 1) % tips.length);
+            setTipIndex((prev) => (prev + 1) % TIPS.length);
         }, 4000);
         return () => clearInterval(timer);
-    }, [tips.length]);
+    }, []);
+
+    // 검색어에 따라 필터링된 옵션 목록 생성
+    const filteredSchema = useMemo(() => {
+        if (!searchQuery.trim()) return CLEANING_OPTIONS_SCHEMA;
+
+        const query = searchQuery.toLowerCase();
+        return CLEANING_OPTIONS_SCHEMA.map(category => ({
+            ...category,
+            items: category.items.filter(item =>
+                item.label.toLowerCase().includes(query) ||
+                item.description?.toLowerCase().includes(query)
+            )
+        })).filter(category => category.items.length > 0);
+    }, [searchQuery]);
 
     const handleQuickAction = (type: 'all' | 'none') => {
-        setOptions(prev => ({
-            ...prev,
-            removeWhitespace: type === 'all',
-            formatMobile: type === 'all',
-            formatGeneralPhone: type === 'all',
-            formatDate: type === 'all',
-            formatNumber: type === 'all',
-            cleanEmail: type === 'all',
-            formatZip: type === 'all',
-            cleanName: type === 'all'
-        }));
+        const newOptions = { ...options };
+
+        // 검색 중이면 보이는 것만, 아니면 현재 탭만, 혹은 전체?
+        // 사용자 혼란 방지를 위해 '전체'는 정말 모든 옵션을 대상으로 함
+        // 단, 탭별로 하려면 로직 수정 필요. 현재는 전체 대상으로 구현
+        CLEANING_OPTIONS_SCHEMA.flatMap(c => c.items).forEach(item => {
+            newOptions[item.id] = type === 'all';
+        });
+
+        setOptions(newOptions);
     };
 
+    // 옵션 변경 핸들러
+    const toggleOption = (id: keyof ProcessingOptions, checked: boolean) => {
+        setOptions(prev => ({ ...prev, [id]: checked }));
+    };
+
+    // 현재 보여줄 카테고리 (검색 중일 때는 탭 무시하고 펼쳐 보임)
+    const displayCategories = searchQuery.trim()
+        ? filteredSchema
+        : filteredSchema.filter(c => c.id === activeTab);
+
     return (
-        <Card className={cn("border-slate-200 shadow-sm transition-opacity", !fileLoaded && "opacity-50 pointer-events-none")}>
-            <CardHeader>
+        <Card className={cn("border-slate-200 shadow-sm transition-opacity flex flex-col", !fileLoaded && "opacity-50 pointer-events-none")}>
+            <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
                     <span className="bg-slate-100 text-slate-600 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span>
                     정제 요청
                 </CardTitle>
-                <CardDescription>어떻게 데이터를 정리할까요?</CardDescription>
+                <CardDescription>
+                    어떻게 데이터를 정리할까요?
+                    <span className="block text-[10px] mt-0.5 text-blue-600 font-medium">
+                        (개별 포맷이 지정되지 않은 모든 컬럼에 공통 적용됩니다)
+                    </span>
+                </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                {/* Quick Actions */}
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <Label className="text-base font-semibold">빠른 실행 메뉴</Label>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="h-7 text-xs px-2" onClick={() => handleQuickAction('all')}>
-                                전체 선택
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-7 text-xs px-2 text-slate-500" onClick={() => handleQuickAction('none')}>
-                                해제
-                            </Button>
-                        </div>
+            <CardContent className="space-y-4 flex-1 overflow-y-auto">
+                {/* Search & Quick Actions */}
+                <div className="flex flex-col gap-2">
+                    <div className="relative">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
+                        <Input
+                            placeholder="옵션 검색 (예: 전화번호, 공백)"
+                            className="pl-8 h-9 text-sm"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                     </div>
-
-                    {/* Options Grid */}
-                    <div className="flex flex-col gap-2">
-                        <OptionCheckbox id="whitespace" label="공백 제거 (Trim)" checked={options.removeWhitespace} onChange={(c) => setOptions(p => ({ ...p, removeWhitespace: c }))} />
-                        <OptionCheckbox id="mobile" label="휴대폰 번호 포맷 통일 (01X-XXXX-XXXX)" checked={options.formatMobile} onChange={(c) => setOptions(p => ({ ...p, formatMobile: c }))} />
-                        <OptionCheckbox id="phone" label="전화번호 포맷 통일 (XX-XXXX-XXXX)" checked={options.formatGeneralPhone} onChange={(c) => setOptions(p => ({ ...p, formatGeneralPhone: c }))} />
-                        <OptionCheckbox id="date" label="날짜 형식 통일 (yyyy.MM.dd)" checked={options.formatDate} onChange={(c) => setOptions(p => ({ ...p, formatDate: c }))} />
-                        <OptionCheckbox id="dateTime" label="일시 형식 표준화 (yyyy.MM.dd HH:mm:ss)" checked={options.formatDateTime} onChange={(c) => setOptions(p => ({ ...p, formatDateTime: c }))} />
-                        <OptionCheckbox id="number" label="숫자 천단위 콤마 (1,234,567)" checked={options.formatNumber} onChange={(c) => setOptions(p => ({ ...p, formatNumber: c }))} />
-                        <OptionCheckbox id="email" label="이메일 형식 체크 및 필터링" checked={options.cleanEmail} onChange={(c) => setOptions(p => ({ ...p, cleanEmail: c }))} />
-                        <OptionCheckbox id="zip" label="우편번호 형식 통일 (5자리)" checked={options.formatZip} onChange={(c) => setOptions(p => ({ ...p, formatZip: c }))} />
-                        <OptionCheckbox id="cleanName" label="이름의 노이즈 제거 (숫자/특수문자)" checked={options.cleanName} onChange={(c) => setOptions(p => ({ ...p, cleanName: c }))} />
-
-                        <div className="flex items-center space-x-2 pt-1 border-t border-slate-100 mt-1">
-                            <Checkbox id="highlight" checked={options.highlightChanges} onCheckedChange={(c) => setOptions(p => ({ ...p, highlightChanges: c as boolean }))} />
-                            <label htmlFor="highlight" className="text-sm font-bold text-blue-600 leading-none cursor-pointer">변경 사항 하이라이트 (Excel 전용)</label>
-                        </div>
-
-                        <OptionCheckbox id="garbage" label="무의미한 데이터 및 깨진 글자 정리" checked={options.cleanGarbage} onChange={(c) => setOptions(p => ({ ...p, cleanGarbage: c }))} />
-                        <OptionCheckbox id="amount" label="금액 데이터 정밀 세척 (한글 단위 변환)" checked={options.cleanAmount} onChange={(c) => setOptions(p => ({ ...p, cleanAmount: c }))} />
+                    <div className="flex justify-end gap-2">
+                        <button className="text-xs text-blue-600 hover:underline" onClick={() => handleQuickAction('all')}>전체 선택</button>
+                        <span className="text-xs text-slate-300">|</span>
+                        <button className="text-xs text-slate-500 hover:underline" onClick={() => handleQuickAction('none')}>해제</button>
                     </div>
                 </div>
 
+                {/* Categories Tabs (검색 중이 아닐 때만 표시) */}
+                {!searchQuery.trim() && (
+                    <div className="flex gap-1 overflow-x-auto pb-2 border-b border-slate-100 no-scrollbar">
+                        {CLEANING_OPTIONS_SCHEMA.map(category => (
+                            <button
+                                key={category.id}
+                                onClick={() => setActiveTab(category.id)}
+                                className={cn(
+                                    "px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-colors",
+                                    activeTab === category.id
+                                        ? "bg-slate-800 text-white"
+                                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                )}
+                            >
+                                {category.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {/* Options List */}
+                <div className="space-y-6">
+                    {displayCategories.length > 0 ? (
+                        displayCategories.map(category => (
+                            <div key={category.id} className="space-y-3 animation-fade-in">
+                                {searchQuery.trim() && (
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{category.label}</h4>
+                                )}
+                                <div className="grid grid-cols-1 gap-2">
+                                    {category.items.map(item => {
+                                        // 날짜/일시 전역 옵션 비활성화 로직
+                                        const isDateOption = item.id === 'formatDate' || item.id === 'formatDateTime';
+                                        const isDisabled = isDateOption && detectedDateColumns >= 2;
+
+                                        // 하이라이트 옵션 안내 로직
+                                        const isHighlightOption = item.id === 'highlightChanges';
+
+                                        return (
+                                            <div
+                                                key={item.id}
+                                                className={cn(
+                                                    "flex items-start space-x-3 p-2 rounded-md transition-all",
+                                                    options[item.id] ? "bg-blue-50/50 ring-1 ring-blue-100" : "hover:bg-slate-50",
+                                                    isDisabled && "opacity-50 pointer-events-none bg-slate-50"
+                                                )}
+                                            >
+                                                <Checkbox
+                                                    id={item.id}
+                                                    checked={options[item.id]}
+                                                    onCheckedChange={(c) => toggleOption(item.id, c as boolean)}
+                                                    className="mt-1"
+                                                    disabled={isDisabled}
+                                                />
+                                                <div className="space-y-1 w-full">
+                                                    <div className="flex items-center gap-2">
+                                                        <label
+                                                            htmlFor={item.id}
+                                                            className="text-sm font-medium leading-none cursor-pointer block text-slate-700"
+                                                        >
+                                                            {item.label}
+                                                        </label>
+                                                        {isDisabled && (
+                                                            <div className="group relative">
+                                                                <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded cursor-help font-bold">⚠️ 다중 감지됨</span>
+                                                                <div className="absolute left-0 bottom-full mb-2 w-48 p-2 bg-slate-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                                                    여러 날짜 컬럼이 감지되었습니다. 상단 테이블 헤더의 ⚙️ 설정 메뉴에서 컬럼별로 형식을 지정해주세요.
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {isHighlightOption && (
+                                                            <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold border border-blue-200 uppercase tracking-tighter">Excel Only</span>
+                                                        )}
+                                                    </div>
+                                                    {item.description && (
+                                                        <p className="text-xs text-slate-400 leading-snug">
+                                                            {item.description}
+                                                        </p>
+                                                    )}
+                                                    {isHighlightOption && options.highlightChanges && (
+                                                        <div className="mt-1.5 p-1.5 bg-blue-600/5 rounded border border-blue-600/10 flex items-center gap-1.5 animate-in slide-in-from-top-1 fadeIn duration-200 w-fit -ml-8 mx-auto px-3">
+                                                            <CheckCircle2 size={10} className="text-blue-600 shrink-0" />
+                                                            <span className="text-[10px] text-blue-700 font-medium whitespace-nowrap">결과 파일이 엑셀 파일로 변경 되며 변경된 셀에 배경색이 칠해집니다.</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-8 text-slate-400 text-sm">
+                            검색 결과가 없습니다.
+                        </div>
+                    )}
+                </div>
+
                 {/* Prompt Input */}
-                <div className="space-y-2 pt-2 border-t border-slate-100">
+                <div className="space-y-2 pt-4 border-t border-slate-100">
                     <Label htmlFor="prompt">추가 요청사항 (자연어)</Label>
                     <Textarea
                         id="prompt"
-                        placeholder="예: 주소에서 시/도만 남겨줘. (아니면 미리보기를 더블클릭하여 직접 수정 가능)"
-                        className="min-h-[80px] resize-none focus-visible:ring-blue-500"
+                        placeholder="예: 주소에서 시/도만 남겨줘."
+                        className="min-h-[80px] resize-none focus-visible:ring-blue-500 text-sm"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                     />
                 </div>
 
                 {/* Tips Carousel */}
-                <div className="text-xs text-slate-500 bg-slate-100 p-3 rounded-md overflow-hidden relative h-[44px] flex items-center">
-                    <span className="font-medium mr-2 shrink-0">💡 팁:</span>
-                    <div className="relative flex-1">
-                        {tips.map((tip, idx) => (
+                <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-md overflow-hidden relative h-[40px] flex items-center border border-slate-100">
+                    <span className="font-medium mr-2 shrink-0 text-amber-500">💡 Tip:</span>
+                    <div className="relative flex-1 h-full">
+                        {TIPS.map((tip, idx) => (
                             <div
                                 key={idx}
                                 className={cn(
-                                    "absolute left-0 top-1/2 -translate-y-1/2 w-full transition-all duration-700 ease-in-out",
-                                    tipIndex === idx ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"
+                                    "absolute left-0 top-1/2 -translate-y-1/2 w-full transition-all duration-500 ease-in-out truncate",
+                                    tipIndex === idx ? "opacity-100 translate-y-[-50%]" : "opacity-0 translate-y-0 pointer-events-none"
                                 )}
                             >
                                 {tip}
@@ -156,30 +253,31 @@ export function CleaningOptions({
                     </div>
                 </div>
             </CardContent>
-            <CardFooter>
+
+            <CardFooter className="pt-2 flex gap-2">
                 {isProcessing ? (
                     <ProcessingStatus progress={progress} message={progressMessage} />
                 ) : (
-                    <Button
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 h-12 text-lg shadow-md hover:shadow-lg transition-all"
-                        onClick={onProcess}
-                        disabled={!prompt && !Object.values(options).some(Boolean)}
-                    >
-                        <Sparkles size={20} />
-                        데이터 정제하기
-                    </Button>
+                    <>
+                        <Button
+                            variant="outline"
+                            className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200 h-11 px-4 shadow-sm"
+                            onClick={onReset}
+                            title="설정 및 결과 초기화"
+                        >
+                            초기화
+                        </Button>
+                        <Button
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white gap-2 h-11 text-base shadow-md hover:shadow-lg transition-all"
+                            onClick={onProcess}
+                            disabled={!prompt && !Object.values(options).some(Boolean) && !Object.values(columnOptions).some(Boolean)}
+                        >
+                            <Sparkles size={18} />
+                            데이터 정제 실행
+                        </Button>
+                    </>
                 )}
             </CardFooter>
         </Card>
-    );
-}
-
-// Helper component for cleaner code
-function OptionCheckbox({ id, label, checked, onChange }: { id: string, label: string, checked: boolean, onChange: (c: boolean) => void }) {
-    return (
-        <div className="flex items-center space-x-2">
-            <Checkbox id={id} checked={checked} onCheckedChange={(c) => onChange(c as boolean)} />
-            <label htmlFor={id} className="text-sm font-medium leading-none cursor-pointer">{label}</label>
-        </div>
     );
 }

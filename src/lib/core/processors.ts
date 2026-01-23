@@ -1,4 +1,4 @@
-import { DataRow, ProcessingOptions } from '@/types';
+import { DataRow, ProcessingOptions, ColumnSpecificOptions } from '@/types';
 import { normalizeDate, normalizeDateTime, parseKoreanAmount, GARBAGE_REGEX } from './utils';
 
 /**
@@ -9,6 +9,7 @@ import { normalizeDate, normalizeDateTime, parseKoreanAmount, GARBAGE_REGEX } fr
  * @param prompt 사용자 입력 프롬프트 (자연어 명령어)
  * @param options 선택된 정제 옵션들
  * @param lockedColumns 수정 잠금 처리된 컬럼 목록
+ * @param columnOptions 컬럼별 개별 정제 옵션
  * @returns 정제된 데이터 배열
  */
 export function processDataLocal(
@@ -26,9 +27,21 @@ export function processDataLocal(
         highlightChanges: false, // 변경사항 하이라이트
         cleanGarbage: false,     // 가비지 데이터 제거
         cleanAmount: false,      // 금액 단위 정제
-        cleanName: false         // 이름 정제
+        cleanName: false,         // 이름 정제
+        formatBizNum: false,      // 사업자번호 포맷
+        formatCorpNum: false,     // 법인번호 포맷
+        formatUrl: false,         // URL 표준화
+        maskPersonalData: false,   // 개인정보 마스킹
+        formatTrackingNum: false, // 운송장번호 정제
+        cleanOrderId: false,      // 주문번호 정제
+        formatTaxDate: false,     // 세무용 날짜
+        formatAccountingNum: false, // 회계 음수
+        cleanAreaUnit: false,     // 면적 단위 제거
+        cleanSnsId: false,        // SNS ID 추출
+        formatHashtag: false      // 해시태그 표준화
     },
-    lockedColumns: string[] = []
+    lockedColumns: string[] = [],
+    columnOptions: ColumnSpecificOptions = {}
 ): DataRow[] {
     const lowerPrompt = prompt.toLowerCase();
 
@@ -41,15 +54,19 @@ export function processDataLocal(
     const hasAction = filterBy(['지워', '제거', '삭제', '없애', '정리', '닦아', '통일', '표준', '바꿔', '변경', '추출', '분리', '남겨']);
 
     // 1. 휴대폰 및 전화번호 정제 (Phone & Mobile)
-    if (options.formatMobile || options.formatGeneralPhone || filterBy(['휴대폰', '전화번호', '폰번호', '연락처'])) {
+    const hasPhoneOptions = Object.values(columnOptions).some(v => v === 'mobile' || v === 'phone');
+    if (options.formatMobile || options.formatGeneralPhone || hasPhoneOptions || filterBy(['휴대폰', '전화번호', '폰번호', '연락처'])) {
         processed = processed.map(row => {
             const newRow = { ...row };
             for (const key in newRow) {
                 if (lockedColumns.includes(key)) continue;
+
+                const colOption = columnOptions[key];
                 const lowerKey = key.toLowerCase();
                 const isPhoneCol = lowerKey.includes('연락처') || lowerKey.includes('전화번호') || lowerKey.includes('phone') || lowerKey.includes('mobile') || lowerKey.includes('tel');
 
-                if (isPhoneCol) {
+                // 개별 옵션 또는 전역 필터링 대상일 때 처리
+                if (colOption === 'mobile' || colOption === 'phone' || isPhoneCol) {
                     let val = String(newRow[key]);
                     const shortPatternMatch = val.match(/(\d{3,4})[-. ]?(\d{4})/);
                     let onlyDigits = val.replace(/\D/g, '');
@@ -60,15 +77,15 @@ export function processDataLocal(
                     }
 
                     // 휴대폰 번호 포맷 (01X-XXXX-XXXX)
-                    if (onlyDigits.startsWith('01') && (options.formatMobile || filterBy(['휴대폰', '모바일', '010', '01']))) {
+                    if (onlyDigits.startsWith('01') && (colOption === 'mobile' || options.formatMobile || filterBy(['휴대폰', '모바일', '010', '01']))) {
                         if (onlyDigits.length >= 10 && onlyDigits.length <= 11) {
                             newRow[key] = onlyDigits.replace(/^(01[016789])(\d{3,4})(\d{4})$/, "$1-$2-$3");
-                            continue; // 처리 완료 시 다음 키로
+                            continue;
                         }
                     }
 
                     // 일반 유선전화 포맷 (지역번호-국번-번호)
-                    if (onlyDigits.startsWith('0') && (options.formatGeneralPhone || filterBy(['지역번호', '유선전화', '일반전화']))) {
+                    if (onlyDigits.startsWith('0') && (colOption === 'phone' || options.formatGeneralPhone || filterBy(['지역번호', '유선전화', '일반전화']))) {
                         if (onlyDigits.length >= 9 && onlyDigits.length <= 11) {
                             const areaCode = onlyDigits.startsWith('02') ? 2 : 3;
                             const regex = new RegExp(`^(\\d{${areaCode}})(\\d{3,4})(\\d{4})$`);
@@ -79,7 +96,13 @@ export function processDataLocal(
                         }
                     }
 
-                    // 기타 번호 포맷 (XXXX-XXXX 등)
+                    // 개별 옵션이 '이동전화'인데 강제 변환이 필요한 경우 (글로벌 옵션 없이도)
+                    if (colOption === 'mobile' && onlyDigits.length >= 10) {
+                        newRow[key] = onlyDigits.replace(/^(01[016789])(\d{3,4})(\d{4})$/, "$1-$2-$3");
+                        continue;
+                    }
+
+                    // 기타 번호 포맷 (글로벌 옵션 기준)
                     if (onlyDigits.length >= 7 && onlyDigits.length <= 8) {
                         newRow[key] = onlyDigits.replace(/(\d{3,4})(\d{4})/, "$1-$2");
                     } else if (shortPatternMatch && onlyDigits.length < 11) {
@@ -87,7 +110,6 @@ export function processDataLocal(
                     } else if (onlyDigits.length >= 7 && onlyDigits.length <= 11) {
                         newRow[key] = onlyDigits.replace(/(\d{2,3})(\d{3,4})(\d{4})/, "$1-$2-$3");
                     } else if (/[A-Za-z가-힣]/.test(val) && onlyDigits.length < 7) {
-                        // 전화번호 컬럼인데 문자열이 섞인 경우 (가비지) 제거
                         newRow[key] = '';
                     }
                 }
@@ -116,11 +138,40 @@ export function processDataLocal(
     }
 
     // 3. 날짜 및 일시 정제 (Date / DateTime)
-    if (options.formatDate || options.formatDateTime || filterBy(['날짜', '일시', '일자', 'date'])) {
+    // 글로벌 옵션 OR 컬럼별 옵션이 하나라도 있으면 실행
+    const hasColumnDateOptions = Object.values(columnOptions).some(v => v === 'date' || v === 'datetime');
+
+    if (options.formatDate || options.formatDateTime || hasColumnDateOptions || filterBy(['날짜', '일시', '일자', 'date'])) {
         processed = processed.map(row => {
             const newRow = { ...row };
             for (const key in newRow) {
                 if (lockedColumns.includes(key)) continue;
+
+                // 1. 컬럼별 지정 옵션 우선 확인
+                const colOption = columnOptions[key];
+
+                if (colOption === 'datetime') {
+                    const val = String(newRow[key]).trim();
+                    const normalizedDT = normalizeDateTime(val);
+                    if (normalizedDT) {
+                        newRow[key] = normalizedDT;
+                        continue;
+                    }
+                }
+
+                if (colOption === 'date') {
+                    const val = String(newRow[key]).trim();
+                    const normalized = normalizeDate(val);
+                    if (normalized) {
+                        newRow[key] = normalized;
+                        continue;
+                    }
+                }
+
+                // 2. 글로벌 옵션 적용 (단, 컬럼별 옵션이 설정된 컬럼은 위에서 처리/continue 되거나, 무시됨)
+                // 만약 컬럼별 옵션이 'null'이 아니고 설정되어 있다면 글로벌 옵션은 무시해야 함.
+                if (colOption) continue;
+
                 const lowerKey = key.toLowerCase();
                 const isDateCol = lowerKey.includes('날짜') || lowerKey.includes('일시') || lowerKey.includes('일자') || lowerKey.includes('date') || lowerKey.includes('time');
 
@@ -188,26 +239,28 @@ export function processDataLocal(
     }
 
     // 7. 숫자 천단위 콤마 포맷 (Simple Number Formatting)
-    if (options.formatNumber || filterBy(['숫자', '콤마', '포맷'])) {
+    const hasAmountOptions = Object.values(columnOptions).some(v => v === 'amount' || v === 'amountKrn');
+    if (options.formatNumber || hasAmountOptions || filterBy(['숫자', '콤마', '포맷'])) {
         processed = processed.map(row => {
             const newRow = { ...row };
             for (const key in newRow) {
                 if (lockedColumns.includes(key)) continue;
                 const val = String(newRow[key]).trim();
                 const lowerKey = key.toLowerCase();
+                const colOption = columnOptions[key];
 
                 // 이름, 코드, ID, 주소 등은 숫자로 보일 수 있어도 콤마 찍지 않음
                 const skipKeywords = ['이름', '고객명', '성함', '성명', '주소', 'address', 'id', '코드', 'code', '번호', 'no'];
-                if (skipKeywords.some(k => lowerKey.includes(k))) continue;
-                if (/^0/.test(val)) continue; // 0으로 시작하는 것은 (예: 우편번호) 제외
+                const isSkipCol = skipKeywords.some(k => lowerKey.includes(k));
 
-                if (val.match(/^(19|20)\d{2}[-.]?\d{2}[-.]?\d{2}$/)) continue; // 날짜 형식 제외
-
-                // 이미 숫자이거나 콤마가 있는 숫자인 경우
-                if (/^\d+(\.\d+)?$/.test(val.replace(/,/g, ''))) {
-                    const num = parseFloat(val.replace(/,/g, ''));
-                    if (!isNaN(num)) {
-                        newRow[key] = num.toLocaleString('en-US');
+                if (colOption === 'amount' || (!isSkipCol && !/^0/.test(val) && !val.match(/^(19|20)\d{2}[-.]?\d{2}[-.]?\d{2}$/))) {
+                    // 旣 숫자이거나 콤마가 있는 숫자인 경우
+                    const cleanVal = val.replace(/,/g, '');
+                    if (/^\d+(\.\d+)?$/.test(cleanVal)) {
+                        const num = parseFloat(cleanVal);
+                        if (!isNaN(num)) {
+                            newRow[key] = num.toLocaleString('en-US');
+                        }
                     }
                 }
             }
@@ -216,18 +269,19 @@ export function processDataLocal(
     }
 
     // 8. 금액 정밀 정제 (Advanced Amount & Unit Cleaning)
-    if (options.cleanAmount || filterBy(['금액', '가격', '단가', '돈', '단위', '만', '천', '백'])) {
+    if (options.cleanAmount || hasAmountOptions || filterBy(['금액', '가격', '단가', '돈', '단위', '만', '천', '백'])) {
         processed = processed.map(row => {
             const newRow = { ...row };
             for (const key in newRow) {
                 if (lockedColumns.includes(key)) continue;
                 const val = String(newRow[key]).trim();
                 const lowerKey = key.toLowerCase();
+                const colOption = columnOptions[key];
                 const isMoneyCol = /금액|가격|비용|매출|입금|출금|잔액|price|amount|cost|balance|fee/.test(lowerKey);
 
-                if (isMoneyCol || /[만천백]원$/.test(val)) {
-                    // 한글 단위가 포함된 경우
-                    if (/[만천백]/.test(val)) {
+                if (colOption === 'amount' || colOption === 'amountKrn' || isMoneyCol || /[만천백]원$/.test(val)) {
+                    // 1. 한글 단위가 포함된 경우 또는 개별 옵션이 amountKrn인 경우
+                    if (colOption === 'amountKrn' || /[만천백]/.test(val)) {
                         const parsedValue = parseKoreanAmount(val);
                         if (parsedValue > 0) {
                             newRow[key] = parsedValue.toLocaleString('en-US');
@@ -235,7 +289,7 @@ export function processDataLocal(
                         }
                     }
 
-                    // 숫자만 추출
+                    // 2. 숫자만 추출
                     const digitsOnly = val.replace(/[^0-9.-]/g, '');
                     const num = parseFloat(digitsOnly);
                     if (!isNaN(num)) {
@@ -250,7 +304,8 @@ export function processDataLocal(
     }
 
     // 9. 이메일 정제 (Email)
-    if (options.cleanEmail || filterBy(['이메일', '메일', 'email'])) {
+    const hasEmailOptions = Object.values(columnOptions).includes('email');
+    if (options.cleanEmail || hasEmailOptions || filterBy(['이메일', '메일', 'email'])) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         processed = processed.map(row => {
             const newRow = { ...row };
@@ -258,7 +313,11 @@ export function processDataLocal(
                 if (lockedColumns.includes(key)) continue;
                 const val = String(newRow[key]).trim();
                 const lowerKey = key.toLowerCase();
-                if (lowerKey.includes('이메일') || lowerKey.includes('email') || val.includes('@')) {
+                const colOption = columnOptions[key];
+
+                const isEmailCol = lowerKey.includes('이메일') || lowerKey.includes('email') || val.includes('@');
+
+                if (colOption === 'email' || isEmailCol) {
                     if (val && !emailRegex.test(val)) {
                         newRow[key] = ''; // 유효하지 않은 이메일은 제거
                     }
@@ -271,27 +330,31 @@ export function processDataLocal(
     // 10. 우편번호 정제 (Zip Code)
     const normalizedZipPrompt = lowerPrompt.replace(/\s+/g, '');
     const hasZipKeyword = filterBy(['우편번호', 'zip', 'postal', '우편']);
+    const hasZipOptions = Object.values(columnOptions).includes('zip');
 
     // 프롬프트 해석 로직: "5자리 제거", "5자리 초과 삭제" 등
     const hasFive = filterBy(['5자리', '5자', '다섯자리', '5글자']) || normalizedZipPrompt.includes('5자리') || normalizedZipPrompt.includes('5자') || normalizedZipPrompt.includes('5');
     const hasOver = filterBy(['넘', '초과', '이상', '많']) || normalizedZipPrompt.includes('넘') || normalizedZipPrompt.includes('over');
     const hasClear = filterBy(['빈칸', '지워', '삭제', '제거', 'empty', 'clear']) || (filterBy(['변경', '바꿔', '처리']) && filterBy(['빈칸', '공백', 'empty']));
-
     const shouldClearLongZip = (hasFive && hasClear) || (hasFive && hasOver && hasClear);
 
-    if (options.formatZip || hasZipKeyword || (hasZipKeyword && shouldClearLongZip)) {
+    if (options.formatZip || hasZipKeyword || hasZipOptions || (hasZipKeyword && shouldClearLongZip)) {
         processed = processed.map(row => {
             const newRow = { ...row };
             for (const key in newRow) {
                 if (lockedColumns.includes(key)) continue;
                 const lowerKey = key.toLowerCase();
                 const normalizedKey = lowerKey.replace(/\s+/g, '');
-                if (normalizedKey.includes('우편번호') || normalizedKey.includes('우편') || lowerKey.includes('zip') || lowerKey.includes('postal')) {
+                const colOption = columnOptions[key];
+
+                const isZipCandidate = normalizedKey.includes('우편번호') || normalizedKey.includes('우편') || lowerKey.includes('zip') || lowerKey.includes('postal');
+
+                if (colOption === 'zip' || isZipCandidate) {
                     const val = String(newRow[key]).trim();
                     let onlyDigits = val.replace(/\D/g, '');
 
                     // 특정 조건 시 제거
-                    if (shouldClearLongZip && onlyDigits.length > 5) {
+                    if (shouldClearLongZip && onlyDigits.length > 5 && colOption !== 'zip') {
                         newRow[key] = '';
                         continue;
                     }
@@ -310,7 +373,82 @@ export function processDataLocal(
         });
     }
 
-    // 11. 매핑 및 치환 (Mapping) - 프롬프트 기반
+    // 11. 사업자/법인번호 정제 (Business/Corp Number)
+    const hasBizOptions = Object.values(columnOptions).some(v => v === 'bizNum' || v === 'corpNum');
+    if (options.formatBizNum || options.formatCorpNum || hasBizOptions || filterBy(['사업자', '법인', '등록번호', 'biz', 'corp'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                const lowerKey = key.toLowerCase();
+                const val = String(newRow[key]).trim();
+                const onlyDigits = val.replace(/[^0-9]/g, '');
+                const colOption = columnOptions[key];
+
+                // 사업자등록번호 (10자리)
+                if (colOption === 'bizNum' || options.formatBizNum || (filterBy(['사업자']) && !filterBy(['법인']))) {
+                    if (colOption === 'bizNum' || lowerKey.includes('사업자') || lowerKey.includes('biz')) {
+                        if (onlyDigits.length === 10) {
+                            newRow[key] = onlyDigits.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3');
+                        }
+                    }
+                }
+
+                // 법인등록번호 (13자리)
+                if (colOption === 'corpNum' || options.formatCorpNum || filterBy(['법인', 'corp'])) {
+                    if (colOption === 'corpNum' || lowerKey.includes('법인') || lowerKey.includes('corp')) {
+                        if (onlyDigits.length === 13) {
+                            newRow[key] = onlyDigits.replace(/(\d{6})(\d{7})/, '$1-$2');
+                        }
+                    }
+                }
+            }
+            return newRow;
+        });
+    }
+
+    // 12. URL 표준화 (URL Standardization)
+    const hasUrlOptions = Object.values(columnOptions).includes('url');
+    if (options.formatUrl || hasUrlOptions || filterBy(['url', '주소', '사이트', '홈페이지', 'web'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                const lowerKey = key.toLowerCase();
+                const colOption = columnOptions[key];
+
+                if (colOption === 'url' || lowerKey.includes('url') || lowerKey.includes('web') || lowerKey.includes('site') || lowerKey.includes('page')) {
+                    let val = String(newRow[key]).trim();
+                    if (val && !val.startsWith('http') && val.includes('.')) {
+                        newRow[key] = 'https://' + val;
+                    }
+                }
+            }
+            return newRow;
+        });
+    }
+
+    // 13. 개인정보 마스킹 (Privacy Masking)
+    const hasRrnOptions = Object.values(columnOptions).includes('rrn');
+    if (options.maskPersonalData || hasRrnOptions || filterBy(['마스킹', '가림', '숨김', 'mask', 'privacy', '주민번호'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                const val = String(newRow[key]).trim();
+                const colOption = columnOptions[key];
+
+                // 주민등록번호 패턴 (6자리-7자리) 또는 개별 설정인 경우
+                if (colOption === 'rrn' || /\d{6}[-.]?[1-4]\d{6}/.test(val)) {
+                    // 뒷자리 마스킹 (하이픈 유지/추가)
+                    newRow[key] = val.replace(/(\d{6})[-.]?([1-4])\d{6}/, '$1-$2******');
+                }
+            }
+            return newRow;
+        });
+    }
+
+    // 14. 매핑 및 치환 (Mapping) - 프롬프트 기반
     if (filterBy(['변경', '변환', '교체', '바꿔', '수정', '치환'])) {
         // "A는 B로 바꿔줘" 형태 파싱
         const mappingRegex = /([\[\]%A-Za-z0-9가-힣_\-]+)\s*(?:데이터|값|문구|텍스트|형식|패턴)?(?:\s*의)?\s*(?:데이터|값|문구|텍스트)?\s*(?:는|은|->|:|를|을)\s*([\[\]%A-Za-z0-9가-힣_\-\s]+)/g;
@@ -387,7 +525,7 @@ export function processDataLocal(
         }
     }
 
-    // 12. 가비지 데이터 제거 (Garbage Cleaning)
+    // 15. 가비지 데이터 제거 (Garbage Cleaning)
     if (options.cleanGarbage || filterBy(['가비지', '쓰레기', '의미없는', '깨진', 'garbage', 'noise'])) {
         processed = processed.map(row => {
             const newRow = { ...row };
@@ -402,7 +540,7 @@ export function processDataLocal(
         });
     }
 
-    // 13. 이름 데이터 정제 (Clean Name)
+    // 16. 이름 데이터 정제 (Clean Name)
     if (options.cleanName || (filterBy(['이름', '성함', '성명', '고객명']) && hasAction)) {
         processed = processed.map(row => {
             const newRow = { ...row };
@@ -418,6 +556,166 @@ export function processDataLocal(
                     if (cleaned !== val) {
                         newRow[key] = cleaned;
                     }
+                }
+            }
+            return newRow;
+        });
+    }
+    // 17. 업종별 특화 정제 (Industry Specific)
+
+    // (1) 운송장번호 정제 (Tracking Number)
+    const hasTrackingOptions = Object.values(columnOptions).includes('trackingNum');
+    if (options.formatTrackingNum || hasTrackingOptions || filterBy(['운송장', '송장', '택배번호', 'tracking'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                const colOption = columnOptions[key];
+                const isTrackingCol = /운송장|송장|택배/.test(key) || key.toLowerCase().includes('tracking');
+
+                if (colOption === 'trackingNum' || isTrackingCol) {
+                    let val = String(newRow[key]).trim();
+                    if (val.includes('E+') || val.includes('e+')) {
+                        const num = Number(val);
+                        if (!isNaN(num)) val = num.toString();
+                    }
+                    const onlyDigits = val.replace(/[^0-9]/g, '');
+                    if (onlyDigits.length > 5) {
+                        newRow[key] = onlyDigits;
+                    }
+                }
+            }
+            return newRow;
+        });
+    }
+
+    // (2) 주문번호 정제 (Order ID)
+    const hasOrderOptions = Object.values(columnOptions).includes('orderId');
+    if (options.cleanOrderId || hasOrderOptions || filterBy(['주문번호', '오더', 'order'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                const colOption = columnOptions[key];
+                const isOrderIdCol = /주문|오더|order/.test(key.toLowerCase());
+
+                if (colOption === 'orderId' || isOrderIdCol) {
+                    let val = String(newRow[key]).trim();
+                    const cleaned = val.replace(/[^a-zA-Z0-9]/g, '');
+                    if (cleaned.length > 0) newRow[key] = cleaned;
+                }
+            }
+            return newRow;
+        });
+    }
+
+    // (3) 세무용 날짜 (Tax Date) - YYYYMMDD
+    if (options.formatTaxDate || filterBy(['세무', '신고', '8자리', '홈택스'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                if (/날짜|일자|date|시간/.test(key.toLowerCase())) {
+                    let val = String(newRow[key]).trim();
+                    const digits = val.replace(/[^0-9]/g, '');
+                    if (digits.length === 8) {
+                        newRow[key] = digits; // 이미 8자리
+                    } else if (digits.length > 8 && digits.startsWith('20')) {
+                        newRow[key] = digits.substring(0, 8); // 시분초 제거
+                    }
+                }
+            }
+            return newRow;
+        });
+    }
+
+    // (4) 회계 음수 (Accounting Negative)
+    if (options.formatAccountingNum || filterBy(['회계', '음수', '괄호', '마이너스'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                let val = String(newRow[key]).trim();
+                // (1,000) or △1,000 패턴
+                if (/^\(.*\)$/.test(val) || /^[△▲]/.test(val)) {
+                    // 숫자와 점만 추출
+                    const cleanNum = val.replace(/[^0-9.]/g, '');
+                    if (cleanNum) {
+                        newRow[key] = '-' + cleanNum;
+                    }
+                }
+            }
+            return newRow;
+        });
+    }
+
+    // (5) 면적 단위 제거 (Real Estate Area)
+    const hasAreaOptions = Object.values(columnOptions).includes('area');
+    if (options.cleanAreaUnit || hasAreaOptions || filterBy(['면적', '평수', '제곱미터', 'm2', 'area'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                const colOption = columnOptions[key];
+                const isAreaCol = /면적|평|area|size/.test(key.toLowerCase());
+
+                if (colOption === 'area' || isAreaCol) {
+                    let val = String(newRow[key]).trim();
+                    const cleanNum = val.replace(/[^0-9.]/g, '');
+                    if (cleanNum && val.match(/[0-9]/)) {
+                        newRow[key] = cleanNum;
+                    }
+                }
+            }
+            return newRow;
+        });
+    }
+
+    // (6) SNS ID 추출 (Marketing)
+    const hasSnsOptions = Object.values(columnOptions).includes('snsId');
+    if (options.cleanSnsId || hasSnsOptions || filterBy(['아이디', '계정', 'id', 'sns'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                const colOption = columnOptions[key];
+                const isSnsCol = /id|아이디|계정|instagram|sns/.test(key.toLowerCase());
+
+                if (colOption === 'snsId' || isSnsCol) {
+                    let val = String(newRow[key]).trim();
+                    if (val.includes('/')) {
+                        const parts = val.split('/');
+                        val = parts[parts.length - 1] || parts[parts.length - 2];
+                    }
+                    val = val.replace('@', '');
+                    val = val.split('?')[0];
+
+                    if (val) newRow[key] = val;
+                }
+            }
+            return newRow;
+        });
+    }
+
+    // (7) 해시태그 표준화 (Marketing)
+    const hasHashtagOptions = Object.values(columnOptions).includes('hashtag');
+    if (options.formatHashtag || hasHashtagOptions || filterBy(['해시태그', '태그', 'tag', '키워드'])) {
+        processed = processed.map(row => {
+            const newRow = { ...row };
+            for (const key in newRow) {
+                if (lockedColumns.includes(key)) continue;
+                const colOption = columnOptions[key];
+                const isHashtagCol = /태그|tag|키워드/.test(key.toLowerCase());
+
+                if (colOption === 'hashtag' || isHashtagCol) {
+                    let val = String(newRow[key]).trim();
+                    if (!val) continue;
+
+                    const tags = val.split(/[,,\s]+/).filter(Boolean).map(t => {
+                        t = t.replace(/#/g, '');
+                        return '#' + t;
+                    });
+                    newRow[key] = tags.join(' ');
                 }
             }
             return newRow;

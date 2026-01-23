@@ -15,7 +15,7 @@ import { AnalysisReport } from '@/components/dashboard/AnalysisReport';
 import { ResultSummary } from '@/components/dashboard/ResultSummary';
 import { DataPreviewTable } from '@/components/dashboard/DataPreviewTable';
 import { DownloadSection } from '@/components/dashboard/DownloadSection';
-import { DonateModal, GuideModal, HelpModal, TermsModal, FixModal } from '@/components/dashboard/Modals';
+import { DonateModal, GuideModal, HelpModal, TermsModal, FixModal, FormatGuideModal } from '@/components/dashboard/Modals';
 
 export default function DataCleanDashboard() {
   // 1. Custom Hooks
@@ -40,7 +40,11 @@ export default function DataCleanDashboard() {
     updateHeader,
     toggleLock,
     updateColumnLimit,
-    setError
+    setError,
+    resetData,
+    detectedDateColumns,
+    columnOptions,
+    updateColumnOption
   } = useDataFlow();
 
   const { options, setOptions, prompt, setPrompt } = useCleaningOptions();
@@ -54,6 +58,7 @@ export default function DataCleanDashboard() {
   const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [formatGuideModalOpen, setFormatGuideModalOpen] = useState(false);
 
   // Fix Modal State
   const [fixModalOpen, setFixModalOpen] = useState(false);
@@ -135,7 +140,7 @@ export default function DataCleanDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
-      <Header />
+      <Header onOpenGuide={() => setFormatGuideModalOpen(true)} />
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -161,30 +166,27 @@ export default function DataCleanDashboard() {
               progress={progress}
               progressMessage={progressMessage}
               onProcess={handleProcess}
+              onReset={resetData}
               fileLoaded={!!file}
+              detectedDateColumns={detectedDateColumns}
+              columnOptions={columnOptions}
             />
 
-            <AnalysisReport
-              issues={issues}
-              showAllIssues={showAllIssues}
-              setShowAllIssues={setShowAllIssues}
-              filterIssue={filterIssue}
-              setFilterIssue={setFilterIssue}
-              onApplySuggestion={handleApplySuggestion}
-              onOpenFixModal={handleOpenFixModal}
-            />
+            {file && (
+              <>
+                <ResultSummary
+                  stats={stats}
+                  issues={issues}
+                  processedData={processedData}
+                  setIssues={setIssues}
+                />
 
-            <ResultSummary
-              stats={stats}
-              issues={issues}
-              processedData={processedData}
-              setIssues={setIssues}
-            />
-
-            <DownloadSection
-              handleDownload={handleDownload}
-              rowCount={processedData.length}
-            />
+                <DownloadSection
+                  handleDownload={handleDownload}
+                  rowCount={processedData.length}
+                />
+              </>
+            )}
           </div>
 
           {/* Right Panel: Data Preview */}
@@ -206,7 +208,24 @@ export default function DataCleanDashboard() {
               onHeaderRename={updateHeader}
               onCellUpdate={updateCell}
               filterIssue={filterIssue}
+              columnOptions={columnOptions}
+              onColumnOptionChange={updateColumnOption}
             />
+
+            {file && (
+              <div className="mt-8 animation-fade-in">
+                {/* Detailed Analysis Report */}
+                <AnalysisReport
+                  issues={issues}
+                  showAllIssues={showAllIssues}
+                  setShowAllIssues={setShowAllIssues}
+                  filterIssue={filterIssue}
+                  setFilterIssue={setFilterIssue}
+                  onApplySuggestion={handleApplySuggestion}
+                  onOpenFixModal={handleOpenFixModal}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -227,6 +246,7 @@ export default function DataCleanDashboard() {
         setHelpModalOpen={setHelpModalOpen}
         setGuideModalOpen={setGuideModalOpen}
         setDonateModalOpen={setDonateModalOpen}
+        setFormatGuideModalOpen={setFormatGuideModalOpen}
       />
 
       {/* Modals */}
@@ -234,6 +254,7 @@ export default function DataCleanDashboard() {
       <GuideModal open={guideModalOpen} onClose={() => setGuideModalOpen(false)} />
       <HelpModal open={helpModalOpen} onClose={() => setHelpModalOpen(false)} />
       <TermsModal open={termsModalOpen} onClose={() => setTermsModalOpen(false)} />
+      <FormatGuideModal open={formatGuideModalOpen} onClose={() => setFormatGuideModalOpen(false)} />
       <FixModal
         open={fixModalOpen}
         onClose={() => setFixModalOpen(false)}

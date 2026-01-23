@@ -1,10 +1,10 @@
-import { DataRow, ProcessingOptions } from '@/types';
+import { DataRow, ProcessingOptions, ColumnSpecificOptions } from '@/types';
 import { processDataLocal } from './core/processors';
 import { detectDataIssues, calculateDiffStats } from './core/analyzers';
 
 // Worker 메시지 타입 정의
 export type WorkerMessage =
-    | { type: 'PROCESS', data: DataRow[], prompt: string, options: ProcessingOptions, lockedColumns: string[], columnLimits: Record<string, number> };
+    | { type: 'PROCESS', data: DataRow[], prompt: string, options: ProcessingOptions, lockedColumns: string[], columnLimits: Record<string, number>, columnOptions: ColumnSpecificOptions };
 
 // Worker 응답 타입 정의
 export type WorkerResponse =
@@ -13,7 +13,7 @@ export type WorkerResponse =
     | { type: 'ERROR', error: string };
 
 self.onmessage = (e: MessageEvent<WorkerMessage>) => {
-    const { type, data, prompt, options, lockedColumns, columnLimits } = e.data;
+    const { type, data, prompt, options, lockedColumns, columnLimits, columnOptions } = e.data;
 
     if (type === 'PROCESS') {
         try {
@@ -22,7 +22,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
 
             // Step 2: Main Processing Logic (30%)
             self.postMessage({ type: 'PROGRESS', progress: 30, message: '데이터 정제 엔진 가동 중...' });
-            const processedData = processDataLocal(data, prompt, options, lockedColumns);
+            const processedData = processDataLocal(data, prompt, options, lockedColumns, columnOptions);
 
             // Step 3: Issue Detection (70%)
             self.postMessage({ type: 'PROGRESS', progress: 70, message: '데이터 무결성 검사 및 이슈 진단 중...' });

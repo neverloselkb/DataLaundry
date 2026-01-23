@@ -1,4 +1,5 @@
-import { Sparkles, FileUp, Bot, AlertCircle, RefreshCw, Github } from 'lucide-react';
+import { Sparkles, FileUp, Bot, AlertCircle, RefreshCw, Github, TableIcon } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -121,7 +122,189 @@ export function GuideModal({ open, onClose }: { open: boolean; onClose: () => vo
     );
 }
 
-// 3. Help Modal
+import { useState } from 'react';
+
+// ... (imports)
+
+// 3. Format Guide Modal
+export function FormatGuideModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+    const [activeTab, setActiveTab] = useState<'basic' | 'business' | 'industry' | 'faq'>('basic');
+
+    if (!open) return null;
+
+    const GuideTable = ({ items }: { items: { option: string; desc: string; input: string; output: string }[] }) => (
+        <div className="overflow-hidden rounded-lg border border-slate-200">
+            <table className="w-full text-sm text-left">
+                <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                    <tr>
+                        <th className="p-3 w-[20%]">옵션명</th>
+                        <th className="p-3 w-[30%]">설명</th>
+                        <th className="p-3 w-[25%] text-slate-500">Before</th>
+                        <th className="p-3 w-[25%] text-blue-600">After</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                    {items.map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50">
+                            <td className="p-3 font-medium text-slate-900">{item.option}</td>
+                            <td className="p-3 text-slate-600 text-xs">{item.desc}</td>
+                            <td className="p-3 text-slate-500 font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-[100px]" title={item.input}>{item.input}</td>
+                            <td className="p-3 text-blue-600 font-bold font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-[100px]" title={item.output}>{item.output}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+
+    const TabButton = ({ id, label }: { id: typeof activeTab; label: string }) => (
+        <button
+            onClick={() => setActiveTab(id)}
+            className={`flex-1 text-sm font-medium py-2 px-3 rounded-md transition-all ${activeTab === id
+                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
+                }`}
+        >
+            {label}
+        </button>
+    );
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-in fade-in duration-200 p-4">
+            <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-xl border-slate-200 animate-in zoom-in-95 duration-200 flex flex-col">
+                <CardHeader className="border-b border-slate-100 bg-slate-50/50 pb-4">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-xl flex items-center gap-2">
+                            <TableIcon size={20} className="text-blue-600" />
+                            데이터 형식 가이드
+                        </CardTitle>
+                        <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                        </Button>
+                    </div>
+                </CardHeader>
+
+                <div className="flex-1 flex flex-col overflow-hidden bg-white">
+                    <div className="border-b border-slate-200 px-6 pt-4 pb-0">
+                        {/* Priority Guide Alert */}
+                        <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-start gap-3">
+                            <div className="bg-blue-600 p-1 rounded-md text-white mt-0.5 shrink-0">
+                                <Sparkles size={14} />
+                            </div>
+                            <div>
+                                <h5 className="text-[11px] font-bold text-blue-900 mb-0.5">정제 우선순위 안내</h5>
+                                <p className="text-[10px] text-blue-800 leading-relaxed">
+                                    <span className="font-bold underlineDecoration-dashed">잠금(Lock)</span> &gt;
+                                    <span className="font-bold"> 개별 설정</span> &gt;
+                                    <span className="font-bold"> 전역 옵션(체크박스)</span> &gt;
+                                    <span className="font-bold text-blue-500"> 자동 감지</span> 순서로 적용됩니다.<br />
+                                    개별 컬럼에 포맷을 지정하면 전역 체크박스가 꺼져 있어도 해당 컬럼은 무조건 정제됩니다.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-slate-100 p-1 rounded-lg flex space-x-1 mb-4">
+                            <TabButton id="basic" label="기본/포맷팅" />
+                            <TabButton id="business" label="비즈니스" />
+                            <TabButton id="industry" label="업종 특화 (NEW)" />
+                            <TabButton id="faq" label="자연어 예시" />
+                        </div>
+                    </div>
+
+                    <div className="p-6 overflow-y-auto flex-1">
+                        {activeTab === 'basic' && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <h4 className="font-bold text-slate-800 flex items-center gap-2">
+                                    🛠 기본 및 포맷팅 (Basic Formatting)
+                                </h4>
+                                <GuideTable items={[
+                                    { option: "공백 제거", desc: "앞뒤 공백만 제거", input: "  홍길동  ", output: "홍길동" },
+                                    { option: "날짜 형식", desc: "YYYY.MM.DD 통일", input: "2024-1-1", output: "2024.01.01" },
+                                    { option: "일시 형식", desc: "초 포함 YYYY.MM.DD HH:mm:ss", input: "24/1/1 9:30", output: "2024.01.01 09:30:00" },
+                                    { option: "숫자 콤마", desc: "천단위 구분 기호", input: "1234500", output: "1,234,500" },
+                                    { option: "우편번호", desc: "잘못된 자릿수 정리 (5자리)", input: "123-456", output: "12345" },
+                                ]} />
+                            </div>
+                        )}
+
+                        {activeTab === 'business' && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <h4 className="font-bold text-slate-800 flex items-center gap-2">
+                                    💼 비즈니스 & 연락처 (Business)
+                                </h4>
+                                <GuideTable items={[
+                                    { option: "휴대폰 번호", desc: "하이픈 규격화", input: "01012345678", output: "010-1234-5678" },
+                                    { option: "유선전화", desc: "지역번호 포함 포맷", input: "021234567", output: "02-123-4567" },
+                                    { option: "사업자번호", desc: "10자리 하이픈", input: "1234567890", output: "123-45-67890" },
+                                    { option: "법인번호", desc: "13자리 하이픈", input: "1101111234567", output: "110111-1234567" },
+                                    { option: "URL 표준화", desc: "https:// 프로토콜 추가", input: "www.naver.com", output: "https://www.naver.com" },
+                                    { option: "개인정보 마스킹", desc: "주민번호 뒷자리 가림", input: "990101-1234567", output: "990101-*******" },
+                                ]} />
+                            </div>
+                        )}
+
+                        {activeTab === 'industry' && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <h4 className="font-bold text-slate-800 flex items-center gap-2">
+                                    🏭 업종별 특화 (Industry Specific)
+                                </h4>
+                                <GuideTable items={[
+                                    { option: "운송장번호 (쇼핑몰)", desc: "지수 표기 제거, 숫자만", input: "1.23E+11, 12-34", output: "123000000000, 1234" },
+                                    { option: "주문번호 (쇼핑몰)", desc: "특수문자 제거", input: "ORDER_#001", output: "ORDER001" },
+                                    { option: "세무용 날짜 (세무)", desc: "8자리 YYYYMMDD", input: "2024-01-01", output: "20240101" },
+                                    { option: "회계 음수 (재무)", desc: "괄호/세모 -> 마이너스", input: "(1,000), △500", output: "-1000, -500" },
+                                    { option: "면적 단위 제거 (부동산)", desc: "평, ㎡ 제거 후 숫자화", input: "32평, 84㎡", output: "32, 84" },
+                                    { option: "SNS ID (마케팅)", desc: "URL/@ 제거", input: "instagram.com/user, @id", output: "user, id" },
+                                    { option: "해시태그 (마케팅)", desc: "공백->언더바, # 추가", input: "맛집 추천", output: "#맛집_추천" },
+                                ]} />
+                            </div>
+                        )}
+
+                        {activeTab === 'faq' && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                                    <h5 className="font-bold text-blue-900 mb-2">💬 자연어 처리 예시</h5>
+                                    <p className="text-sm text-blue-800 mb-4">
+                                        복잡한 설정 없이, 채팅창에 말하듯이 입력하면 AI가 자동으로 의도를 파악합니다.
+                                    </p>
+                                    <ul className="space-y-2 text-sm text-slate-700">
+                                        <li className="flex gap-2 items-start">
+                                            <span className="text-blue-500 font-bold">Q.</span>
+                                            <span>"운송장번호가 엑셀에서 E+11 처럼 깨져요."</span>
+                                        </li>
+                                        <li className="flex gap-2 items-start mb-2">
+                                            <span className="text-green-600 font-bold">A.</span>
+                                            <span className="bg-white px-2 py-0.5 rounded border border-slate-200 text-xs text-slate-500 font-mono">formatTrackingNum</span>
+                                            <span>옵션이 자동 적용되어 숫자로 변환됩니다.</span>
+                                        </li>
+                                        <hr className="border-blue-200/50" />
+                                        <li className="flex gap-2 items-start">
+                                            <span className="text-blue-500 font-bold">Q.</span>
+                                            <span>"세무 신고해야 하는데 날짜 8자리로 바꾸고 싶어."</span>
+                                        </li>
+                                        <li className="flex gap-2 items-start">
+                                            <span className="text-green-600 font-bold">A.</span>
+                                            <span className="bg-white px-2 py-0.5 rounded border border-slate-200 text-xs text-slate-500 font-mono">formatTaxDate</span>
+                                            <span>옵션이 켜지며 "20240101" 형태로 변환됩니다.</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <CardFooter className="border-t border-slate-100 bg-slate-50/50 p-4 flex justify-end">
+                    <Button onClick={onClose} className="bg-slate-900 hover:bg-slate-800 text-white px-8">
+                        확인 완료
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
+    );
+}
+
+// 4. Help Modal
 export function HelpModal({ open, onClose }: { open: boolean; onClose: () => void }) {
     if (!open) return null;
     return (

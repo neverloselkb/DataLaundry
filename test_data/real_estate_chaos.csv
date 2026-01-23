@@ -1,0 +1,1001 @@
+PropertyName,Type,SupplyArea,Price
+Property 0,Apartment,"86.48m2",1600000000
+Property 1,Apartment,"18.1py",1300000000
+Property 2,Apartment,"84.25m2",1800000000
+Property 3,Apartment,"116.50m2",1600000000
+Property 4,Apartment,"41.8평",2000000000
+Property 5,Apartment,"139.83 sqm",900000000
+Property 6,Apartment,"137.24m2",2000000000
+Property 7,Apartment,"84.22",1000000000
+Property 8,Apartment,"63.01",700000000
+Property 9,Apartment,"42.0py",1000000000
+Property 10,Apartment,"137.32",1000000000
+Property 11,Apartment,"34.3평",800000000
+Property 12,Apartment,"61.07 sqm",1500000000
+Property 13,Apartment,"34.1평",700000000
+Property 14,Apartment,"86.20 sqm",1400000000
+Property 15,Apartment,"25.6py",1200000000
+Property 16,Apartment,"60.39",1600000000
+Property 17,Apartment,"63.14m2",700000000
+Property 18,Apartment,"138.74",1500000000
+Property 19,Apartment,"41.0평",500000000
+Property 20,Apartment,"139.74 sqm",1500000000
+Property 21,Apartment,"114.38m2",1400000000
+Property 22,Apartment,"18.4py",1800000000
+Property 23,Apartment,"84.59m2",1100000000
+Property 24,Apartment,"26.0py",2000000000
+Property 25,Apartment,"88.10m2",2000000000
+Property 26,Apartment,"63.86 sqm",1200000000
+Property 27,Apartment,"35.4py",1700000000
+Property 28,Apartment,"63.17 sqm",1700000000
+Property 29,Apartment,"35.4평",500000000
+Property 30,Apartment,"41.7평",1900000000
+Property 31,Apartment,"25.6평",2000000000
+Property 32,Apartment,"85.79m2",1600000000
+Property 33,Apartment,"85.14",700000000
+Property 34,Apartment,"59.13 sqm",900000000
+Property 35,Apartment,"85.41m2",1500000000
+Property 36,Apartment,"139.53m2",1700000000
+Property 37,Apartment,"34.2py",1100000000
+Property 38,Apartment,"42.3py",1600000000
+Property 39,Apartment,"19.0평",1100000000
+Property 40,Apartment,"85.67 sqm",1100000000
+Property 41,Apartment,"84.12",1300000000
+Property 42,Apartment,"115.23m2",1800000000
+Property 43,Apartment,"35.1평",1600000000
+Property 44,Apartment,"87.28",1500000000
+Property 45,Apartment,"115.79m2",1400000000
+Property 46,Apartment,"116.83 sqm",1100000000
+Property 47,Apartment,"18.5평",900000000
+Property 48,Apartment,"135.20 sqm",1100000000
+Property 49,Apartment,"41.2평",1700000000
+Property 50,Apartment,"88.75",1800000000
+Property 51,Apartment,"34.8py",2000000000
+Property 52,Apartment,"26.3py",1900000000
+Property 53,Apartment,"139.22m2",900000000
+Property 54,Apartment,"25.7py",500000000
+Property 55,Apartment,"40.9평",800000000
+Property 56,Apartment,"139.73m2",2000000000
+Property 57,Apartment,"84.80",900000000
+Property 58,Apartment,"113.97 sqm",1800000000
+Property 59,Apartment,"25.7평",1200000000
+Property 60,Apartment,"138.11m2",1100000000
+Property 61,Apartment,"87.02m2",800000000
+Property 62,Apartment,"135.54m2",1600000000
+Property 63,Apartment,"137.13",700000000
+Property 64,Apartment,"42.1py",1600000000
+Property 65,Apartment,"60.33 sqm",2000000000
+Property 66,Apartment,"41.5py",600000000
+Property 67,Apartment,"34.5평",1700000000
+Property 68,Apartment,"60.03",1500000000
+Property 69,Apartment,"137.70",1100000000
+Property 70,Apartment,"63.51",700000000
+Property 71,Apartment,"34.8평",1600000000
+Property 72,Apartment,"112.38 sqm",1900000000
+Property 73,Apartment,"136.82",1000000000
+Property 74,Apartment,"60.39 sqm",700000000
+Property 75,Apartment,"112.40 sqm",600000000
+Property 76,Apartment,"85.39m2",1200000000
+Property 77,Apartment,"26.4평",800000000
+Property 78,Apartment,"62.51",900000000
+Property 79,Apartment,"18.3평",800000000
+Property 80,Apartment,"112.29 sqm",1900000000
+Property 81,Apartment,"84.83 sqm",2000000000
+Property 82,Apartment,"135.20m2",1400000000
+Property 83,Apartment,"25.8py",1000000000
+Property 84,Apartment,"41.6평",1000000000
+Property 85,Apartment,"25.9평",900000000
+Property 86,Apartment,"139.45 sqm",600000000
+Property 87,Apartment,"137.77",1300000000
+Property 88,Apartment,"34.1py",1100000000
+Property 89,Apartment,"59.26m2",1500000000
+Property 90,Apartment,"19.3평",1200000000
+Property 91,Apartment,"84.59",1600000000
+Property 92,Apartment,"26.3py",500000000
+Property 93,Apartment,"137.88 sqm",1800000000
+Property 94,Apartment,"35.0py",1500000000
+Property 95,Apartment,"113.15 sqm",1100000000
+Property 96,Apartment,"88.20",1000000000
+Property 97,Apartment,"86.51",800000000
+Property 98,Apartment,"41.9py",1300000000
+Property 99,Apartment,"115.39 sqm",1400000000
+Property 100,Apartment,"115.36m2",1900000000
+Property 101,Apartment,"86.41 sqm",1300000000
+Property 102,Apartment,"135.81 sqm",1000000000
+Property 103,Apartment,"116.95",1100000000
+Property 104,Apartment,"41.0평",1100000000
+Property 105,Apartment,"112.39 sqm",1400000000
+Property 106,Apartment,"112.48",1300000000
+Property 107,Apartment,"26.4py",1700000000
+Property 108,Apartment,"62.13",700000000
+Property 109,Apartment,"115.91",1600000000
+Property 110,Apartment,"139.94 sqm",1100000000
+Property 111,Apartment,"41.2py",1200000000
+Property 112,Apartment,"112.27 sqm",700000000
+Property 113,Apartment,"17.9평",1400000000
+Property 114,Apartment,"115.36 sqm",1000000000
+Property 115,Apartment,"84.96",1000000000
+Property 116,Apartment,"115.55m2",600000000
+Property 117,Apartment,"34.8py",1100000000
+Property 118,Apartment,"112.20m2",900000000
+Property 119,Apartment,"135.47m2",1700000000
+Property 120,Apartment,"135.24",800000000
+Property 121,Apartment,"25.8py",500000000
+Property 122,Apartment,"135.25",700000000
+Property 123,Apartment,"42.4평",1300000000
+Property 124,Apartment,"86.05 sqm",1300000000
+Property 125,Apartment,"86.42",800000000
+Property 126,Apartment,"26.8평",1200000000
+Property 127,Apartment,"136.88m2",1200000000
+Property 128,Apartment,"41.5평",1800000000
+Property 129,Apartment,"18.9평",1400000000
+Property 130,Apartment,"138.57m2",900000000
+Property 131,Apartment,"42.4평",1500000000
+Property 132,Apartment,"61.08m2",1900000000
+Property 133,Apartment,"138.81m2",1800000000
+Property 134,Apartment,"62.91",700000000
+Property 135,Apartment,"113.83 sqm",700000000
+Property 136,Apartment,"41.0평",1700000000
+Property 137,Apartment,"25.7평",1000000000
+Property 138,Apartment,"114.60 sqm",800000000
+Property 139,Apartment,"112.93 sqm",1800000000
+Property 140,Apartment,"63.37 sqm",800000000
+Property 141,Apartment,"115.84m2",1900000000
+Property 142,Apartment,"138.30 sqm",700000000
+Property 143,Apartment,"139.09 sqm",600000000
+Property 144,Apartment,"135.28m2",1300000000
+Property 145,Apartment,"85.36",1200000000
+Property 146,Apartment,"88.02m2",900000000
+Property 147,Apartment,"60.72",600000000
+Property 148,Apartment,"26.1py",1000000000
+Property 149,Apartment,"138.13",1600000000
+Property 150,Apartment,"25.5평",800000000
+Property 151,Apartment,"63.34m2",1100000000
+Property 152,Apartment,"26.6py",2000000000
+Property 153,Apartment,"26.0py",1100000000
+Property 154,Apartment,"59.77m2",1900000000
+Property 155,Apartment,"88.93m2",1800000000
+Property 156,Apartment,"25.8평",800000000
+Property 157,Apartment,"139.59 sqm",900000000
+Property 158,Apartment,"60.95m2",2000000000
+Property 159,Apartment,"135.59",1000000000
+Property 160,Apartment,"84.84 sqm",1900000000
+Property 161,Apartment,"34.9py",500000000
+Property 162,Apartment,"19.4py",900000000
+Property 163,Apartment,"26.9평",900000000
+Property 164,Apartment,"42.3평",700000000
+Property 165,Apartment,"113.83 sqm",700000000
+Property 166,Apartment,"41.2평",1200000000
+Property 167,Apartment,"136.88m2",900000000
+Property 168,Apartment,"25.7py",1700000000
+Property 169,Apartment,"18.9py",1800000000
+Property 170,Apartment,"113.87",500000000
+Property 171,Apartment,"60.10 sqm",1500000000
+Property 172,Apartment,"139.84 sqm",900000000
+Property 173,Apartment,"137.48",1300000000
+Property 174,Apartment,"63.00",1800000000
+Property 175,Apartment,"114.43",1200000000
+Property 176,Apartment,"138.25",900000000
+Property 177,Apartment,"113.25",1600000000
+Property 178,Apartment,"87.00 sqm",1200000000
+Property 179,Apartment,"136.60",1000000000
+Property 180,Apartment,"35.1평",500000000
+Property 181,Apartment,"18.4py",1800000000
+Property 182,Apartment,"34.2평",600000000
+Property 183,Apartment,"60.16m2",2000000000
+Property 184,Apartment,"41.6평",500000000
+Property 185,Apartment,"139.39 sqm",900000000
+Property 186,Apartment,"42.1py",2000000000
+Property 187,Apartment,"25.6py",800000000
+Property 188,Apartment,"63.39",1400000000
+Property 189,Apartment,"19.0평",1900000000
+Property 190,Apartment,"62.27 sqm",1500000000
+Property 191,Apartment,"60.29",1200000000
+Property 192,Apartment,"42.3py",1200000000
+Property 193,Apartment,"139.59",1800000000
+Property 194,Apartment,"87.17",1800000000
+Property 195,Apartment,"88.96",700000000
+Property 196,Apartment,"18.6평",1000000000
+Property 197,Apartment,"41.4평",1300000000
+Property 198,Apartment,"26.7py",1300000000
+Property 199,Apartment,"41.6py",1100000000
+Property 200,Apartment,"88.72m2",900000000
+Property 201,Apartment,"26.2py",500000000
+Property 202,Apartment,"41.0py",1000000000
+Property 203,Apartment,"63.03m2",1600000000
+Property 204,Apartment,"41.4평",1100000000
+Property 205,Apartment,"88.18",1300000000
+Property 206,Apartment,"112.11m2",1800000000
+Property 207,Apartment,"85.36m2",2000000000
+Property 208,Apartment,"18.6평",600000000
+Property 209,Apartment,"137.71 sqm",1700000000
+Property 210,Apartment,"88.96 sqm",1000000000
+Property 211,Apartment,"113.19",1200000000
+Property 212,Apartment,"137.72",800000000
+Property 213,Apartment,"35.4py",1300000000
+Property 214,Apartment,"19.0평",1600000000
+Property 215,Apartment,"112.49",1800000000
+Property 216,Apartment,"85.85",600000000
+Property 217,Apartment,"59.42 sqm",1400000000
+Property 218,Apartment,"63.43 sqm",500000000
+Property 219,Apartment,"113.62",1200000000
+Property 220,Apartment,"112.61 sqm",1900000000
+Property 221,Apartment,"34.5평",1700000000
+Property 222,Apartment,"59.54 sqm",2000000000
+Property 223,Apartment,"41.3평",1800000000
+Property 224,Apartment,"18.7py",1900000000
+Property 225,Apartment,"113.12",1100000000
+Property 226,Apartment,"135.57m2",1000000000
+Property 227,Apartment,"34.1py",900000000
+Property 228,Apartment,"25.8py",1300000000
+Property 229,Apartment,"112.54",1300000000
+Property 230,Apartment,"114.35",900000000
+Property 231,Apartment,"137.24",1700000000
+Property 232,Apartment,"26.7py",1200000000
+Property 233,Apartment,"136.57 sqm",700000000
+Property 234,Apartment,"19.2평",800000000
+Property 235,Apartment,"26.9py",1400000000
+Property 236,Apartment,"88.32 sqm",800000000
+Property 237,Apartment,"19.0py",600000000
+Property 238,Apartment,"113.92m2",1000000000
+Property 239,Apartment,"84.06",800000000
+Property 240,Apartment,"26.5py",1900000000
+Property 241,Apartment,"19.4평",1200000000
+Property 242,Apartment,"41.6py",1200000000
+Property 243,Apartment,"84.98m2",700000000
+Property 244,Apartment,"34.5py",1900000000
+Property 245,Apartment,"18.0평",600000000
+Property 246,Apartment,"113.11",600000000
+Property 247,Apartment,"113.32",2000000000
+Property 248,Apartment,"60.01",700000000
+Property 249,Apartment,"135.01 sqm",1400000000
+Property 250,Apartment,"25.5py",1700000000
+Property 251,Apartment,"18.1py",1600000000
+Property 252,Apartment,"26.5평",1500000000
+Property 253,Apartment,"59.49 sqm",1500000000
+Property 254,Apartment,"60.57 sqm",1100000000
+Property 255,Apartment,"59.66 sqm",1500000000
+Property 256,Apartment,"26.7평",1600000000
+Property 257,Apartment,"135.81m2",1800000000
+Property 258,Apartment,"34.4py",1900000000
+Property 259,Apartment,"18.7py",1900000000
+Property 260,Apartment,"139.75m2",1700000000
+Property 261,Apartment,"42.2py",1200000000
+Property 262,Apartment,"35.3py",1800000000
+Property 263,Apartment,"88.64m2",1100000000
+Property 264,Apartment,"88.63 sqm",1700000000
+Property 265,Apartment,"63.12",1500000000
+Property 266,Apartment,"84.84m2",500000000
+Property 267,Apartment,"63.80 sqm",1800000000
+Property 268,Apartment,"62.68",800000000
+Property 269,Apartment,"87.62 sqm",1800000000
+Property 270,Apartment,"60.60",1300000000
+Property 271,Apartment,"116.81m2",800000000
+Property 272,Apartment,"60.36 sqm",1400000000
+Property 273,Apartment,"41.4py",1900000000
+Property 274,Apartment,"136.88m2",1400000000
+Property 275,Apartment,"115.49m2",1500000000
+Property 276,Apartment,"112.61 sqm",500000000
+Property 277,Apartment,"112.57m2",900000000
+Property 278,Apartment,"115.22",1200000000
+Property 279,Apartment,"26.8평",500000000
+Property 280,Apartment,"112.43",1600000000
+Property 281,Apartment,"34.6py",1500000000
+Property 282,Apartment,"139.68",1500000000
+Property 283,Apartment,"63.04",1500000000
+Property 284,Apartment,"137.12 sqm",1000000000
+Property 285,Apartment,"61.67m2",1600000000
+Property 286,Apartment,"34.8py",1800000000
+Property 287,Apartment,"34.5평",1100000000
+Property 288,Apartment,"19.4평",1600000000
+Property 289,Apartment,"137.08m2",1900000000
+Property 290,Apartment,"25.7py",1400000000
+Property 291,Apartment,"87.01",800000000
+Property 292,Apartment,"61.28m2",600000000
+Property 293,Apartment,"113.44 sqm",600000000
+Property 294,Apartment,"139.75 sqm",1500000000
+Property 295,Apartment,"41.9평",1700000000
+Property 296,Apartment,"60.40",1500000000
+Property 297,Apartment,"135.82",1500000000
+Property 298,Apartment,"113.98m2",900000000
+Property 299,Apartment,"116.22m2",1500000000
+Property 300,Apartment,"26.4평",500000000
+Property 301,Apartment,"42.1py",1200000000
+Property 302,Apartment,"41.1평",1300000000
+Property 303,Apartment,"84.33",1300000000
+Property 304,Apartment,"18.1py",1200000000
+Property 305,Apartment,"42.2평",1600000000
+Property 306,Apartment,"33.9py",800000000
+Property 307,Apartment,"42.4py",1200000000
+Property 308,Apartment,"19.3평",1500000000
+Property 309,Apartment,"112.77",1800000000
+Property 310,Apartment,"61.87m2",900000000
+Property 311,Apartment,"18.8py",2000000000
+Property 312,Apartment,"41.7py",1400000000
+Property 313,Apartment,"26.6평",1800000000
+Property 314,Apartment,"26.4평",1100000000
+Property 315,Apartment,"42.2평",1900000000
+Property 316,Apartment,"34.5py",1100000000
+Property 317,Apartment,"34.7py",1700000000
+Property 318,Apartment,"42.1py",700000000
+Property 319,Apartment,"62.25m2",1600000000
+Property 320,Apartment,"114.23m2",600000000
+Property 321,Apartment,"88.41m2",900000000
+Property 322,Apartment,"61.46m2",1800000000
+Property 323,Apartment,"85.69",1900000000
+Property 324,Apartment,"62.25",1600000000
+Property 325,Apartment,"42.0py",1100000000
+Property 326,Apartment,"35.4평",2000000000
+Property 327,Apartment,"86.93m2",1100000000
+Property 328,Apartment,"136.04m2",2000000000
+Property 329,Apartment,"41.9py",1600000000
+Property 330,Apartment,"61.19 sqm",800000000
+Property 331,Apartment,"135.46",1800000000
+Property 332,Apartment,"135.11 sqm",1800000000
+Property 333,Apartment,"42.4py",1900000000
+Property 334,Apartment,"116.97 sqm",1600000000
+Property 335,Apartment,"26.5py",1400000000
+Property 336,Apartment,"85.93m2",1000000000
+Property 337,Apartment,"116.22",800000000
+Property 338,Apartment,"41.4py",1700000000
+Property 339,Apartment,"41.8py",1100000000
+Property 340,Apartment,"86.22m2",1100000000
+Property 341,Apartment,"86.45",1600000000
+Property 342,Apartment,"63.10",1300000000
+Property 343,Apartment,"84.62 sqm",1800000000
+Property 344,Apartment,"139.10",1200000000
+Property 345,Apartment,"62.57m2",1800000000
+Property 346,Apartment,"25.7평",600000000
+Property 347,Apartment,"61.39 sqm",2000000000
+Property 348,Apartment,"61.93 sqm",1300000000
+Property 349,Apartment,"62.82m2",1000000000
+Property 350,Apartment,"135.57m2",700000000
+Property 351,Apartment,"139.53m2",1800000000
+Property 352,Apartment,"19.0py",500000000
+Property 353,Apartment,"136.01",900000000
+Property 354,Apartment,"86.40 sqm",1800000000
+Property 355,Apartment,"41.3py",900000000
+Property 356,Apartment,"63.06m2",2000000000
+Property 357,Apartment,"137.70",1700000000
+Property 358,Apartment,"112.04",1500000000
+Property 359,Apartment,"62.42",1100000000
+Property 360,Apartment,"116.93",1100000000
+Property 361,Apartment,"26.7py",600000000
+Property 362,Apartment,"62.96",1000000000
+Property 363,Apartment,"34.0py",1400000000
+Property 364,Apartment,"135.36m2",600000000
+Property 365,Apartment,"25.9py",1700000000
+Property 366,Apartment,"113.41 sqm",1800000000
+Property 367,Apartment,"62.74",1700000000
+Property 368,Apartment,"86.77m2",1300000000
+Property 369,Apartment,"138.36",1100000000
+Property 370,Apartment,"62.92m2",500000000
+Property 371,Apartment,"18.8py",1200000000
+Property 372,Apartment,"87.85",1400000000
+Property 373,Apartment,"25.7평",1200000000
+Property 374,Apartment,"42.1py",1700000000
+Property 375,Apartment,"19.2py",800000000
+Property 376,Apartment,"63.41 sqm",500000000
+Property 377,Apartment,"42.4py",1300000000
+Property 378,Apartment,"26.4평",700000000
+Property 379,Apartment,"84.08",1700000000
+Property 380,Apartment,"137.51",500000000
+Property 381,Apartment,"84.02",2000000000
+Property 382,Apartment,"63.03 sqm",1500000000
+Property 383,Apartment,"41.7py",800000000
+Property 384,Apartment,"137.53 sqm",1600000000
+Property 385,Apartment,"25.7평",1600000000
+Property 386,Apartment,"18.7평",1600000000
+Property 387,Apartment,"19.2py",1600000000
+Property 388,Apartment,"137.80m2",1100000000
+Property 389,Apartment,"59.83m2",1300000000
+Property 390,Apartment,"62.93 sqm",1100000000
+Property 391,Apartment,"41.6평",1200000000
+Property 392,Apartment,"137.31 sqm",1100000000
+Property 393,Apartment,"19.0py",700000000
+Property 394,Apartment,"26.5평",600000000
+Property 395,Apartment,"59.33",900000000
+Property 396,Apartment,"113.53 sqm",1500000000
+Property 397,Apartment,"85.76",900000000
+Property 398,Apartment,"34.1평",500000000
+Property 399,Apartment,"115.28m2",1600000000
+Property 400,Apartment,"88.20 sqm",700000000
+Property 401,Apartment,"26.8py",1000000000
+Property 402,Apartment,"112.69m2",800000000
+Property 403,Apartment,"25.9평",600000000
+Property 404,Apartment,"41.2평",1900000000
+Property 405,Apartment,"85.32m2",900000000
+Property 406,Apartment,"139.08m2",1000000000
+Property 407,Apartment,"85.56 sqm",1400000000
+Property 408,Apartment,"25.5평",1600000000
+Property 409,Apartment,"41.7평",2000000000
+Property 410,Apartment,"114.58m2",1200000000
+Property 411,Apartment,"84.38m2",1200000000
+Property 412,Apartment,"61.86m2",1100000000
+Property 413,Apartment,"136.43m2",1300000000
+Property 414,Apartment,"60.40 sqm",700000000
+Property 415,Apartment,"116.50m2",1500000000
+Property 416,Apartment,"114.50m2",1400000000
+Property 417,Apartment,"26.7py",700000000
+Property 418,Apartment,"61.85",1700000000
+Property 419,Apartment,"116.49m2",1900000000
+Property 420,Apartment,"88.03m2",2000000000
+Property 421,Apartment,"85.63",1200000000
+Property 422,Apartment,"136.25m2",700000000
+Property 423,Apartment,"34.2평",1000000000
+Property 424,Apartment,"60.69",1000000000
+Property 425,Apartment,"41.0py",1900000000
+Property 426,Apartment,"114.93 sqm",700000000
+Property 427,Apartment,"136.62 sqm",1700000000
+Property 428,Apartment,"113.75m2",1300000000
+Property 429,Apartment,"41.8py",1900000000
+Property 430,Apartment,"116.56",1000000000
+Property 431,Apartment,"63.85",1600000000
+Property 432,Apartment,"34.8py",800000000
+Property 433,Apartment,"114.92",1100000000
+Property 434,Apartment,"113.63",1000000000
+Property 435,Apartment,"116.78m2",2000000000
+Property 436,Apartment,"115.87",600000000
+Property 437,Apartment,"35.1py",1900000000
+Property 438,Apartment,"60.84m2",2000000000
+Property 439,Apartment,"35.5평",1900000000
+Property 440,Apartment,"116.96m2",1800000000
+Property 441,Apartment,"41.7평",1700000000
+Property 442,Apartment,"27.0평",1900000000
+Property 443,Apartment,"88.25m2",1700000000
+Property 444,Apartment,"60.07m2",1400000000
+Property 445,Apartment,"34.1py",1700000000
+Property 446,Apartment,"113.53m2",1400000000
+Property 447,Apartment,"116.93m2",1400000000
+Property 448,Apartment,"138.29m2",500000000
+Property 449,Apartment,"42.2평",1900000000
+Property 450,Apartment,"139.98",1600000000
+Property 451,Apartment,"18.8py",500000000
+Property 452,Apartment,"116.83m2",1700000000
+Property 453,Apartment,"59.96m2",1700000000
+Property 454,Apartment,"42.1py",1600000000
+Property 455,Apartment,"87.69 sqm",600000000
+Property 456,Apartment,"42.0평",1000000000
+Property 457,Apartment,"42.4평",1800000000
+Property 458,Apartment,"41.3py",1500000000
+Property 459,Apartment,"116.09 sqm",1200000000
+Property 460,Apartment,"137.41m2",1500000000
+Property 461,Apartment,"88.73",1900000000
+Property 462,Apartment,"84.91m2",1800000000
+Property 463,Apartment,"139.57m2",1900000000
+Property 464,Apartment,"136.72 sqm",500000000
+Property 465,Apartment,"87.18",1600000000
+Property 466,Apartment,"42.2평",1100000000
+Property 467,Apartment,"84.49 sqm",1900000000
+Property 468,Apartment,"116.32",1600000000
+Property 469,Apartment,"34.2py",800000000
+Property 470,Apartment,"25.9py",1900000000
+Property 471,Apartment,"42.3py",1600000000
+Property 472,Apartment,"40.9py",1500000000
+Property 473,Apartment,"138.29 sqm",1500000000
+Property 474,Apartment,"25.5평",1300000000
+Property 475,Apartment,"84.97 sqm",700000000
+Property 476,Apartment,"85.73",1500000000
+Property 477,Apartment,"85.85m2",1900000000
+Property 478,Apartment,"35.2평",1200000000
+Property 479,Apartment,"25.9평",1100000000
+Property 480,Apartment,"35.4py",1000000000
+Property 481,Apartment,"61.85m2",1900000000
+Property 482,Apartment,"59.31",1500000000
+Property 483,Apartment,"42.3py",1600000000
+Property 484,Apartment,"137.91 sqm",1400000000
+Property 485,Apartment,"87.09 sqm",2000000000
+Property 486,Apartment,"18.8평",1900000000
+Property 487,Apartment,"116.93 sqm",1800000000
+Property 488,Apartment,"84.87m2",1400000000
+Property 489,Apartment,"85.94 sqm",1900000000
+Property 490,Apartment,"86.02 sqm",1200000000
+Property 491,Apartment,"139.87",2000000000
+Property 492,Apartment,"40.9평",900000000
+Property 493,Apartment,"114.54 sqm",900000000
+Property 494,Apartment,"18.8py",1700000000
+Property 495,Apartment,"136.35",1500000000
+Property 496,Apartment,"63.95",1300000000
+Property 497,Apartment,"84.47m2",1700000000
+Property 498,Apartment,"137.67 sqm",1700000000
+Property 499,Apartment,"41.2py",600000000
+Property 500,Apartment,"41.2평",1800000000
+Property 501,Apartment,"112.40",600000000
+Property 502,Apartment,"18.1py",500000000
+Property 503,Apartment,"60.56 sqm",700000000
+Property 504,Apartment,"62.35",2000000000
+Property 505,Apartment,"62.45 sqm",1600000000
+Property 506,Apartment,"114.29m2",1400000000
+Property 507,Apartment,"114.27 sqm",700000000
+Property 508,Apartment,"34.0py",2000000000
+Property 509,Apartment,"34.3py",2000000000
+Property 510,Apartment,"138.63m2",2000000000
+Property 511,Apartment,"26.4py",1900000000
+Property 512,Apartment,"62.05m2",1100000000
+Property 513,Apartment,"87.80",1400000000
+Property 514,Apartment,"34.8py",800000000
+Property 515,Apartment,"112.55",800000000
+Property 516,Apartment,"19.0py",1600000000
+Property 517,Apartment,"25.8py",800000000
+Property 518,Apartment,"61.59 sqm",1400000000
+Property 519,Apartment,"62.89",1400000000
+Property 520,Apartment,"62.74",600000000
+Property 521,Apartment,"18.7평",1800000000
+Property 522,Apartment,"61.04 sqm",1500000000
+Property 523,Apartment,"138.71",1600000000
+Property 524,Apartment,"62.69 sqm",700000000
+Property 525,Apartment,"113.72",900000000
+Property 526,Apartment,"137.74 sqm",2000000000
+Property 527,Apartment,"116.46 sqm",1200000000
+Property 528,Apartment,"85.90m2",900000000
+Property 529,Apartment,"87.48 sqm",900000000
+Property 530,Apartment,"115.57 sqm",1800000000
+Property 531,Apartment,"42.3평",600000000
+Property 532,Apartment,"26.2py",800000000
+Property 533,Apartment,"138.94 sqm",800000000
+Property 534,Apartment,"84.66 sqm",2000000000
+Property 535,Apartment,"86.79m2",1900000000
+Property 536,Apartment,"60.79 sqm",1900000000
+Property 537,Apartment,"41.8py",1900000000
+Property 538,Apartment,"41.2py",1500000000
+Property 539,Apartment,"42.2py",1900000000
+Property 540,Apartment,"18.9py",1500000000
+Property 541,Apartment,"116.01 sqm",1900000000
+Property 542,Apartment,"88.63m2",1300000000
+Property 543,Apartment,"114.15 sqm",1200000000
+Property 544,Apartment,"61.14 sqm",700000000
+Property 545,Apartment,"115.45 sqm",900000000
+Property 546,Apartment,"25.9py",600000000
+Property 547,Apartment,"19.0py",1400000000
+Property 548,Apartment,"62.99 sqm",1500000000
+Property 549,Apartment,"41.3평",1200000000
+Property 550,Apartment,"62.36",600000000
+Property 551,Apartment,"87.65m2",2000000000
+Property 552,Apartment,"62.10m2",1300000000
+Property 553,Apartment,"19.0평",1000000000
+Property 554,Apartment,"84.65",1300000000
+Property 555,Apartment,"25.8py",1500000000
+Property 556,Apartment,"139.03 sqm",1700000000
+Property 557,Apartment,"19.0평",1500000000
+Property 558,Apartment,"84.23",1900000000
+Property 559,Apartment,"114.59 sqm",1100000000
+Property 560,Apartment,"112.71",600000000
+Property 561,Apartment,"62.23m2",1600000000
+Property 562,Apartment,"138.87 sqm",1400000000
+Property 563,Apartment,"87.72m2",1500000000
+Property 564,Apartment,"42.3py",1500000000
+Property 565,Apartment,"18.3py",700000000
+Property 566,Apartment,"26.6py",1600000000
+Property 567,Apartment,"60.26m2",600000000
+Property 568,Apartment,"84.11",1900000000
+Property 569,Apartment,"116.07 sqm",1400000000
+Property 570,Apartment,"63.56 sqm",1300000000
+Property 571,Apartment,"34.0py",500000000
+Property 572,Apartment,"87.42 sqm",1400000000
+Property 573,Apartment,"25.5py",1600000000
+Property 574,Apartment,"60.10",1500000000
+Property 575,Apartment,"136.19",1500000000
+Property 576,Apartment,"40.9py",1900000000
+Property 577,Apartment,"61.99m2",800000000
+Property 578,Apartment,"114.82",1500000000
+Property 579,Apartment,"62.92 sqm",1700000000
+Property 580,Apartment,"34.0평",900000000
+Property 581,Apartment,"34.1py",700000000
+Property 582,Apartment,"136.87m2",1700000000
+Property 583,Apartment,"62.19 sqm",1800000000
+Property 584,Apartment,"86.58m2",1900000000
+Property 585,Apartment,"35.0평",900000000
+Property 586,Apartment,"34.3py",500000000
+Property 587,Apartment,"59.82 sqm",1800000000
+Property 588,Apartment,"41.3평",900000000
+Property 589,Apartment,"136.74",1400000000
+Property 590,Apartment,"139.89m2",1600000000
+Property 591,Apartment,"138.62",1100000000
+Property 592,Apartment,"115.28m2",1400000000
+Property 593,Apartment,"19.2평",1300000000
+Property 594,Apartment,"88.08m2",1500000000
+Property 595,Apartment,"115.40",500000000
+Property 596,Apartment,"139.02",500000000
+Property 597,Apartment,"84.32m2",1200000000
+Property 598,Apartment,"86.94m2",1100000000
+Property 599,Apartment,"114.86m2",500000000
+Property 600,Apartment,"85.94",500000000
+Property 601,Apartment,"26.9py",2000000000
+Property 602,Apartment,"42.0평",1000000000
+Property 603,Apartment,"135.23 sqm",600000000
+Property 604,Apartment,"18.9py",800000000
+Property 605,Apartment,"138.75",1700000000
+Property 606,Apartment,"61.88 sqm",800000000
+Property 607,Apartment,"62.15m2",1300000000
+Property 608,Apartment,"112.53m2",800000000
+Property 609,Apartment,"25.5py",2000000000
+Property 610,Apartment,"116.42 sqm",1100000000
+Property 611,Apartment,"86.85",1700000000
+Property 612,Apartment,"138.00 sqm",600000000
+Property 613,Apartment,"112.40",1600000000
+Property 614,Apartment,"18.2평",2000000000
+Property 615,Apartment,"135.81m2",700000000
+Property 616,Apartment,"114.40 sqm",1100000000
+Property 617,Apartment,"59.20 sqm",1300000000
+Property 618,Apartment,"41.7py",1700000000
+Property 619,Apartment,"59.06",1000000000
+Property 620,Apartment,"87.76",700000000
+Property 621,Apartment,"84.53 sqm",1100000000
+Property 622,Apartment,"139.78 sqm",1400000000
+Property 623,Apartment,"84.34 sqm",1200000000
+Property 624,Apartment,"116.08m2",1500000000
+Property 625,Apartment,"116.74 sqm",1400000000
+Property 626,Apartment,"112.88",900000000
+Property 627,Apartment,"41.4py",1200000000
+Property 628,Apartment,"34.1평",500000000
+Property 629,Apartment,"136.50",1900000000
+Property 630,Apartment,"84.91 sqm",1100000000
+Property 631,Apartment,"18.0py",900000000
+Property 632,Apartment,"63.28",500000000
+Property 633,Apartment,"42.3평",2000000000
+Property 634,Apartment,"35.2py",2000000000
+Property 635,Apartment,"63.63",1000000000
+Property 636,Apartment,"86.42",1300000000
+Property 637,Apartment,"114.49",1900000000
+Property 638,Apartment,"34.1평",2000000000
+Property 639,Apartment,"113.35",1800000000
+Property 640,Apartment,"139.97m2",1400000000
+Property 641,Apartment,"26.4평",700000000
+Property 642,Apartment,"25.8py",800000000
+Property 643,Apartment,"25.8평",2000000000
+Property 644,Apartment,"115.70 sqm",2000000000
+Property 645,Apartment,"34.1평",1700000000
+Property 646,Apartment,"63.34",1700000000
+Property 647,Apartment,"41.4평",1100000000
+Property 648,Apartment,"85.54",700000000
+Property 649,Apartment,"116.01m2",1000000000
+Property 650,Apartment,"41.7평",1300000000
+Property 651,Apartment,"86.85m2",1800000000
+Property 652,Apartment,"41.7평",1300000000
+Property 653,Apartment,"26.8평",1100000000
+Property 654,Apartment,"84.62 sqm",600000000
+Property 655,Apartment,"34.4평",2000000000
+Property 656,Apartment,"41.2py",1800000000
+Property 657,Apartment,"18.6py",1300000000
+Property 658,Apartment,"34.1평",1000000000
+Property 659,Apartment,"139.61 sqm",600000000
+Property 660,Apartment,"34.2py",1600000000
+Property 661,Apartment,"115.77 sqm",1500000000
+Property 662,Apartment,"18.2py",1200000000
+Property 663,Apartment,"60.10 sqm",900000000
+Property 664,Apartment,"85.03 sqm",1500000000
+Property 665,Apartment,"87.02m2",1800000000
+Property 666,Apartment,"19.2py",600000000
+Property 667,Apartment,"114.93m2",500000000
+Property 668,Apartment,"34.2평",1400000000
+Property 669,Apartment,"34.3평",900000000
+Property 670,Apartment,"18.2py",900000000
+Property 671,Apartment,"34.2평",1500000000
+Property 672,Apartment,"115.63 sqm",1300000000
+Property 673,Apartment,"87.35",800000000
+Property 674,Apartment,"59.03",1900000000
+Property 675,Apartment,"84.20",1800000000
+Property 676,Apartment,"135.95 sqm",1100000000
+Property 677,Apartment,"42.0py",1600000000
+Property 678,Apartment,"135.44m2",1200000000
+Property 679,Apartment,"113.30 sqm",500000000
+Property 680,Apartment,"62.21 sqm",500000000
+Property 681,Apartment,"18.5py",800000000
+Property 682,Apartment,"41.4py",1300000000
+Property 683,Apartment,"88.09",1200000000
+Property 684,Apartment,"59.10 sqm",2000000000
+Property 685,Apartment,"18.1평",900000000
+Property 686,Apartment,"34.2평",1500000000
+Property 687,Apartment,"138.19",1300000000
+Property 688,Apartment,"17.9평",1800000000
+Property 689,Apartment,"63.59m2",500000000
+Property 690,Apartment,"35.4py",1600000000
+Property 691,Apartment,"138.23m2",1500000000
+Property 692,Apartment,"42.3평",1300000000
+Property 693,Apartment,"84.96",1200000000
+Property 694,Apartment,"86.57",1800000000
+Property 695,Apartment,"34.4평",800000000
+Property 696,Apartment,"137.67 sqm",1700000000
+Property 697,Apartment,"114.49",1400000000
+Property 698,Apartment,"26.1평",1300000000
+Property 699,Apartment,"18.0평",900000000
+Property 700,Apartment,"137.44",1100000000
+Property 701,Apartment,"42.1py",1800000000
+Property 702,Apartment,"26.0평",1600000000
+Property 703,Apartment,"63.63 sqm",900000000
+Property 704,Apartment,"63.27",600000000
+Property 705,Apartment,"41.7평",1000000000
+Property 706,Apartment,"59.81m2",700000000
+Property 707,Apartment,"41.2평",1900000000
+Property 708,Apartment,"26.3평",1900000000
+Property 709,Apartment,"41.9평",800000000
+Property 710,Apartment,"139.58m2",1900000000
+Property 711,Apartment,"136.60m2",1400000000
+Property 712,Apartment,"87.21 sqm",500000000
+Property 713,Apartment,"40.9py",1500000000
+Property 714,Apartment,"88.70 sqm",2000000000
+Property 715,Apartment,"135.45m2",1800000000
+Property 716,Apartment,"26.2py",600000000
+Property 717,Apartment,"88.96m2",1700000000
+Property 718,Apartment,"114.01",1000000000
+Property 719,Apartment,"35.0py",700000000
+Property 720,Apartment,"34.9py",1100000000
+Property 721,Apartment,"115.56",1200000000
+Property 722,Apartment,"34.9py",1000000000
+Property 723,Apartment,"18.9py",800000000
+Property 724,Apartment,"138.92",1800000000
+Property 725,Apartment,"112.54 sqm",1200000000
+Property 726,Apartment,"138.50m2",700000000
+Property 727,Apartment,"87.70",600000000
+Property 728,Apartment,"85.78m2",1500000000
+Property 729,Apartment,"34.1평",1600000000
+Property 730,Apartment,"112.26",1500000000
+Property 731,Apartment,"139.09m2",1200000000
+Property 732,Apartment,"114.26m2",1800000000
+Property 733,Apartment,"84.13",1000000000
+Property 734,Apartment,"86.24",700000000
+Property 735,Apartment,"26.4py",1100000000
+Property 736,Apartment,"135.64 sqm",1600000000
+Property 737,Apartment,"135.15 sqm",800000000
+Property 738,Apartment,"138.28 sqm",2000000000
+Property 739,Apartment,"88.53 sqm",1700000000
+Property 740,Apartment,"27.0평",1500000000
+Property 741,Apartment,"41.6평",500000000
+Property 742,Apartment,"85.86 sqm",1900000000
+Property 743,Apartment,"137.02m2",2000000000
+Property 744,Apartment,"41.4평",1100000000
+Property 745,Apartment,"115.94 sqm",2000000000
+Property 746,Apartment,"34.2평",500000000
+Property 747,Apartment,"135.17m2",1700000000
+Property 748,Apartment,"18.1평",1800000000
+Property 749,Apartment,"135.67 sqm",1200000000
+Property 750,Apartment,"135.46m2",600000000
+Property 751,Apartment,"87.60m2",900000000
+Property 752,Apartment,"17.9py",800000000
+Property 753,Apartment,"62.31m2",900000000
+Property 754,Apartment,"19.1py",1000000000
+Property 755,Apartment,"59.06 sqm",2000000000
+Property 756,Apartment,"18.1py",500000000
+Property 757,Apartment,"17.9평",1300000000
+Property 758,Apartment,"88.29",1700000000
+Property 759,Apartment,"34.0평",1200000000
+Property 760,Apartment,"62.56",1800000000
+Property 761,Apartment,"87.88",1900000000
+Property 762,Apartment,"41.7평",900000000
+Property 763,Apartment,"113.39",1100000000
+Property 764,Apartment,"112.56m2",1600000000
+Property 765,Apartment,"26.2py",900000000
+Property 766,Apartment,"139.59 sqm",1200000000
+Property 767,Apartment,"115.11 sqm",1000000000
+Property 768,Apartment,"25.9평",1000000000
+Property 769,Apartment,"41.2py",1200000000
+Property 770,Apartment,"115.99",900000000
+Property 771,Apartment,"137.76m2",800000000
+Property 772,Apartment,"19.1py",1800000000
+Property 773,Apartment,"114.82m2",1800000000
+Property 774,Apartment,"114.47m2",1600000000
+Property 775,Apartment,"61.34",1700000000
+Property 776,Apartment,"135.41",2000000000
+Property 777,Apartment,"41.8py",800000000
+Property 778,Apartment,"85.71 sqm",2000000000
+Property 779,Apartment,"34.4py",1600000000
+Property 780,Apartment,"137.09 sqm",1100000000
+Property 781,Apartment,"115.43",1000000000
+Property 782,Apartment,"87.65 sqm",1500000000
+Property 783,Apartment,"115.78m2",1100000000
+Property 784,Apartment,"88.45",700000000
+Property 785,Apartment,"63.52m2",1500000000
+Property 786,Apartment,"35.2py",1100000000
+Property 787,Apartment,"41.0평",900000000
+Property 788,Apartment,"59.13",1200000000
+Property 789,Apartment,"87.75m2",1400000000
+Property 790,Apartment,"41.9py",1000000000
+Property 791,Apartment,"137.81m2",700000000
+Property 792,Apartment,"137.04",700000000
+Property 793,Apartment,"85.55",1800000000
+Property 794,Apartment,"42.3py",700000000
+Property 795,Apartment,"34.7py",1500000000
+Property 796,Apartment,"88.39m2",1500000000
+Property 797,Apartment,"35.3py",1700000000
+Property 798,Apartment,"35.4py",600000000
+Property 799,Apartment,"139.66 sqm",1500000000
+Property 800,Apartment,"88.12",1100000000
+Property 801,Apartment,"35.0평",1500000000
+Property 802,Apartment,"19.3py",1100000000
+Property 803,Apartment,"19.1py",500000000
+Property 804,Apartment,"17.9py",700000000
+Property 805,Apartment,"115.21m2",900000000
+Property 806,Apartment,"86.75",1500000000
+Property 807,Apartment,"34.7평",1600000000
+Property 808,Apartment,"63.18m2",1900000000
+Property 809,Apartment,"135.94m2",1400000000
+Property 810,Apartment,"138.83m2",1000000000
+Property 811,Apartment,"84.12 sqm",1200000000
+Property 812,Apartment,"135.85",2000000000
+Property 813,Apartment,"85.14 sqm",1300000000
+Property 814,Apartment,"26.9평",900000000
+Property 815,Apartment,"18.5py",2000000000
+Property 816,Apartment,"35.0평",800000000
+Property 817,Apartment,"34.5py",1800000000
+Property 818,Apartment,"61.74 sqm",1200000000
+Property 819,Apartment,"34.7py",1600000000
+Property 820,Apartment,"114.86",700000000
+Property 821,Apartment,"25.8평",1700000000
+Property 822,Apartment,"138.09 sqm",2000000000
+Property 823,Apartment,"86.30m2",900000000
+Property 824,Apartment,"137.15",1900000000
+Property 825,Apartment,"139.05",500000000
+Property 826,Apartment,"115.08",1700000000
+Property 827,Apartment,"61.99m2",2000000000
+Property 828,Apartment,"25.7평",1600000000
+Property 829,Apartment,"18.3py",1300000000
+Property 830,Apartment,"40.9평",2000000000
+Property 831,Apartment,"27.0평",500000000
+Property 832,Apartment,"135.47m2",1000000000
+Property 833,Apartment,"18.1py",1800000000
+Property 834,Apartment,"25.9평",1500000000
+Property 835,Apartment,"60.43 sqm",1700000000
+Property 836,Apartment,"60.63 sqm",1200000000
+Property 837,Apartment,"42.1평",1400000000
+Property 838,Apartment,"112.09m2",700000000
+Property 839,Apartment,"60.56 sqm",1500000000
+Property 840,Apartment,"26.0평",1800000000
+Property 841,Apartment,"85.75 sqm",1000000000
+Property 842,Apartment,"116.20",700000000
+Property 843,Apartment,"88.14m2",1400000000
+Property 844,Apartment,"60.80",700000000
+Property 845,Apartment,"26.0py",1600000000
+Property 846,Apartment,"138.63",1100000000
+Property 847,Apartment,"60.55",1500000000
+Property 848,Apartment,"135.79 sqm",600000000
+Property 849,Apartment,"17.9평",1100000000
+Property 850,Apartment,"41.9py",1200000000
+Property 851,Apartment,"26.8py",600000000
+Property 852,Apartment,"112.93",500000000
+Property 853,Apartment,"85.68 sqm",2000000000
+Property 854,Apartment,"116.31",1100000000
+Property 855,Apartment,"139.00m2",1700000000
+Property 856,Apartment,"87.58m2",900000000
+Property 857,Apartment,"116.98",800000000
+Property 858,Apartment,"114.50",2000000000
+Property 859,Apartment,"34.7py",2000000000
+Property 860,Apartment,"135.71 sqm",2000000000
+Property 861,Apartment,"63.59m2",600000000
+Property 862,Apartment,"19.1py",1600000000
+Property 863,Apartment,"42.1py",1000000000
+Property 864,Apartment,"18.3py",500000000
+Property 865,Apartment,"135.34",1300000000
+Property 866,Apartment,"85.14 sqm",1900000000
+Property 867,Apartment,"84.27",600000000
+Property 868,Apartment,"86.97 sqm",1200000000
+Property 869,Apartment,"25.7평",500000000
+Property 870,Apartment,"87.76",1900000000
+Property 871,Apartment,"25.8평",1000000000
+Property 872,Apartment,"116.54m2",1300000000
+Property 873,Apartment,"26.9평",700000000
+Property 874,Apartment,"86.33 sqm",1100000000
+Property 875,Apartment,"88.83m2",1800000000
+Property 876,Apartment,"87.32m2",1100000000
+Property 877,Apartment,"19.3py",700000000
+Property 878,Apartment,"116.56 sqm",1300000000
+Property 879,Apartment,"115.27",1200000000
+Property 880,Apartment,"18.6py",800000000
+Property 881,Apartment,"41.4py",1800000000
+Property 882,Apartment,"26.5평",900000000
+Property 883,Apartment,"26.7평",800000000
+Property 884,Apartment,"41.2py",1600000000
+Property 885,Apartment,"116.88m2",1100000000
+Property 886,Apartment,"34.4평",800000000
+Property 887,Apartment,"139.28 sqm",700000000
+Property 888,Apartment,"137.32m2",1100000000
+Property 889,Apartment,"19.1py",1300000000
+Property 890,Apartment,"35.1py",1000000000
+Property 891,Apartment,"26.1py",1400000000
+Property 892,Apartment,"42.4평",1400000000
+Property 893,Apartment,"41.2py",1400000000
+Property 894,Apartment,"41.2평",1800000000
+Property 895,Apartment,"35.0py",1200000000
+Property 896,Apartment,"139.41",1800000000
+Property 897,Apartment,"34.9평",800000000
+Property 898,Apartment,"60.38",500000000
+Property 899,Apartment,"41.9py",900000000
+Property 900,Apartment,"19.0py",2000000000
+Property 901,Apartment,"18.7py",1400000000
+Property 902,Apartment,"63.88m2",1800000000
+Property 903,Apartment,"87.70",700000000
+Property 904,Apartment,"34.8py",2000000000
+Property 905,Apartment,"137.17m2",600000000
+Property 906,Apartment,"139.57",1900000000
+Property 907,Apartment,"26.9py",600000000
+Property 908,Apartment,"139.70",700000000
+Property 909,Apartment,"18.5py",1100000000
+Property 910,Apartment,"139.16 sqm",1000000000
+Property 911,Apartment,"18.7py",1700000000
+Property 912,Apartment,"63.72",1900000000
+Property 913,Apartment,"135.30",1300000000
+Property 914,Apartment,"85.04",1900000000
+Property 915,Apartment,"135.75m2",1400000000
+Property 916,Apartment,"87.76",1000000000
+Property 917,Apartment,"116.50m2",700000000
+Property 918,Apartment,"25.6평",1600000000
+Property 919,Apartment,"138.69",900000000
+Property 920,Apartment,"112.03m2",1000000000
+Property 921,Apartment,"137.28m2",500000000
+Property 922,Apartment,"88.57m2",1700000000
+Property 923,Apartment,"34.8py",1800000000
+Property 924,Apartment,"86.86 sqm",1900000000
+Property 925,Apartment,"86.72 sqm",1500000000
+Property 926,Apartment,"113.35",1300000000
+Property 927,Apartment,"86.25 sqm",1800000000
+Property 928,Apartment,"115.52 sqm",1700000000
+Property 929,Apartment,"35.4평",1600000000
+Property 930,Apartment,"60.12",1200000000
+Property 931,Apartment,"59.34 sqm",1600000000
+Property 932,Apartment,"18.9평",1800000000
+Property 933,Apartment,"139.84 sqm",500000000
+Property 934,Apartment,"19.1py",600000000
+Property 935,Apartment,"34.8평",500000000
+Property 936,Apartment,"112.98m2",900000000
+Property 937,Apartment,"34.8평",1900000000
+Property 938,Apartment,"84.85",1100000000
+Property 939,Apartment,"34.4py",1600000000
+Property 940,Apartment,"18.5평",1900000000
+Property 941,Apartment,"139.58 sqm",500000000
+Property 942,Apartment,"34.7py",2000000000
+Property 943,Apartment,"59.35 sqm",1100000000
+Property 944,Apartment,"115.47 sqm",1300000000
+Property 945,Apartment,"116.96m2",1100000000
+Property 946,Apartment,"41.2평",600000000
+Property 947,Apartment,"85.53",1200000000
+Property 948,Apartment,"88.76m2",1300000000
+Property 949,Apartment,"135.21 sqm",1100000000
+Property 950,Apartment,"137.87m2",2000000000
+Property 951,Apartment,"115.30",1900000000
+Property 952,Apartment,"35.2py",1900000000
+Property 953,Apartment,"26.3평",1200000000
+Property 954,Apartment,"18.9평",800000000
+Property 955,Apartment,"112.64m2",900000000
+Property 956,Apartment,"59.68 sqm",1100000000
+Property 957,Apartment,"138.72 sqm",1600000000
+Property 958,Apartment,"18.8평",1000000000
+Property 959,Apartment,"137.51",1300000000
+Property 960,Apartment,"18.7py",1200000000
+Property 961,Apartment,"63.51m2",1700000000
+Property 962,Apartment,"136.74",1400000000
+Property 963,Apartment,"88.46m2",2000000000
+Property 964,Apartment,"60.76m2",1200000000
+Property 965,Apartment,"112.47",2000000000
+Property 966,Apartment,"113.16m2",600000000
+Property 967,Apartment,"88.15",600000000
+Property 968,Apartment,"35.0평",1200000000
+Property 969,Apartment,"87.93",1800000000
+Property 970,Apartment,"60.74",800000000
+Property 971,Apartment,"42.3py",800000000
+Property 972,Apartment,"62.08",900000000
+Property 973,Apartment,"41.3py",1200000000
+Property 974,Apartment,"138.95",1500000000
+Property 975,Apartment,"60.61 sqm",1800000000
+Property 976,Apartment,"136.55m2",900000000
+Property 977,Apartment,"18.8평",700000000
+Property 978,Apartment,"26.8평",1800000000
+Property 979,Apartment,"86.64",900000000
+Property 980,Apartment,"18.8평",1700000000
+Property 981,Apartment,"63.40",900000000
+Property 982,Apartment,"62.09 sqm",1200000000
+Property 983,Apartment,"87.53 sqm",1500000000
+Property 984,Apartment,"138.84m2",1400000000
+Property 985,Apartment,"115.84",1500000000
+Property 986,Apartment,"88.20m2",1000000000
+Property 987,Apartment,"25.6py",2000000000
+Property 988,Apartment,"18.5py",1600000000
+Property 989,Apartment,"136.58",600000000
+Property 990,Apartment,"26.6py",1600000000
+Property 991,Apartment,"18.7py",1600000000
+Property 992,Apartment,"19.2py",1800000000
+Property 993,Apartment,"18.6py",1800000000
+Property 994,Apartment,"87.36",1500000000
+Property 995,Apartment,"35.0py",2000000000
+Property 996,Apartment,"35.4평",900000000
+Property 997,Apartment,"34.7평",2000000000
+Property 998,Apartment,"18.3평",1200000000
+Property 999,Apartment,"113.49",900000000

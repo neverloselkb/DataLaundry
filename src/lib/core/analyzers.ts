@@ -1,5 +1,45 @@
-import { DataRow, DataIssue, ProcessingOptions, ProcessingStats, ColumnLimits } from '@/types';
+import { DataRow, DataIssue, ProcessingOptions, ProcessingStats, ColumnLimits, ColumnOptionType } from '@/types';
 import { GARBAGE_REGEX } from './utils';
+
+/**
+ * 컬럼 데이터 패턴을 분석하여 적절한 헤더 이름을 추천하는 함수
+ * @param data 데이터 배열
+ * @param column 분석할 컬럼명
+ * @returns 추천 헤더 이름 배열 (최대 5개)
+ */
+export function getHeaderRecommendations(data: DataRow[], column: string): string[] {
+    // 상위 20개 행만 샘플링하여 분석
+    const values = data.slice(0, 20).map(r => String(r[column] || ''));
+    const combined = values.join(' ');
+
+    const recs: string[] = [];
+    // 전화번호 패턴
+    if (/01[016789]|-?\d{3,4}-?\d{4}/.test(combined)) recs.push('연락처', '휴대폰', 'Phone', 'Mobile');
+    // 이메일 패턴
+    if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(combined)) recs.push('이메일', 'Email');
+    // 금액/가격 패턴
+    if (/원|금액|매출|가격|price|amount|\d{1,3}(,\d{3})+/i.test(combined + column)) recs.push('금액', '가격', 'Amount', 'Price');
+    // 날짜 패턴
+    if (/\d{4}[.-/]\d{1,2}[.-/]\d{1,2}|오늘|어제|일시|일자/.test(combined + column)) recs.push('날짜', '등록일시', 'Date');
+    // 우편번호 패턴
+    if (/\b\d{5}\b/.test(combined) && (column.includes('우편') || /zip|postal/i.test(column))) recs.push('우편번호', 'Zip Code', 'Postcode');
+    // 이름/성명 패턴
+    if (/name|이름|성함|성명/i.test(column)) recs.push('고객명', '성함', 'Name', 'Customer');
+    // 주소 패턴
+    if (['서울', '경기', '부산', '대구', '인천', '광주', '대전', '울산', '세종'].some(city => combined.includes(city))) recs.push('주소', '거주지', 'Address');
+
+    // Biz Number
+    if (/\d{3}-\d{2}-\d{5}/.test(combined) || (/\d{10}/.test(combined) && column.includes('사업'))) recs.push('사업자등록번호', '사업자번호', 'BizNo');
+    // Corp Number
+    if (/\d{6}-\d{7}/.test(combined) || (/\d{13}/.test(combined) && column.includes('법인'))) recs.push('법인등록번호', '법인번호', 'CorpNo');
+    // URL
+    if (/www\.|https?:\/\/|\.com|\.co\.kr/.test(combined)) recs.push('홈페이지', '웹사이트', 'URL', 'Website');
+    // RRN (Resident Registration Number)
+    if (/\d{6}-[1-4]\d{6}/.test(combined)) recs.push('주민등록번호', '주민번호', 'RRN');
+
+    if (recs.length === 0) recs.push('데이터', '기타', 'Data', 'Etc');
+    return Array.from(new Set(recs)).filter(r => r !== column).slice(0, 5);
+}
 
 /**
  * 데이터의 각 컬럼별 최대 길이를 계산하는 함수
@@ -249,7 +289,6 @@ export function detectDataIssues(data: DataRow[], maxLengthConstraints: ColumnLi
         // 9. Address
         if (key.toLowerCase().includes('주소') || key.toLowerCase().includes('address')) {
             const addressIndicators = ['시 ', '군 ', '구 ', '동 ', '로 ', '길 '];
-
             // 데이터 길이 분석 (너무 짧으면 정제 불가 판단)
             const totalLen = relevantRows.reduce((acc, curr) => acc + curr.val.length, 0);
             const avgLen = relevantRows.length > 0 ? totalLen / relevantRows.length : 0;
@@ -275,7 +314,64 @@ export function detectDataIssues(data: DataRow[], maxLengthConstraints: ColumnLi
                 }
             }
         }
+
+
+        // 10. 사업자등록번호 (Business Number)
+        if (/\d{3}-\d{2}-\d{5}|\d{10}/.test(String(data[0]?.[key] || ''))) {
+            // Heuristic: Check few rows
+            const bizNumRows = relevantRows.filter(r => r.val.replace(/[^0-9]/g, '').length === 10);
+            if (bizNumRows.length > relevantRows.length * 0.5) {
+                const invalidBizNum = bizNumRows.filter(r => !/^\d{3}-\d{2}-\d{5}$/.test(r.val));
+                if (invalidBizNum.length > 0) {
+                    issues.push({
+                        column: key,
+                        type: 'warning',
+                        message: `'${key}' 컬럼에 사업자등록번호 형식이 아닌 데이터가 있습니다.`,
+                        suggestion: { formatBizNum: true },
+                        affectedRows: invalidBizNum.map(r => r.idx)
+                    });
+                }
+            }
+        }
+
+        // 11. 개인정보 (Personal Data) - 주민번호, 외국인번호 마스킹 권장
+        // 13자리 숫자 (6-7 format)
+        const rrnRows = relevantRows.filter(r => {
+            const v = r.val.replace(/[^0-9]/g, '');
+            return v.length === 13 && /[0-9]{6}[1-4][0-9]{6}/.test(v);
+        });
+
+        if (rrnRows.length > 0) {
+            // 마스킹 되지 않은 데이터 확인 (하이픈 뒤가 *이 아닌 경우)
+            const unmasked = rrnRows.filter(r => !r.val.includes('*'));
+            if (unmasked.length > 0) {
+                issues.push({
+                    column: key,
+                    type: 'error', // High severity for privacy
+                    message: `'${key}' 컬럼에 마스킹되지 않은 주민등록번호가 감지되었습니다. 개인정보 보호를 위해 마스킹을 권장합니다.`,
+                    suggestion: { maskPersonalData: true },
+                    affectedRows: unmasked.map(r => r.idx)
+                });
+            }
+        }
+
+        // 12. URL / Web
+        if (key.toLowerCase().includes('url') || key.toLowerCase().includes('web') || key.includes('사이트') || key.includes('주소') /* web content implied */) {
+            const urlRows = relevantRows.filter(r => r.val.includes('.') && !r.val.includes('@') && !key.includes('이메일') && !key.includes('email')); // Simple heuristic to avoid email
+            const noProtocolRows = urlRows.filter(r => !r.val.startsWith('http'));
+
+            if (noProtocolRows.length > 0 && noProtocolRows.length > urlRows.length * 0.5) {
+                issues.push({
+                    column: key,
+                    type: 'info',
+                    message: `'${key}' 컬럼의 웹 사이트 주소에 프로토콜(http/https)이 누락되어 있습니다.`,
+                    suggestion: { formatUrl: true },
+                    affectedRows: noProtocolRows.map(r => r.idx)
+                });
+            }
+        }
     }
+
     return issues;
 }
 
@@ -315,32 +411,107 @@ export function calculateDiffStats(original: DataRow[], processed: DataRow[], in
 }
 
 /**
- * 컬럼 데이터 패턴을 분석하여 적절한 헤더 이름을 추천하는 함수
+ * 컬럼 데이터 패턴을 분석하여 적절한 정제 포맷(ColumnOptionType)을 추천하는 함수
  * @param data 데이터 배열
  * @param column 분석할 컬럼명
- * @returns 추천 헤더 이름 배열 (최대 5개)
+ * @returns 추천하는 ColumnOptionType
  */
-export function getHeaderRecommendations(data: DataRow[], column: string): string[] {
-    // 상위 20개 행만 샘플링하여 분석
-    const values = data.slice(0, 20).map(r => String(r[column] || ''));
+export function recommendColumnFormat(data: DataRow[], column: string): ColumnOptionType {
+    if (data.length === 0) return null;
+
+    // 상위 50개 행 샘플링
+    const values = data.slice(0, 50).map(r => String(r[column] || '').trim()).filter(Boolean);
+    if (values.length === 0) return null;
+
     const combined = values.join(' ');
+    const lowerCol = column.toLowerCase();
 
-    const recs: string[] = [];
-    // 전화번호 패턴
-    if (/01[016789]|-?\d{3,4}-?\d{4}/.test(combined)) recs.push('연락처', '휴대폰', 'Phone', 'Mobile');
-    // 이메일 패턴
-    if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(combined)) recs.push('이메일', 'Email');
-    // 금액/가격 패턴
-    if (/원|금액|매출|가격|price|amount|\d{1,3}(,\d{3})+/i.test(combined + column)) recs.push('금액', '가격', 'Amount', 'Price');
-    // 날짜 패턴
-    if (/\d{4}[.-/]\d{1,2}[.-/]\d{1,2}|오늘|어제|일시|일자/.test(combined + column)) recs.push('날짜', '등록일시', 'Date');
-    // 우편번호 패턴
-    if (/\b\d{5}\b/.test(combined) && (column.includes('우편') || /zip|postal/i.test(column))) recs.push('우편번호', 'Zip Code', 'Postcode');
-    // 이름/성명 패턴
-    if (/name|이름|성함|성명/i.test(column)) recs.push('고객명', '성함', 'Name', 'Customer');
-    // 주소 패턴
-    if (['서울', '경기', '부산', '대구', '인천', '광주', '대전', '울산', '세종'].some(city => combined.includes(city))) recs.push('주소', '거주지', 'Address');
+    // 1. 휴대폰 (mobile)
+    if (/01[016789]/.test(combined) && (lowerCol.includes('휴대폰') || lowerCol.includes('mobile') || lowerCol.includes('연락처'))) return 'mobile';
 
-    if (recs.length === 0) recs.push('데이터', '기타', 'Data', 'Etc');
-    return Array.from(new Set(recs)).filter(r => r !== column).slice(0, 5);
+    // 2. 이메일 (email)
+    if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(combined)) return 'email';
+
+    // 3. 일시 (datetime)
+    if (/\d+:\d+/.test(combined) && (lowerCol.includes('일시') || lowerCol.includes('time') || lowerCol.includes('date'))) return 'datetime';
+
+    // 4. 날짜 (date)
+    if (/\d{4}[.-/]\d{1,2}[.-/]\d{1,2}/.test(combined) || lowerCol.includes('날짜') || lowerCol.includes('date')) return 'date';
+
+    // 5. 주민번호 (rrn)
+    if (/\d{6}-[1-4]\d{6}/.test(combined) || lowerCol.includes('주민')) return 'rrn';
+
+    // 6. 사업자번호 (bizNum)
+    if (/\d{3}-\d{2}-\d{5}/.test(combined) || (/\d{10}/.test(combined) && lowerCol.includes('사업'))) return 'bizNum';
+
+    // 7. 법인번호 (corpNum)
+    if (/\d{6}-\d{7}/.test(combined) || (/\d{13}/.test(combined) && lowerCol.includes('법인'))) return 'corpNum';
+
+    // 8. 우편번호 (zip)
+    if (/\b\d{5}\b/.test(combined) && (lowerCol.includes('우편') || /zip|postal/i.test(lowerCol))) return 'zip';
+
+    // 9. 금액 (amount) - 콤마나 '원' 포함
+    if (/\d{1,3}(,\d{3})+/.test(combined) || /원$/.test(combined) || /금액|가격|매출|price|amount/i.test(lowerCol)) {
+        if (/[만천백]원/.test(combined)) return 'amountKrn';
+        return 'amount';
+    }
+
+    // 10. URL (url)
+    if (/www\.|https?:\/\/|\.com|\.co\.kr/.test(combined)) return 'url';
+
+    // 11. 해시태그 (hashtag)
+    if (/#/.test(combined) || lowerCol.includes('태그') || lowerCol.includes('tag')) return 'hashtag';
+
+    // 12. SNS ID (snsId)
+    if (lowerCol.includes('sns') || lowerCol.includes('인스타') || lowerCol.includes('instagram')) return 'snsId';
+
+    // 13. 면적 (area)
+    if (lowerCol.includes('면적') || lowerCol.includes('평수') || lowerCol.includes('area')) return 'area';
+
+    // 14. 운송장번호 (trackingNum)
+    if (lowerCol.includes('운송장') || lowerCol.includes('송장') || lowerCol.includes('tracking')) return 'trackingNum';
+
+    // 15. 주문번호 (orderId)
+    if (lowerCol.includes('주문') || lowerCol.includes('order')) return 'orderId';
+
+    return null;
+}
+
+/**
+ * 데이터에서 날짜 또는 일시 형식이 포함된 컬럼의 개수를 감지합니다.
+ * 상위 50행을 분석하여 판단합니다.
+ */
+export function detectDateCandidateColumns(data: DataRow[], headers: string[]): number {
+    if (!data || data.length === 0) return 0;
+
+    const sampleSize = Math.min(data.length, 50);
+    const sample = data.slice(0, sampleSize);
+    let dateColCount = 0;
+
+    for (const header of headers) {
+        let matchCount = 0;
+
+        // Check first 50 rows
+        for (const row of sample) {
+            const val = String(row[header] || '').trim();
+            if (!val) continue;
+
+            // Simple checks for common date patterns: 
+            // YYYY-MM-DD, YYYY.MM.DD, YYYY/MM/DD, YYYYMMDD
+            // Date w/ Time: YYYY-MM-DD HH:mm, etc.
+            // We'll use a relatively loose regex to catch candidates
+            if (/^\d{4}[-./]\d{1,2}[-./]\d{1,2}/.test(val) || // 2023-01-01
+                /^\d{8}$/.test(val)) { // 20230101
+                matchCount++;
+            }
+        }
+
+        // If more than 30% of non-empty rows look like dates, count it
+        const nonEmptyRows = sample.filter(r => r[header]).length;
+        if (nonEmptyRows > 0 && (matchCount / nonEmptyRows) > 0.3) {
+            dateColCount++;
+        }
+    }
+
+    return dateColCount;
 }

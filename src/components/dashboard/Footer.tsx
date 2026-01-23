@@ -1,13 +1,14 @@
-import { Sparkles, AlertCircle, Bot, FileUp, Github } from 'lucide-react';
+import { Sparkles, AlertCircle, Bot, FileUp, Github, TableIcon } from 'lucide-react';
 
 interface FooterProps {
     setTermsModalOpen: (open: boolean) => void;
     setHelpModalOpen: (open: boolean) => void;
     setGuideModalOpen: (open: boolean) => void;
+    setFormatGuideModalOpen: (open: boolean) => void;
     setDonateModalOpen: (open: boolean) => void;
 }
 
-export function Footer({ setTermsModalOpen, setHelpModalOpen, setGuideModalOpen, setDonateModalOpen }: FooterProps) {
+export function Footer({ setTermsModalOpen, setHelpModalOpen, setGuideModalOpen, setFormatGuideModalOpen, setDonateModalOpen }: FooterProps) {
     return (
         <footer className="mt-auto border-t border-slate-200 bg-slate-50/50 py-12 px-6">
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -48,6 +49,10 @@ export function Footer({ setTermsModalOpen, setHelpModalOpen, setGuideModalOpen,
                         <li className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => setGuideModalOpen(true)}>
                             <FileUp size={14} className="text-slate-400" />
                             제작 가이드
+                        </li>
+                        <li className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => setFormatGuideModalOpen(true)}>
+                            <TableIcon size={14} className="text-slate-400" />
+                            데이터 형식 가이드
                         </li>
                     </ul>
                 </div>

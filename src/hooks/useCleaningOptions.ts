@@ -20,7 +20,11 @@ export function useCleaningOptions() {
         highlightChanges: false,
         cleanGarbage: false,
         cleanAmount: false,
-        cleanName: false
+        cleanName: false,
+        formatBizNum: false,
+        formatCorpNum: false,
+        formatUrl: false,
+        maskPersonalData: false
     });
 
     // 필요 시 옵션 초기화 로직 등 추가

@@ -12,6 +12,7 @@ interface DownloadSectionProps {
  * 작업 완료 메시지와 다운로드 버튼을 제공합니다.
  * 
  * @param handleDownload 다운로드 핸들러 함수
+ * @param onReset 초기화 핸들러 함수
  * @param rowCount 정제된 데이터의 행 수
  */
 export function DownloadSection({ handleDownload, rowCount }: DownloadSectionProps) {

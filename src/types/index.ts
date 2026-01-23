@@ -22,6 +22,17 @@ export type ProcessingOptions = {
     cleanGarbage: boolean;        // 특수문자 등 가비지 데이터 제거
     cleanAmount: boolean;         // 금액 데이터 정제 (한글 단위 변환 등)
     cleanName: boolean;           // 이름 정제 (숫자/특수문자 제거)
+    formatBizNum: boolean;        // 사업자등록번호 포맷 (000-00-00000)
+    formatCorpNum: boolean;       // 법인등록번호 포맷 (000000-0000000)
+    formatUrl: boolean;           // URL 표준화 (https://)
+    maskPersonalData: boolean;    // 개인정보 마스킹 (주민번호 등)
+    formatTrackingNum: boolean;   // 운송장번호 정제
+    cleanOrderId: boolean;        // 주문번호 특수문자 제거
+    formatTaxDate: boolean;       // 세무 신고용 날짜 (8자리)
+    formatAccountingNum: boolean; // 회계 음수 표기 변환
+    cleanAreaUnit: boolean;       // 면적 단위 제거 (계산용)
+    cleanSnsId: boolean;          // SNS ID 추출
+    formatHashtag: boolean;       // 해시태그 표준화
 };
 
 /**
@@ -53,3 +64,28 @@ export type ProcessingStats = {
  * key: 컬럼명, value: 최대 길이
  */
 export type ColumnLimits = Record<string, number>;
+
+/**
+ * 컬럼별 정제 옵션 타입
+ * 특정 컬럼에 대해 전역 설정보다 우선순위를 갖는 정제 옵션을 정의합니다.
+ */
+export type ColumnOptionType =
+    | 'date'         // 날짜 (YYYY-MM-DD)
+    | 'datetime'     // 일시 (YYYY-MM-DD HH:mm)
+    | 'mobile'       // 휴대폰 (010-0000-0000)
+    | 'phone'        // 일반전화 (02-000-0000)
+    | 'zip'          // 우편번호 (5자리)
+    | 'bizNum'       // 사업자번호 (000-00-00000)
+    | 'corpNum'      // 법인번호 (000000-0000000)
+    | 'email'        // 이메일
+    | 'url'          // URL (https://)
+    | 'rrn'          // 주민번호 마스킹
+    | 'amount'       // 금액 (콤마)
+    | 'amountKrn'    // 금액 (한글 단위 변환)
+    | 'trackingNum'  // 운송장번호
+    | 'orderId'      // 주문번호
+    | 'area'         // 면적 (단위 제거)
+    | 'snsId'        // SNS ID
+    | 'hashtag'      // 해시태그
+    | null;
+export type ColumnSpecificOptions = Record<string, ColumnOptionType>;
