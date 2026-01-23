@@ -1,8 +1,12 @@
-import { DataRow, processDataLocal, detectDataIssues, calculateDiffStats, ProcessingOptions } from './data-processor';
+import { DataRow, ProcessingOptions } from '@/types';
+import { processDataLocal } from './core/processors';
+import { detectDataIssues, calculateDiffStats } from './core/analyzers';
 
+// Worker 메시지 타입 정의
 export type WorkerMessage =
     | { type: 'PROCESS', data: DataRow[], prompt: string, options: ProcessingOptions, lockedColumns: string[], columnLimits: Record<string, number> };
 
+// Worker 응답 타입 정의
 export type WorkerResponse =
     | { type: 'PROGRESS', progress: number, message: string }
     | { type: 'COMPLETE', processedData: DataRow[], issues: any[], stats: any }
@@ -15,11 +19,6 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         try {
             // Step 1: Start Processing
             self.postMessage({ type: 'PROGRESS', progress: 10, message: '데이터 분석 중...' });
-
-            // Simulate slight delay/chunking if needed, but for now linear steps
-            // In a real heavy app, we'd batch this. For now, step-based progress.
-
-            const startProcessTime = performance.now();
 
             // Step 2: Main Processing Logic (30%)
             self.postMessage({ type: 'PROGRESS', progress: 30, message: '데이터 정제 엔진 가동 중...' });
