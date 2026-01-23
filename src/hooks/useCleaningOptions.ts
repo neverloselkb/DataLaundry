@@ -24,7 +24,14 @@ export function useCleaningOptions() {
         formatBizNum: false,
         formatCorpNum: false,
         formatUrl: false,
-        maskPersonalData: false
+        maskPersonalData: false,
+        formatTrackingNum: false,
+        cleanOrderId: false,
+        formatTaxDate: false,
+        formatAccountingNum: false,
+        cleanAreaUnit: false,
+        cleanSnsId: false,
+        formatHashtag: false
     });
 
     // 필요 시 옵션 초기화 로직 등 추가
