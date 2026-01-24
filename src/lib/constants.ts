@@ -52,22 +52,38 @@ export const CLEANING_OPTIONS_SCHEMA: CleaningOptionCategory[] = [
         id: 'security',
         label: '보안 (Masking)',
         items: [
-            { id: 'maskPersonalData', label: '개인정보 마스킹', description: '주민등록번호 뒷자리를 *******로 가립니다.' },
+            { id: 'maskPersonalData', label: '주민번호 마스킹', description: '주민등록번호 뒷자리를 *******로 가립니다.' },
+            { id: 'maskAccount', label: '계좌번호 마스킹', description: '계좌번호 뒷자리를 ****로 가립니다.' },
+            { id: 'maskCard', label: '카드번호 마스킹', description: '카드번호 중간/뒷자리를 ****로 가립니다.' },
+            { id: 'maskName', label: '성함 마스킹', description: '성함 중간 글자를 *로 치환합니다. (예: 홍*동)' },
+            { id: 'maskEmail', label: '이메일 마스킹', description: '이메일 아이디 뒷부분을 *로 가립니다.' },
+            { id: 'maskAddress', label: '상세 주소 마스킹', description: '번지나 동호수 등 상세 주소를 가립니다.' },
+            { id: 'maskPhoneMid', label: '연락처 중간자리 가림', description: '010-****-5678 형식으로 마스킹합니다.' },
+            { id: 'categoryAge', label: '나이 범주화', description: '나이를 10단위 연령대(20대, 30대 등)로 변환합니다.' },
+            { id: 'truncateDate', label: '날짜 절삭 (연/월)', description: '일(Day) 정보를 삭제하고 연월만 남깁니다.' },
         ]
     },
     {
         id: 'industry',
         label: '업종 특화',
         items: [
-            { id: 'formatTrackingNum', label: '운송장번호 정제 (쇼핑몰)', description: '엑셀 지수(E+) 및 특수문자를 제거하고 숫자만 남깁니다.' },
-            { id: 'cleanOrderId', label: '주문번호 정제 (쇼핑몰)', description: '주문번호에서 특수문자를 제거하여 매칭률을 높입니다.' },
-            { id: 'formatTaxDate', label: '세무용 날짜 (8자리)', description: 'YYYYMMDD 형태로 변환하여 홈택스/더존 업로드에 맞춥니다.' },
-            { id: 'formatAccountingNum', label: '회계 음수 (△1,000)', description: '괄호나 세모로 표기된 음수 금액을 -1000 형태로 변환합니다.' },
-            { id: 'cleanAreaUnit', label: '면적 단위 제거 (부동산)', description: '평, ㎡ 등 텍스트를 제거하고 숫자 데이터만 남깁니다.' },
-            { id: 'cleanSnsId', label: 'SNS ID 추출 (마케팅)', description: '@아이디 또는 URL에서 순수 계정 ID만 추출합니다.' },
-            { id: 'formatHashtag', label: '해시태그 표준화 (마케팅)', description: '공백을 _로 변환하고 # 기호를 표준화합니다.' },
+            { id: 'cleanCompanyName', label: '업체명 정규화 (B2B)', description: '(주), 주식회사 등 수식어를 제거합니다.' },
+            { id: 'removePosition', label: '직함 제거 (인사)', description: '이름 뒤의 대리, 과장 등 직함을 제거합니다.' },
+            { id: 'extractDong', label: '동/읍/면 추출 (부동신)', description: '주소에서 동, 읍, 면 단위만 분리합니다.' },
+            { id: 'extractBuilding', label: '주소 건물명 추출', description: '아파트나 빌딩 이름만 분리해냅니다.' },
+            { id: 'restoreExponential', label: '엑셀 지수 복원', description: '1.23E+12 형태의 운송장 지수를 환원합니다.' },
+            { id: 'normalizeSKU', label: 'SKU 표준화', description: '모델명/코드 대문자 및 기호 정리합니다.' },
+            { id: 'unifyUnit', label: '단위 수치화', description: 'kg, 평 등 단위를 제거하고 숫자만 남깁니다.' },
+            { id: 'standardizeCurrency', label: '통화 기호 정리', description: '$, ￥ 등 기호를 제거하고 숫자로 통일합니다.' },
+            { id: 'formatTrackingNum', label: '운송장번호 정제', description: '하이픈 등을 제거하고 숫자만 유지합니다.' },
+            { id: 'cleanOrderId', label: '주문번호 정제', description: '매칭을 방해하는 특수문자를 일괄 제거합니다.' },
+            { id: 'formatTaxDate', label: '세무용 날짜 (8자리)', description: 'YYYYMMDD 형태로 홈택스 업로드에 최적화합니다.' },
+            { id: 'formatAccountingNum', label: '회계 음수 표기', description: '△, () 형태의 음수를 -1000으로 바꿉니다.' },
+            { id: 'cleanAreaUnit', label: '면적 단위 제거', description: '㎡, 평 정보를 제거해 계산 가능하게 합니다.' },
+            { id: 'cleanSnsId', label: 'SNS ID 추출', description: '계정 URL에서 ID만 깔끔하게 뽑아냅니다.' },
+            { id: 'formatHashtag', label: '해시태그 표준화', description: '# 기호를 보강하고 공백을 정리합니다.' },
         ]
-    }
+    },
 ];
 
 export const TIPS = [

@@ -3,7 +3,7 @@ import {
     Lock, Unlock, Table as TableIcon, Settings, Calendar, Clock, RefreshCw,
     Smartphone, Phone as PhoneIcon, Mail, Link as LinkIcon, UserCheck,
     Banknote, Landmark, Hash, Globe, CreditCard, ShoppingCart, Ruler,
-    Instagram, Tag, Sparkles, CheckCircle2
+    Instagram, Tag, Sparkles, CheckCircle2, MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -198,34 +198,52 @@ export function DataPreviewTable({
                                                                                         items: [
                                                                                             { id: 'date', label: '날짜 (YYYY-MM-DD)', icon: Calendar },
                                                                                             { id: 'datetime', label: '일시 (YYYY-MM-DD HH:mm)', icon: Clock },
+                                                                                            { id: 'dateTruncate', label: '날짜 절삭 (연/월)', icon: Calendar },
                                                                                         ]
                                                                                     },
                                                                                     {
-                                                                                        label: '개인정보',
+                                                                                        label: '개인정보 및 보안',
                                                                                         items: [
                                                                                             { id: 'mobile', label: '휴대폰 번호', icon: Smartphone },
                                                                                             { id: 'phone', label: '전화번호', icon: PhoneIcon },
+                                                                                            { id: 'phoneMidMask', label: '연락처 중간가림', icon: Smartphone },
                                                                                             { id: 'email', label: '이메일 주소', icon: Mail },
+                                                                                            { id: 'emailMask', label: '이메일 마스킹', icon: Mail },
+                                                                                            { id: 'nameMask', label: '성함 마스킹', icon: UserCheck },
                                                                                             { id: 'rrn', label: '주민번호 마스킹', icon: UserCheck },
                                                                                         ]
                                                                                     },
                                                                                     {
                                                                                         label: '비즈니스 및 금융',
                                                                                         items: [
+                                                                                            { id: 'companyClean', label: '업체명 정규화', icon: Landmark },
+                                                                                            { id: 'positionRemove', label: '직함 제거', icon: UserCheck },
                                                                                             { id: 'bizNum', label: '사업자번호', icon: Landmark },
                                                                                             { id: 'corpNum', label: '법인번호', icon: Landmark },
                                                                                             { id: 'amount', label: '금액 (콤마)', icon: Banknote },
                                                                                             { id: 'amountKrn', label: '금액 (한글 숫자)', icon: CreditCard },
+                                                                                            { id: 'accountMask', label: '계좌번호 마스킹', icon: Banknote },
+                                                                                            { id: 'cardMask', label: '카드번호 마스킹', icon: CreditCard },
                                                                                         ]
                                                                                     },
                                                                                     {
-                                                                                        label: '업종/기타',
+                                                                                        label: '업종 특화 (전문가)',
                                                                                         items: [
-                                                                                            { id: 'trackingNum', label: '운송장번호', icon: ShoppingCart },
-                                                                                            { id: 'orderId', label: '주문번호', icon: Hash },
-                                                                                            { id: 'zip', label: '우편번호', icon: Globe },
+                                                                                            { id: 'companyClean', label: '업체명 정규화 (B2B)', icon: Landmark },
+                                                                                            { id: 'positionRemove', label: '직함 제거 (인사)', icon: UserCheck },
+                                                                                            { id: 'buildingExtract', label: '아파트/건물명 추출', icon: Globe },
+                                                                                            { id: 'exponentialRestore', label: '엑셀 지수 복원 (물류)', icon: RefreshCw },
+                                                                                            { id: 'skuNormalize', label: 'SKU/모델명 표준화', icon: Hash },
+                                                                                            { id: 'unitUnify', label: '단위 제거 (평/kg)', icon: Ruler },
+                                                                                            { id: 'currencyStandardize', label: '통화 기호 정리 ($/￥)', icon: Banknote },
+                                                                                            { id: 'trackingNum', label: '운송장번호 정제', icon: ShoppingCart },
+                                                                                            { id: 'orderId', label: '주문번호 정제', icon: ShoppingCart },
+                                                                                            { id: 'zip', label: '우편번호 (5자리)', icon: Globe },
                                                                                             { id: 'url', label: 'URL 홈페이지', icon: LinkIcon },
-                                                                                            { id: 'area', label: '면적 단위제거', icon: Ruler },
+                                                                                            { id: 'dongExtract', label: '동/읍/면 추출', icon: MapPin },
+                                                                                            { id: 'addressMask', label: '상세주소 마스킹', icon: Globe },
+                                                                                            { id: 'ageCategory', label: '연령대 (범주화)', icon: Hash },
+                                                                                            { id: 'area', label: '면적 데이터화', icon: Ruler },
                                                                                             { id: 'snsId', label: 'SNS ID 추출', icon: Instagram },
                                                                                             { id: 'hashtag', label: '해시태그 표준화', icon: Tag },
                                                                                         ]

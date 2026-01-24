@@ -199,11 +199,18 @@ export function detectDataIssues(data: DataRow[], maxLengthConstraints: ColumnLi
         }
 
         // 4. 이메일 검사 (Email)
+        const isEmailNaming = /email|이메일/.test(key.toLowerCase());
         const emailLikeRows = relevantRows.filter(r => r.val.includes('@'));
+
         if (emailLikeRows.length > 0) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const invalidEmailRows = emailLikeRows.filter(r => !emailRegex.test(r.val));
-            if (invalidEmailRows.length > 0) {
+
+            // 컬럼 이름이 이메일이거나, 데이터의 50% 이상이 이미 유효한 이메일 포맷인 경우에만 이메일 컬럼으로 확신
+            const validEmailCount = emailLikeRows.length - invalidEmailRows.length;
+            const isLikelyEmailCol = isEmailNaming || (validEmailCount > emailLikeRows.length * 0.5);
+
+            if (isLikelyEmailCol && invalidEmailRows.length > 0) {
                 issues.push({
                     column: key,
                     type: 'warning',
@@ -387,27 +394,46 @@ export function calculateDiffStats(original: DataRow[], processed: DataRow[], in
     const stats: ProcessingStats = {
         totalRows: 0,
         changedCells: 0,
-        resolvedIssues: Math.max(0, initialIssuesCount - finalIssuesCount)
+        resolvedIssues: Math.max(0, initialIssuesCount - finalIssuesCount),
+        qualityScore: 0,
+        completeness: 0,
+        validity: 0
     };
 
     if (processed.length === 0) return stats;
 
     stats.totalRows = processed.length;
     const headers = Object.keys(processed[0]);
+    const totalCells = stats.totalRows * headers.length;
 
+    let emptyCells = 0;
     processed.forEach((row, i) => {
         const origRow = original[i];
-        if (!origRow) return;
-
         headers.forEach(h => {
-            // 값이 달라진 셀 카운트
-            if (String(row[h]) !== String(origRow[h])) {
+            const val = String(row[h] || '').trim();
+            if (!val) emptyCells++;
+            if (origRow && String(row[h]) !== String(origRow[h])) {
                 stats.changedCells++;
             }
         });
     });
 
+    // 지표 계산
+    stats.completeness = Math.round(((totalCells - emptyCells) / totalCells) * 100);
+    const issuePenalty = (finalIssuesCount / stats.totalRows) * 100; // 단순화된 패널티
+    stats.validity = Math.max(0, Math.min(100, 100 - Math.round(issuePenalty)));
+
+    // 최종 건강도 점수 (완결성 40% + 유효성 60%)
+    stats.qualityScore = Math.round((stats.completeness * 0.4) + (stats.validity * 0.6));
+
     return stats;
+}
+
+/**
+ * 초기 데이터 로드 시의 품질을 분석하는 함수
+ */
+export function analyzeDataQuality(data: DataRow[], issues: DataIssue[]): ProcessingStats {
+    return calculateDiffStats(data, data, issues.length, issues.length);
 }
 
 /**
@@ -436,7 +462,10 @@ export function recommendColumnFormat(data: DataRow[], column: string): ColumnOp
     if (/\d+:\d+/.test(combined) && (lowerCol.includes('일시') || lowerCol.includes('time') || lowerCol.includes('date'))) return 'datetime';
 
     // 4. 날짜 (date)
-    if (/\d{4}[.-/]\d{1,2}[.-/]\d{1,2}/.test(combined) || lowerCol.includes('날짜') || lowerCol.includes('date')) return 'date';
+    if (/\d{4}[.-/]\d{1,2}[.-/]\d{1,2}/.test(combined) || lowerCol.includes('날짜') || lowerCol.includes('date')) {
+        if (lowerCol.includes('절삭') || lowerCol.includes('연월')) return 'dateTruncate';
+        return 'date';
+    }
 
     // 5. 주민번호 (rrn)
     if (/\d{6}-[1-4]\d{6}/.test(combined) || lowerCol.includes('주민')) return 'rrn';
@@ -474,7 +503,33 @@ export function recommendColumnFormat(data: DataRow[], column: string): ColumnOp
     // 15. 주문번호 (orderId)
     if (lowerCol.includes('주문') || lowerCol.includes('order')) return 'orderId';
 
+    // [New] 비즈니스/보안 추천 로직 확장
+    if (lowerCol.includes('업체') || lowerCol.includes('회사') || lowerCol.includes('상호')) return 'companyClean';
+    if (lowerCol.includes('직함') || lowerCol.includes('직위') || lowerCol.includes('직책')) return 'positionRemove';
+    if (lowerCol.includes('계좌') || lowerCol.includes('계좌번호') || lowerCol.includes('account')) return 'accountMask';
+    if (lowerCol.includes('카드') || lowerCol.includes('카드번호') || lowerCol.includes('card')) return 'cardMask';
+    if ((lowerCol.includes('성함') || lowerCol.includes('이름')) && (lowerCol.includes('마스킹') || lowerCol.includes('보호'))) return 'nameMask';
+    if (lowerCol.includes('이메일') && (lowerCol.includes('마스킹') || lowerCol.includes('별표'))) return 'emailMask';
+
+    // [New] 업종 특화 추천 로직 고도화
+    if (valPatternMatch(values, /[0-9]\.[0-9]+E\+\d+/i) || lowerCol.includes('지수') || lowerCol.includes('exponential')) return 'exponentialRestore';
+    if (lowerCol.includes('건물') || lowerCol.includes('아파트') || lowerCol.includes('빌딩') || lowerCol.includes('단지')) return 'buildingExtract';
+    if (lowerCol.includes('sku') || lowerCol.includes('모델') || lowerCol.includes('코드') || lowerCol.includes('model')) return 'skuNormalize';
+    if (valPatternMatch(values, /^[0-9.]+\s*[a-z가-힣]+$/i) && (lowerCol.includes('중량') || lowerCol.includes('무게') || lowerCol.includes('면적') || lowerCol.includes('수량'))) return 'unitUnify';
+    if (valPatternMatch(values, /[$\u00A3\u20AC\u00A5\u20A9]/)) return 'currencyStandardize';
+
+    if (lowerCol.includes('동') || lowerCol.includes('읍') || lowerCol.includes('면') || lowerCol.includes('행정동')) return 'dongExtract';
+    if (lowerCol.includes('나이') || lowerCol.includes('연령') || lowerCol.includes('age')) return 'ageCategory';
+    if (lowerCol.includes('상세주소') || (lowerCol.includes('주소') && lowerCol.includes('마스킹'))) return 'addressMask';
+
     return null;
+}
+
+/**
+ * 헬퍼: 샘플 값들 중 특정 패턴이 있는지 확인
+ */
+function valPatternMatch(values: string[], regex: RegExp): boolean {
+    return values.some(v => regex.test(v));
 }
 
 /**

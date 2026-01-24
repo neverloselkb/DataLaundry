@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { DataRow, DataIssue, ProcessingOptions, ProcessingStats, ColumnLimits, ColumnSpecificOptions, ColumnOptionType } from '@/types';
 import { parseFile } from '@/lib/core/parsers';
-import { detectDataIssues, detectDateCandidateColumns } from '@/lib/core/analyzers';
+import { detectDataIssues, detectDateCandidateColumns, analyzeDataQuality } from '@/lib/core/analyzers';
 import { WorkerMessage, WorkerResponse } from '@/lib/worker';
 
 /**
@@ -14,6 +14,7 @@ export function useDataFlow() {
     const [data, setData] = useState<DataRow[]>([]); // 원본 (파싱 직후 상태)
     const [processedData, setProcessedData] = useState<DataRow[]>([]); // 정제된 데이터 (화면 표시용)
     const [headers, setHeaders] = useState<string[]>([]);
+    const [initialStats, setInitialStats] = useState<ProcessingStats | null>(null); // [NEW] 정제 전 비교용
 
     // 2. Processing State
     const [isProcessing, setIsProcessing] = useState(false);
@@ -24,7 +25,7 @@ export function useDataFlow() {
 
     // 3. Analysis State
     const [issues, setIssues] = useState<DataIssue[]>([]);
-    const [stats, setStats] = useState<ProcessingStats>({ totalRows: 0, changedCells: 0, resolvedIssues: 0 });
+    const [stats, setStats] = useState<ProcessingStats>({ totalRows: 0, changedCells: 0, resolvedIssues: 0, qualityScore: 0, completeness: 0, validity: 0 });
 
     // 4. Configuration State
     const [lockedColumns, setLockedColumns] = useState<string[]>([]);
@@ -87,7 +88,10 @@ export function useDataFlow() {
             // 초기 이슈 감지
             const initialIssues = detectDataIssues(parsedData);
             setIssues(initialIssues);
-            setStats({ totalRows: parsedData.length, changedCells: 0, resolvedIssues: 0 });
+
+            const qualityStats = analyzeDataQuality(parsedData, initialIssues);
+            setStats(qualityStats);
+            setInitialStats(qualityStats); // 초기 상태 고정
 
             // 날짜 컬럼 자동 감지
             const dateColCount = detectDateCandidateColumns(parsedData, initialHeaders);
@@ -104,7 +108,13 @@ export function useDataFlow() {
     }, []);
 
     // 정제 프로세스 시작 (Worker 호출)
-    const startProcessing = useCallback((prompt: string, options: ProcessingOptions) => {
+    const startProcessing = useCallback((
+        prompt: string,
+        options: ProcessingOptions,
+        customLocked?: string[],
+        customLimits?: ColumnLimits,
+        customColOptions?: ColumnSpecificOptions
+    ) => {
         if (!workerRef.current || data.length === 0) return;
 
         setIsProcessing(true);
@@ -113,16 +123,16 @@ export function useDataFlow() {
 
         const message: WorkerMessage = {
             type: 'PROCESS',
-            data: data, // 항상 원본 기준으로 재처리 (누적 처리를 원하면 processedData 사용 고려) -> 보통 리셋 후 재처리가 안전
+            data: data,
             prompt,
             options,
-            lockedColumns,
-            columnLimits,
-            columnOptions
+            lockedColumns: customLocked || lockedColumns,
+            columnLimits: customLimits || columnLimits,
+            columnOptions: customColOptions || columnOptions
         };
 
         workerRef.current.postMessage(message);
-    }, [data, lockedColumns, columnLimits, columnOptions]); // data나 설정이 바뀌면 의존성 변경
+    }, [data, lockedColumns, columnLimits, columnOptions]);
 
     // 데이터 직접 수정 핸들러 (Cell Edit)
     const updateCell = useCallback((rowIdx: number, col: string, newVal: string) => {
@@ -202,7 +212,8 @@ export function useDataFlow() {
         setProcessedData(data);
         const initialIssues = detectDataIssues(data);
         setIssues(initialIssues);
-        setStats({ totalRows: data.length, changedCells: 0, resolvedIssues: 0 });
+        const qualityStats = analyzeDataQuality(data, initialIssues);
+        setStats(qualityStats);
         setError(null);
         setProgress(0);
         setProgressMessage("");
@@ -232,6 +243,7 @@ export function useDataFlow() {
         updateColumnOption,
         columnOptions,
         detectedDateColumns,
+        initialStats,      // [NEW]
         setError,
         resetData // Export
     };

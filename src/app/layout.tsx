@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "데이터세탁소 (Data Laundry) - 스마트 데이터 정제 솔루션",
   description: "지저분한 데이터를 새것처럼 뽀송뽀송하게, 1인 개발자의 데이터 세탁소",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({

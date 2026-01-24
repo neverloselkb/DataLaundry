@@ -29,7 +29,7 @@ export function parseKoreanAmount(text: string): number {
 }
 
 /**
- * 다양한 날짜 형식 문자열을 표준 포맷(yyyy.MM.dd)으로 변환하는 함수
+ * 다양한 날짜 형식 문자열을 표준 포맷(yyyy-MM-dd)으로 변환하는 함수
  * @param val 날짜 문자열
  * @returns 변환된 표준 날짜 문자열 또는 null
  */
@@ -39,12 +39,12 @@ export function normalizeDate(val: string): string | null {
 
     const krMatch = val.match(/((?:19|20)\d{2})[-.년/\s]{1,3}(\d{1,2})[-.월/\s]{1,3}(\d{1,2})[일\s)]?/);
     if (krMatch) {
-        return `${krMatch[1]}.${krMatch[2].padStart(2, '0')}.${krMatch[3].padStart(2, '0')}`;
+        return `${krMatch[1]}-${krMatch[2].padStart(2, '0')}-${krMatch[3].padStart(2, '0')}`;
     }
 
     const ymdMatch = val.match(/((?:19|20)\d{2})[-./](\d{1,2})[-./](\d{1,2})/);
     if (ymdMatch) {
-        return `${ymdMatch[1]}.${ymdMatch[2].padStart(2, '0')}.${ymdMatch[3].padStart(2, '0')}`;
+        return `${ymdMatch[1]}-${ymdMatch[2].padStart(2, '0')}-${ymdMatch[3].padStart(2, '0')}`;
     }
 
     const mdyMatch = val.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.]((?:19|20)\d{2})/);
@@ -61,19 +61,19 @@ export function normalizeDate(val: string): string | null {
             m = p1; d = p2;
         }
         if (m > 12 || d > 31) return null;
-        return `${y}.${String(m).padStart(2, '0')}.${String(d).padStart(2, '0')}`;
+        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     }
 
     const eightMatch = val.match(/((?:19|20)\d{2})(\d{2})(\d{2})/);
     if (eightMatch) {
-        return `${eightMatch[1]}.${eightMatch[2]}.${eightMatch[3]}`;
+        return `${eightMatch[1]}-${eightMatch[2]}-${eightMatch[3]}`;
     }
 
     const sixMatch = val.match(/^(\d{2})(\d{2})(\d{2})/);
     if (sixMatch) {
         const y = parseInt(sixMatch[1]);
         const fullYear = (y > 50 ? 1900 : 2000) + y;
-        return `${fullYear}.${sixMatch[2]}.${sixMatch[3]}`;
+        return `${fullYear}-${sixMatch[2]}-${sixMatch[3]}`;
     }
 
     const yyMatch = val.match(/^(\d{2})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/);
@@ -83,7 +83,7 @@ export function normalizeDate(val: string): string | null {
         let d = parseInt(yyMatch[3]);
         const fullYear = (y > 50 ? 1900 : 2000) + y;
         if (m <= 12 && d <= 31) {
-            return `${fullYear}.${String(m).padStart(2, '0')}.${String(d).padStart(2, '0')}`;
+            return `${fullYear}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         }
     }
 
@@ -91,7 +91,7 @@ export function normalizeDate(val: string): string | null {
 }
 
 /**
- * 일시 형식 문자열을 표준 포맷(yyyy.MM.dd HH:mm:ss)으로 변환하는 함수
+ * 일시 형식 문자열을 표준 포맷(yyyy-MM-dd HH:mm:ss)으로 변환하는 함수
  * @param val 일시 문자열
  * @returns 변환된 표준 일시 문자열 또는 null
  */

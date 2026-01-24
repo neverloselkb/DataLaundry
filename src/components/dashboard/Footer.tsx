@@ -20,9 +20,12 @@ export function Footer({ setTermsModalOpen, setHelpModalOpen, setGuideModalOpen,
                         </span>
                     </div>
                     <p className="text-sm text-slate-500 leading-relaxed">
-                        AI 기술을 활용하여 복잡한 세일즈/마케팅 데이터를<br />
+                        로컬 브라우저 엔진을 활용하여 복잡한 세절/마케팅 데이터를<br />
                         단 몇 초 만에 완벽하게 정제해 드립니다.
                     </p>
+                    <div className="mt-4 flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg w-fit shadow-sm">
+                        <span className="text-[10px] font-bold text-slate-600">100% Client-Side Engine</span>
+                    </div>
                 </div>
 
                 <div>

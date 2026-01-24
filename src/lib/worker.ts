@@ -1,5 +1,5 @@
 import { DataRow, ProcessingOptions, ColumnSpecificOptions } from '@/types';
-import { processDataLocal } from './core/processors';
+import { processDataLocal, applyColumnOptions, restoreLockedColumns } from './core/processors';
 import { detectDataIssues, calculateDiffStats } from './core/analyzers';
 
 // Worker 메시지 타입 정의
@@ -12,37 +12,38 @@ export type WorkerResponse =
     | { type: 'COMPLETE', processedData: DataRow[], issues: any[], stats: any }
     | { type: 'ERROR', error: string };
 
-self.onmessage = (e: MessageEvent<WorkerMessage>) => {
+self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
     const { type, data, prompt, options, lockedColumns, columnLimits, columnOptions } = e.data;
 
     if (type === 'PROCESS') {
         try {
-            // Step 1: Start Processing
-            self.postMessage({ type: 'PROGRESS', progress: 10, message: '데이터 분석 중...' });
+            // 원본 데이터 백업 (잠금 복구용 - worker에 전달된 시점의 상태)
+            const originalDataBackup = data;
+            // =================================================================================
+            // [Local Engine] Unified Priority Engine
+            // Order: Lock > Column Option > NLP > Checkbox
+            // =================================================================================
+            self.postMessage({ type: 'PROGRESS', progress: 50, message: '⚡ 로컬 엔진으로 5대 원칙 기반 정제 중...' });
 
-            // Step 2: Main Processing Logic (30%)
-            self.postMessage({ type: 'PROGRESS', progress: 30, message: '데이터 정제 엔진 가동 중...' });
-            const processedData = processDataLocal(data, prompt, options, lockedColumns, columnOptions);
+            // 모든 위계 질서가 내부에서 처리됨 (Rule 1~5)
+            const currentData = processDataLocal(data, prompt, options, lockedColumns, columnOptions);
 
-            // Step 3: Issue Detection (70%)
-            self.postMessage({ type: 'PROGRESS', progress: 70, message: '데이터 무결성 검사 및 이슈 진단 중...' });
-            const currentIssues = detectDataIssues(processedData, columnLimits, options);
-
-            // Step 4: Stats Calculation (90%)
-            self.postMessage({ type: 'PROGRESS', progress: 90, message: '최종 리포트 생성 중...' });
+            // Step 3: Issue Detection (Completed)
+            self.postMessage({ type: 'PROGRESS', progress: 95, message: '최종 리포트 생성 중...' });
+            const currentIssues = detectDataIssues(currentData, columnLimits, options);
             const originalIssues = detectDataIssues(data, columnLimits, options);
-            const stats = calculateDiffStats(data, processedData, originalIssues.length, currentIssues.length);
+            const stats = calculateDiffStats(data, currentData, originalIssues.length, currentIssues.length);
 
             // Step 5: Complete
             self.postMessage({
                 type: 'COMPLETE',
-                processedData,
+                processedData: currentData,
                 issues: currentIssues,
-                stats
+                stats: stats
             });
 
-        } catch (err) {
-            self.postMessage({ type: 'ERROR', error: String(err) });
+        } catch (err: any) {
+            self.postMessage({ type: 'ERROR', error: err.message || String(err) });
         }
     }
 };

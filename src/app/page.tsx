@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from 'react';
-import { DataIssue, DataRow } from '@/types';
+import { useState, useCallback, useEffect } from 'react';
+import { DataIssue, DataRow, ColumnOptionType, CleaningPreset } from '@/types';
 import { useDataFlow } from '@/hooks/useDataFlow';
 import { useCleaningOptions } from '@/hooks/useCleaningOptions';
 import { downloadData } from '@/lib/core/exporters';
@@ -16,6 +16,7 @@ import { ResultSummary } from '@/components/dashboard/ResultSummary';
 import { DataPreviewTable } from '@/components/dashboard/DataPreviewTable';
 import { DownloadSection } from '@/components/dashboard/DownloadSection';
 import { DonateModal, GuideModal, HelpModal, TermsModal, FixModal, FormatGuideModal } from '@/components/dashboard/Modals';
+import { LoadingOverlay } from '@/components/processing/LoadingOverlay';
 
 export default function DataCleanDashboard() {
   // 1. Custom Hooks
@@ -27,6 +28,7 @@ export default function DataCleanDashboard() {
     isProcessing,
     progress,
     progressMessage,
+    // ... rest of hooks
     error,
     issues,
     stats,
@@ -44,7 +46,8 @@ export default function DataCleanDashboard() {
     resetData,
     detectedDateColumns,
     columnOptions,
-    updateColumnOption
+    updateColumnOption,
+    initialStats
   } = useDataFlow();
 
   const { options, setOptions, prompt, setPrompt } = useCleaningOptions();
@@ -59,6 +62,7 @@ export default function DataCleanDashboard() {
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const [formatGuideModalOpen, setFormatGuideModalOpen] = useState(false);
+
 
   // Fix Modal State
   const [fixModalOpen, setFixModalOpen] = useState(false);
@@ -91,24 +95,94 @@ export default function DataCleanDashboard() {
     downloadData(processedData, fileName, data, options.highlightChanges);
   };
 
-  // Issue Suggestion Application (Single Issue)
+  // Issue Suggestion Application (Single Issue) - Targeted to Column
   const handleApplySuggestion = useCallback((issue: DataIssue) => {
     if (!issue.suggestion && !issue.promptSuggestion) return;
 
-    // Apply suggestion via reprocessing
     if (issue.promptSuggestion) {
-      // Append to prompt and re-process
       setPrompt(prev => prev ? `${prev}, ${issue.promptSuggestion}` : issue.promptSuggestion!);
       alert("프롬프트에 제안 내용이 추가되었습니다. '데이터 정제하기' 버튼을 눌러 적용해 보세요.");
-    } else if (issue.suggestion) {
-      // Create temp options for this specific fix if needed, or just warn user
-      // Current design: Suggestion maps to options. 
-      // If we want to auto-apply, we might need to update options and run process.
-      const newOptions = { ...options, ...issue.suggestion };
-      setOptions(newOptions);
-      startProcessing(prompt, newOptions);
+      return;
     }
-  }, [options, prompt, setOptions, setPrompt, startProcessing]);
+
+    if (issue.suggestion) {
+      // 전역 옵션 키를 컬럼전용 옵션 타입으로 매핑
+      const mapping: Record<string, ColumnOptionType> = {
+        removeWhitespace: 'trim',
+        formatMobile: 'mobile',
+        formatGeneralPhone: 'phone',
+        formatDate: 'date',
+        formatDateTime: 'datetime',
+        formatNumber: 'amount',
+        cleanEmail: 'emailClean',
+        formatZip: 'zip',
+        cleanGarbage: 'garbage',
+        cleanAmount: 'amount',
+        cleanName: 'nameClean',
+        formatBizNum: 'bizNum',
+        formatCorpNum: 'corpNum',
+        formatUrl: 'url',
+        maskPersonalData: 'rrn',
+        maskAccount: 'accountMask',
+        maskCard: 'cardMask',
+        maskName: 'nameMask',
+        maskEmail: 'emailMask',
+        maskAddress: 'addressMask',
+        maskPhoneMid: 'phoneMidMask',
+        categoryAge: 'ageCategory',
+        truncateDate: 'dateTruncate',
+        restoreExponential: 'exponentialRestore',
+        extractBuilding: 'buildingExtract',
+        normalizeSKU: 'skuNormalize',
+        unifyUnit: 'unitUnify',
+        standardizeCurrency: 'currencyStandardize',
+        cleanCompanyName: 'companyClean',
+        removePosition: 'positionRemove',
+        extractDong: 'dongExtract',
+        cleanAreaUnit: 'area',
+        cleanSnsId: 'snsId',
+        formatHashtag: 'hashtag',
+        formatTaxDate: 'date', // 예외적 매핑
+        formatAccountingNum: 'amount' // 예외적 매핑
+      };
+
+      // 첫 번째 발견된 제안 옵션을 해당 컬럼의 전용 옵션으로 적용
+      const firstOptionKey = Object.keys(issue.suggestion)[0];
+      const targetOption = mapping[firstOptionKey];
+
+      if (targetOption) {
+        updateColumnOption(issue.column, targetOption);
+
+        // 즉시 반영을 위해 현재 상태를 기반으로 업데이트된 옵션 객체 생성 후 전달
+        const updatedColOptions = { ...columnOptions, [issue.column]: targetOption };
+        startProcessing(prompt, options, lockedColumns, columnLimits, updatedColOptions);
+
+        alert(`'${issue.column}' 컬럼에 해당 정제 설정이 적용되었습니다. ✨`);
+      } else {
+        // 매핑 실패 시 기존처럼 전역 옵션 시도 (폴백)
+        const newOptions = { ...options, ...issue.suggestion };
+        setOptions(newOptions);
+        startProcessing(prompt, newOptions);
+      }
+    }
+  }, [options, prompt, setOptions, setPrompt, startProcessing, updateColumnOption, columnOptions, lockedColumns, columnLimits]);
+
+  // Handle Preset Application
+  const handleApplyPreset = useCallback((preset: CleaningPreset) => {
+    // 1. 상태 업데이트
+    setOptions(preset.options);
+    setPrompt(preset.prompt);
+
+    // 2. 컬럼별 옵션 업데이트 (프리셋에 저장된 값으로 대체)
+    Object.entries(preset.columnOptions).forEach(([col, opt]) => {
+      updateColumnOption(col, opt as ColumnOptionType);
+    });
+
+    // 3. 즉시 정제 시작 (상태가 아직 반영 안되었을 수 있으므로 직접 전달)
+    startProcessing(preset.prompt, preset.options, lockedColumns, columnLimits, preset.columnOptions);
+
+    alert(`'${preset.name}' 프리셋이 성공적으로 적용되었습니다. ✨`);
+  }, [setOptions, setPrompt, updateColumnOption, startProcessing, lockedColumns, columnLimits]);
 
   // Bulk Fix Handler (Max Length, etc.)
   const handleOpenFixModal = (issue: DataIssue) => {
@@ -170,12 +244,14 @@ export default function DataCleanDashboard() {
               fileLoaded={!!file}
               detectedDateColumns={detectedDateColumns}
               columnOptions={columnOptions}
+              onApplyPreset={handleApplyPreset}
             />
 
             {file && (
               <>
                 <ResultSummary
                   stats={stats}
+                  initialStats={initialStats}
                   issues={issues}
                   processedData={processedData}
                   setIssues={setIssues}
@@ -194,7 +270,18 @@ export default function DataCleanDashboard() {
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
               <span className="w-1.5 h-6 bg-blue-600 rounded-full inline-block"></span>
               데이터 미리보기
-              {file && <span className="text-sm font-normal text-slate-500 ml-2">({file.name})</span>}
+              {file && (
+                <>
+                  <span className="text-sm font-normal text-slate-500 ml-2">({file.name})</span>
+                  <span className="ml-auto text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 flex items-center gap-1.5 animate-fade-in shadow-sm">
+                    <span className="flex h-2 w-2 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                    </span>
+                    더블클릭하여 셀 직접 수정 가능
+                  </span>
+                </>
+              )}
             </h2>
 
             <DataPreviewTable
@@ -262,6 +349,14 @@ export default function DataCleanDashboard() {
         replacementValue={replacementValue}
         setReplacementValue={setReplacementValue}
         onApply={handleApplyFix}
+      />
+
+
+      {/* Full Screen Loading Overlay */}
+      <LoadingOverlay
+        isVisible={isProcessing}
+        progress={progress}
+        message={progressMessage}
       />
     </div>
   );

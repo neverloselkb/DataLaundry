@@ -33,6 +33,23 @@ export type ProcessingOptions = {
     cleanAreaUnit: boolean;       // 면적 단위 제거 (계산용)
     cleanSnsId: boolean;          // SNS ID 추출
     formatHashtag: boolean;       // 해시태그 표준화
+    cleanCompanyName: boolean;    // 업체명 정규화 (수식어 제거)
+    removePosition: boolean;      // 이름 내 직함 제거
+    extractDong: boolean;         // 상세 주소(동읍면) 추출
+    maskAccount: boolean;         // 계좌번호 마스킹
+    maskCard: boolean;            // 카드번호 마스킹
+    maskName: boolean;            // 성함 마스킹 (홍*동)
+    maskEmail: boolean;           // 이메일 마스킹 (아이디 일부)
+    maskAddress: boolean;         // 상세 주소 마스킹
+    maskPhoneMid: boolean;        // 연락처 중간자리 마스킹
+    categoryAge: boolean;         // 나이 범주화 (10단위)
+    truncateDate: boolean;        // 날짜 절삭 (연/월만 남김)
+    restoreExponential: boolean;  // 엑셀 지수 표기(E+) 복원
+    extractBuilding: boolean;     // 주소 내 건물명 추출
+    normalizeSKU: boolean;        // SKU/모델명 표준화
+    unifyUnit: boolean;           // 단위 제거 및 수치화 (kg, 평 등)
+    standardizeCurrency: boolean; // 통화 기호 제거 및 통일
+    useAI: boolean;               // 자연어 스마트 정제 엔진 사용 여부
 };
 
 /**
@@ -53,11 +70,14 @@ export type DataIssue = {
  * 데이터 처리 통계 정보
  * 정제 전후의 변화량을 추적합니다.
  */
-export type ProcessingStats = {
+export interface ProcessingStats {
     totalRows: number;        // 전체 행 수
     changedCells: number;     // 변경된 셀의 수
     resolvedIssues: number;   // 해결된 이슈의 수
-};
+    qualityScore: number;     // 데이터 건강도 점수 (0-100)
+    completeness: number;      // 데이터 완결성 (결측치 없는 비율 %)
+    validity: number;          // 데이터 유효성 (이슈 없는 비율 %)
+}
 
 /**
  * 컬럼별 최대 길이 제약 조건
@@ -87,5 +107,40 @@ export type ColumnOptionType =
     | 'area'         // 면적 (단위 제거)
     | 'snsId'        // SNS ID
     | 'hashtag'      // 해시태그
+    | 'companyClean' // 업체명 정규화
+    | 'positionRemove' // 직함 제거
+    | 'dongExtract'  // 동/읍/면 추출
+    | 'accountMask'  // 계좌번호 마스킹
+    | 'cardMask'     // 카드번호 마스킹
+    | 'nameMask'     // 성함 마스킹
+    | 'emailMask'    // 이메일 마스킹
+    | 'addressMask'  // 상세 주소 마스킹
+    | 'phoneMidMask' // 연락처 중간자리 가림
+    | 'ageCategory'  // 나이 범주화
+    | 'dateTruncate' // 날짜 절삭
+    | 'exponentialRestore' // 지수 표기 복원
+    | 'buildingExtract'    // 건물명 추출
+    | 'skuNormalize'       // SKU 표준화
+    | 'unitUnify'          // 단위 수치화
+    | 'currencyStandardize' // 통화 표준화
+    | 'trim'               // 공백 제거 (타켓 컬럼 전용)
+    | 'garbage'            // 가비지 제거 (타켓 컬럼 전용)
+    | 'nameClean'          // 이름 노이즈 제거 (타겟 컬럼 전용)
+    | 'emailClean'         // 이메일 정제 (타겟 컬럼 전용)
     | null;
 export type ColumnSpecificOptions = Record<string, ColumnOptionType>;
+
+/**
+ * 사용자 정의 정제 프리셋 인터페이스
+ */
+export interface CleaningPreset {
+    id: string;               // 고유 ID
+    name: string;             // 프리셋 이름
+    icon?: string;            // 이모지 아이콘
+    description?: string;     // 상세 설명
+    options: ProcessingOptions;       // 전역 체크박스 상태
+    prompt: string;                   // 자연어 명령어
+    columnOptions: ColumnSpecificOptions; // 컬럼별 타켓 설정
+    createdAt: number;        // 생성일
+    isSystem?: boolean;       // 시스템 기본 제공 여부
+}

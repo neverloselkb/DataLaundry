@@ -64,19 +64,27 @@ export function GuideModal({ open, onClose }: { open: boolean; onClose: () => vo
                 <CardContent className="overflow-y-auto p-6 space-y-8 text-sm leading-relaxed text-slate-700">
                     <section>
                         <h5 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-base">
-                            ⚙️ 기술적 제작 원칙
+                            🛡️ 정제 우선순위 5대 원칙
                         </h5>
-                        <p>데이터세탁소는 1인 개발자의 집념으로 **'속도, 보안, 정확도'**라는 세 가지 핵심 가치를 지키기 위해 설계되었습니다.</p>
-                        <ul className="mt-3 space-y-2 list-none text-xs">
-                            <li className="flex gap-2">
-                                <span className="text-blue-600 font-bold">✔</span>
-                                <span>**Client-Only Logic**: 민감한 데이터가 외부 서버로 나가지 않도록 100% 브라우저 내 연산 로직(Web Worker)을 고집합니다.</span>
-                            </li>
-                            <li className="flex gap-2">
-                                <span className="text-blue-600 font-bold">✔</span>
-                                <span>**Pattern-First Engine**: 단순 치환을 넘어 정규식 패턴 매칭 엔진을 탑재하여 수천 가지 변수를 처리합니다.</span>
-                            </li>
-                        </ul>
+                        <div className="grid grid-cols-1 gap-2">
+                            {[
+                                { rank: 1, title: "잠금(Lock) 보호", desc: "잠긴 컬럼은 엔진이 절대 수정하지 않습니다. (보안 최우선)" },
+                                { rank: 2, title: "개별 설정 우선", desc: "헤더에서 직접 지정한 형식이 전역 설정보다 먼저 적용됩니다." },
+                                { rank: 3, title: "자연어 우선권", desc: "자연어에 특정 포맷이 있다면 프로그램 기본값보다 우선합니다." },
+                                { rank: 4, title: "체크박스 선행", desc: "공통 옵션으로 기초 정제를 먼저 수행한 뒤 자연어를 입힙니다." },
+                                { rank: 5, title: "자연어 최종 확정", desc: "자연어 처리는 가장 나중에 수행되어 이전 결과를 덮어씁니다." },
+                            ].map((rule) => (
+                                <div key={rule.rank} className="flex gap-3 p-2 rounded-lg bg-slate-50 border border-slate-100 items-center">
+                                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+                                        {rule.rank}
+                                    </span>
+                                    <div>
+                                        <span className="font-bold text-xs text-slate-800 mr-2">{rule.title}</span>
+                                        <span className="text-[11px] text-slate-500">{rule.desc}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </section>
 
                     <section className="bg-slate-50 p-5 rounded-xl border border-slate-200">
@@ -86,7 +94,7 @@ export function GuideModal({ open, onClose }: { open: boolean; onClose: () => vo
                         <div className="space-y-4">
                             <div>
                                 <div className="font-semibold text-slate-900 text-xs mb-1">헤더(Header) 최적화</div>
-                                <p className="text-[11px] text-slate-500">첫 번째 행은 반드시 컬럼명(헤더)이어야 합니다. 중복된 컬럼명은 AI 인식률을 떨어뜨리므로 가급적 고유한 이름을 사용해 주세요.</p>
+                                <p className="text-[11px] text-slate-500">첫 번째 행은 반드시 컬럼명(헤더)이어야 합니다. 중복된 컬럼명은 인식률을 떨어뜨리므로 가급적 고유한 이름을 사용해 주세요.</p>
                             </div>
                             <div>
                                 <div className="font-semibold text-slate-900 text-xs mb-1">인코딩 및 용량</div>
@@ -101,15 +109,59 @@ export function GuideModal({ open, onClose }: { open: boolean; onClose: () => vo
 
                     <section>
                         <h5 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-base">
-                            💡 제작자의 팁: 자연어의 힘
+                            🚀 단계별 자연어 활용 가이드
                         </h5>
-                        <p className="text-xs">
-                            단순한 버튼 클릭도 강력하지만, 프롬프트 창에 **"`고객명`에서 (주) 포함된 건 다 지워줘"** 처럼 구체적으로 입력해 보세요.
-                            데이터세탁소의 엔진은 단순 키워드가 아닌 사용자의 의도를 분석하도록 설계되었습니다.
-                        </p>
-                        <div className="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100 italic text-[11px] text-indigo-700">
-                            "데이터 정제는 기술이 아니라 예술입니다. 여러분의 소중한 데이터가 빛날 수 있도록 엔진을 매일 다듬고 있습니다."
+                        <div className="space-y-3">
+                            <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded">Lv.1 기초</span>
+                                    <span className="text-sm font-bold text-blue-900">한 마디로 정리하기</span>
+                                </div>
+                                <p className="text-[11px] text-blue-700 mb-2">단순한 명령어로 전체 데이터를 빠르게 닦아냅니다.</p>
+                                <ul className="text-[11px] space-y-1 text-slate-600 list-disc list-inside">
+                                    <li>"공백 다 지워줘"</li>
+                                    <li>"주소에서 시/도만 추출해줘"</li>
+                                    <li>"특수문자 제거해"</li>
+                                </ul>
+                            </div>
+
+                            <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded">Lv.2 중급</span>
+                                    <span className="text-sm font-bold text-indigo-900">구체적으로 지시하기</span>
+                                </div>
+                                <p className="text-[11px] text-indigo-700 mb-2">원하는 형식이나 특정 데이터를 콕 집어 정제합니다.</p>
+                                <ul className="text-[11px] space-y-1 text-slate-600 list-disc list-inside">
+                                    <li>"날짜 형식을 <span className="font-bold text-indigo-600 underline">yyyy/MM/dd</span>로 변경" (구분자 지정)</li>
+                                    <li>"업체명 정규화 (<span className="font-bold text-indigo-600 underline">(주), 주식회사 제거</span>)"</li>
+                                    <li>"담당자 성함에서 <span className="font-bold text-indigo-600 underline">직함은 다 지워줘</span>"</li>
+                                    <li>"계좌/카드번호 <span className="font-bold text-indigo-600 underline">뒷자리 별표 마스킹</span>"</li>
+                                </ul>
+                            </div>
+
+                            <div className="p-3 bg-violet-50/50 rounded-xl border border-violet-100">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="px-1.5 py-0.5 bg-violet-100 text-violet-700 text-[10px] font-bold rounded">Lv.3 고급</span>
+                                    <span className="text-sm font-bold text-violet-900">패턴과 와일드카드 활용</span>
+                                </div>
+                                <p className="text-[11px] text-violet-700 mb-2">반복되는 복잡한 패턴을 한 번에 정밀 타격합니다.</p>
+                                <ul className="text-[11px] space-y-1 text-slate-600 list-disc list-inside">
+                                    <li>"<span className="font-bold text-violet-600">[%d]원</span> 형식은 빈칸으로 변경" (%d는 숫자 매칭)</li>
+                                    <li>"상태가 <span className="font-bold text-violet-600">'active'면 '정상'</span>으로 치환"</li>
+                                </ul>
+                            </div>
                         </div>
+                    </section>
+
+                    <section className="bg-amber-50 p-4 rounded-xl border border-amber-200">
+                        <h5 className="font-bold text-amber-900 mb-2 flex items-center gap-2 text-sm">
+                            ✉️ 정제가 제대로 안 되시나요?
+                        </h5>
+                        <p className="text-[11px] text-amber-800 leading-relaxed">
+                            특정 데이터 패턴이 정제되지 않거나 오류가 발생한다면, **해당 화면 스크린샷**과 **입력하신 자연어 명령어**를 아래 메일로 보내주세요.
+                            엔진 고도화에 큰 도움이 됩니다!
+                        </p>
+                        <p className="mt-2 text-xs font-bold text-amber-900">Email: pentiumman@naver.com</p>
                     </section>
                 </CardContent>
                 <CardFooter className="border-t border-slate-100 bg-slate-50/50 p-4 flex justify-end">
@@ -265,7 +317,7 @@ export function FormatGuideModal({ open, onClose }: { open: boolean; onClose: ()
                                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
                                     <h5 className="font-bold text-blue-900 mb-2">💬 자연어 처리 예시</h5>
                                     <p className="text-sm text-blue-800 mb-4">
-                                        복잡한 설정 없이, 채팅창에 말하듯이 입력하면 AI가 자동으로 의도를 파악합니다.
+                                        복잡한 설정 없이, 채팅창에 말하듯이 입력하면 엔진이 자동으로 의도를 파악합니다.
                                     </p>
                                     <ul className="space-y-2 text-sm text-slate-700">
                                         <li className="flex gap-2 items-start">
@@ -288,6 +340,15 @@ export function FormatGuideModal({ open, onClose }: { open: boolean; onClose: ()
                                             <span>옵션이 켜지며 "20240101" 형태로 변환됩니다.</span>
                                         </li>
                                     </ul>
+                                </div>
+                                <div className="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                                    <h5 className="font-bold text-amber-900 mb-2 flex items-center gap-2 text-xs">
+                                        ✉️ 정제가 제대로 안 되시나요?
+                                    </h5>
+                                    <p className="text-[10px] text-amber-800 leading-relaxed">
+                                        특정 데이터가 정제되지 않는다면 **화면 스크린샷**과 **명령어**를 메일로 보내주세요. 고도화에 반영하겠습니다.
+                                        <br /><strong>Email: pentiumman@naver.com</strong>
+                                    </p>
                                 </div>
                             </div>
                         )}
@@ -338,7 +399,7 @@ export function HelpModal({ open, onClose }: { open: boolean; onClose: () => voi
                             </div>
                             <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                 <div className="font-bold text-slate-900 mb-1">3. 실시간 미리보기</div>
-                                <p className="text-xs text-slate-500">AI가 정제한 결과를 실시간으로 확인하고 필요시 셀을 더블클릭해 직접 수정하세요.</p>
+                                <p className="text-xs text-slate-500">스마트 엔진이 정제한 결과를 실시간으로 확인하고 필요시 셀을 더블클릭해 직접 수정하세요.</p>
                             </div>
                             <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                 <div className="font-bold text-slate-900 mb-1">4. 결과 다운로드</div>
@@ -391,6 +452,16 @@ export function HelpModal({ open, onClose }: { open: boolean; onClose: () => voi
                             </div>
                         </div>
                     </section>
+
+                    <section className="bg-amber-50 p-4 rounded-xl border border-amber-200 mt-4">
+                        <h5 className="font-bold text-amber-900 mb-2 flex items-center gap-2 text-sm">
+                            ✉️ 정제가 제대로 안 되시나요?
+                        </h5>
+                        <p className="text-[11px] text-amber-800 leading-relaxed">
+                            특정 데이터 패턴이 정제되지 않거나 오류가 발생한다면, **해당 화면 스크린샷**과 **입력하신 자연어 명령어**를 개발자 메일로 보내주세요.
+                        </p>
+                        <p className="mt-2 text-xs font-bold text-amber-900">Email: pentiumman@naver.com</p>
+                    </section>
                 </CardContent>
                 <CardFooter className="border-t border-slate-100 bg-slate-50/50 p-4 flex justify-end">
                     <Button onClick={onClose} className="bg-slate-900 hover:bg-slate-800 text-white px-8">
@@ -435,7 +506,7 @@ export function TermsModal({ open, onClose }: { open: boolean; onClose: () => vo
 
                     <section>
                         <h5 className="font-bold text-slate-900 mb-2">3. 책임의 한계</h5>
-                        <p>데이터 정제 결과는 AI 모델과 정규식 로직에 따라 생성되며, 100%의 정확성을 보장하지 않습니다. 정제 과정 중 발생할 수 있는 데이터의 손실, 변형, 오인으로 인한 어떠한 손해에 대해서도 1인 개발자인 운영자는 법적/경제적 책임을 지지 않습니다. <strong>중요 데이터는 반드시 사전에 원본을 백업하시기 바랍니다.</strong></p>
+                        <p>데이터 정제 결과는 정규식 로직에 따라 생성되며, 100%의 정확성을 보장하지 않습니다. 정제 과정 중 발생할 수 있는 데이터의 손실, 변형, 오인으로 인한 어떠한 손해에 대해서도 1인 개발자인 운영자는 법적/경제적 책임을 지지 않습니다. <strong>중요 데이터는 반드시 사전에 원본을 백업하시기 바랍니다.</strong></p>
                     </section>
 
                     <section>
@@ -507,3 +578,4 @@ export function FixModal({ open, onClose, targetIssue, replacementValue, setRepl
         </div>
     );
 }
+

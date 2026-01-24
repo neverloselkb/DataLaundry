@@ -31,7 +31,24 @@ export function useCleaningOptions() {
         formatAccountingNum: false,
         cleanAreaUnit: false,
         cleanSnsId: false,
-        formatHashtag: false
+        formatHashtag: false,
+        cleanCompanyName: false,
+        removePosition: false,
+        extractDong: false,
+        maskAccount: false,
+        maskCard: false,
+        maskName: false,
+        maskEmail: false,
+        maskAddress: false,
+        maskPhoneMid: false,
+        categoryAge: false,
+        truncateDate: false,
+        restoreExponential: false,
+        extractBuilding: false,
+        normalizeSKU: false,
+        unifyUnit: false,
+        standardizeCurrency: false,
+        useAI: false // 기본값: AI 비활성화 (순수 로컬 모드)
     });
 
     // 필요 시 옵션 초기화 로직 등 추가

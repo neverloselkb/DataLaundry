@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Sparkles, Search, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Search, CheckCircle2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,10 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { ProcessingOptions, ColumnSpecificOptions } from '@/types';
 import { ProcessingStatus } from './ProcessingStatus';
+import { PresetModal } from './PresetModal';
+import { usePresets } from '@/hooks/usePresets';
 import { CLEANING_OPTIONS_SCHEMA, TIPS, OptionCategory } from '@/lib/constants';
+import { CleaningPreset } from '@/types';
 
 interface CleaningOptionsProps {
     options: ProcessingOptions;
@@ -24,6 +27,7 @@ interface CleaningOptionsProps {
     fileLoaded: boolean;
     detectedDateColumns?: number; // Optional to prevent breaking other usages immediately
     columnOptions?: ColumnSpecificOptions;
+    onApplyPreset: (preset: CleaningPreset) => void;
 }
 
 /**
@@ -42,8 +46,11 @@ export function CleaningOptions({
     onReset,
     fileLoaded,
     detectedDateColumns = 0,
-    columnOptions = {}
+    columnOptions = {},
+    onApplyPreset
 }: CleaningOptionsProps) {
+    const { presets, savePreset, deletePreset, exportPresets, importPresets } = usePresets();
+    const [isPresetModalOpen, setIsPresetModalOpen] = useState(false);
     const [tipIndex, setTipIndex] = useState(0);
     const [activeTab, setActiveTab] = useState<OptionCategory>('basic');
     const [searchQuery, setSearchQuery] = useState('');
@@ -87,6 +94,7 @@ export function CleaningOptions({
         setOptions(prev => ({ ...prev, [id]: checked }));
     };
 
+
     // 현재 보여줄 카테고리 (검색 중일 때는 탭 무시하고 펼쳐 보임)
     const displayCategories = searchQuery.trim()
         ? filteredSchema
@@ -94,17 +102,28 @@ export function CleaningOptions({
 
     return (
         <Card className={cn("border-slate-200 shadow-sm transition-opacity flex flex-col", !fileLoaded && "opacity-50 pointer-events-none")}>
-            <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                    <span className="bg-slate-100 text-slate-600 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span>
-                    정제 요청
-                </CardTitle>
-                <CardDescription>
-                    어떻게 데이터를 정리할까요?
-                    <span className="block text-[10px] mt-0.5 text-blue-600 font-medium">
-                        (개별 포맷이 지정되지 않은 모든 컬럼에 공통 적용됩니다)
-                    </span>
-                </CardDescription>
+            <CardHeader className="pb-3 border-b border-slate-100/50">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <span className="bg-slate-100 text-slate-600 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span>
+                            정제 요청
+                        </CardTitle>
+                        <CardDescription>
+                            어떻게 데이터를 정리할까요?
+                        </CardDescription>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-100 px-3 rounded-full font-bold"
+                        onClick={() => setIsPresetModalOpen(true)}
+                    >
+                        <Zap size={14} className="fill-blue-600" />
+                        프리셋 보관함
+                    </Button>
+                </div>
+
             </CardHeader>
             <CardContent className="space-y-4 flex-1 overflow-y-auto">
                 {/* Search & Quick Actions */}
@@ -223,16 +242,22 @@ export function CleaningOptions({
                     )}
                 </div>
 
-                {/* Prompt Input */}
+                {/* Prompt Input (NLP Smart) */}
                 <div className="space-y-2 pt-4 border-t border-slate-100">
-                    <Label htmlFor="prompt">추가 요청사항 (자연어)</Label>
+                    <Label htmlFor="prompt" className="flex items-center gap-2 text-blue-900">
+                        <Zap size={14} className="text-blue-500" />
+                        자연어 추가 요청
+                    </Label>
                     <Textarea
                         id="prompt"
-                        placeholder="예: 주소에서 시/도만 남겨줘."
-                        className="min-h-[80px] resize-none focus-visible:ring-blue-500 text-sm"
+                        placeholder="예: 주소에서 시/도만 추출, 특수문자 제거, 숫자만 남겨줘, 한글만 남겨줘"
+                        className="min-h-[80px] resize-none focus-visible:ring-blue-500 text-sm bg-blue-50/20 border-blue-100"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                     />
+                    <p className="text-[10px] text-slate-400 text-right">
+                        * 로컬 정용 정제 엔진이 패턴을 분석하여 처리합니다.
+                    </p>
                 </div>
 
                 {/* Tips Carousel */}
@@ -253,6 +278,17 @@ export function CleaningOptions({
                     </div>
                 </div>
             </CardContent>
+
+            <PresetModal
+                isOpen={isPresetModalOpen}
+                onClose={() => setIsPresetModalOpen(false)}
+                presets={presets}
+                onApply={onApplyPreset}
+                onSave={(name, desc) => savePreset(name, desc, options, prompt, columnOptions)}
+                onDelete={deletePreset}
+                onExport={exportPresets}
+                onImport={importPresets}
+            />
 
             <CardFooter className="pt-2 flex gap-2">
                 {isProcessing ? (
