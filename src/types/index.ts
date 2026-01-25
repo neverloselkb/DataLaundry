@@ -49,7 +49,12 @@ export type ProcessingOptions = {
     normalizeSKU: boolean;        // SKU/모델명 표준화
     unifyUnit: boolean;           // 단위 제거 및 수치화 (kg, 평 등)
     standardizeCurrency: boolean; // 통화 기호 제거 및 통일
+    removeHtml: boolean;          // HTML 태그 제거
+    removeEmoji: boolean;         // 이모지 및 이모티콘 제거
+    toUpperCase: boolean;         // 모든 텍스트 대문자 변환
+    toLowerCase: boolean;         // 모든 텍스트 소문자 변환
     useAI: boolean;               // 자연어 스마트 정제 엔진 사용 여부
+    autoDetect: boolean;          // [NEW] 데이터 형식 자동 감지 및 적용 여부 (기본값: false)
 };
 
 /**
@@ -127,6 +132,10 @@ export type ColumnOptionType =
     | 'garbage'            // 가비지 제거 (타켓 컬럼 전용)
     | 'nameClean'          // 이름 노이즈 제거 (타겟 컬럼 전용)
     | 'emailClean'         // 이메일 정제 (타겟 컬럼 전용)
+    | 'htmlRemove'         // HTML 태그 제거 (타겟 컬럼 전용)
+    | 'emojiRemove'        // 이모지 제거 (타겟 컬럼 전용)
+    | 'upperCase'          // 대문자 변환 (타겟 컬럼 전용)
+    | 'lowerCase'          // 소문자 변환 (타겟 컬럼 전용)
     | null;
 export type ColumnSpecificOptions = Record<string, ColumnOptionType>;
 

@@ -47,16 +47,16 @@ export function AnalysisReport({
             </CardHeader>
             <CardContent className="space-y-3">
                 {(showAllIssues ? issues : issues.slice(0, 3)).map((issue, idx) => (
-                    <div key={idx} className="flex items-start justify-between bg-white p-3 rounded-md border border-amber-100 shadow-sm text-sm">
-                        <div className="text-amber-900">
+                    <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white p-3 rounded-md border border-amber-100 shadow-sm text-sm gap-3">
+                        <div className="text-amber-900 flex-1">
                             <span className="font-bold text-amber-700 block mb-1">⚠️ {issue.column}</span>
                             {issue.message}
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-1 w-full sm:w-auto shrink-0 justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-amber-50">
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-amber-600 hover:text-amber-800 hover:bg-amber-50 h-auto py-1 px-2 whitespace-nowrap ml-2"
+                                className="text-amber-600 hover:text-amber-800 hover:bg-amber-50 h-8 px-2 whitespace-nowrap text-xs font-bold"
                                 onClick={() => {
                                     if (issue.fixType === 'maxLength') {
                                         onOpenFixModal(issue);
@@ -73,7 +73,7 @@ export function AnalysisReport({
                                     variant="ghost"
                                     size="sm"
                                     className={cn(
-                                        "h-auto py-1 px-2 whitespace-nowrap ml-1",
+                                        "h-8 px-2 whitespace-nowrap text-xs",
                                         filterIssue === issue
                                             ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
                                             : "text-slate-400 hover:text-blue-600 hover:bg-blue-50"
@@ -82,6 +82,7 @@ export function AnalysisReport({
                                     title={filterIssue === issue ? "전체 보기" : "이 문제만 보기"}
                                 >
                                     {filterIssue === issue ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    <span className="ml-1 sm:hidden">보기</span>
                                 </Button>
                             )}
                         </div>

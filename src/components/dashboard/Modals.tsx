@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { DataIssue } from '@/types';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { AdBanner } from './AdBanner'; // [NEW]
 
 // 1. Donate Modal
 export function DonateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+    useBodyScrollLock(open);
     if (!open) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-in fade-in duration-200 p-4">
@@ -45,6 +48,7 @@ export function DonateModal({ open, onClose }: { open: boolean; onClose: () => v
 
 // 2. Guide Modal
 export function GuideModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+    useBodyScrollLock(open);
     if (!open) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-in fade-in duration-200 p-4">
@@ -120,8 +124,9 @@ export function GuideModal({ open, onClose }: { open: boolean; onClose: () => vo
                                 <p className="text-[11px] text-blue-700 mb-2">단순한 명령어로 전체 데이터를 빠르게 닦아냅니다.</p>
                                 <ul className="text-[11px] space-y-1 text-slate-600 list-disc list-inside">
                                     <li>"공백 다 지워줘"</li>
+                                    <li>"HTML 태그 싹 다 지워줘"</li>
+                                    <li>"모두 대문자로 변환해줘"</li>
                                     <li>"주소에서 시/도만 추출해줘"</li>
-                                    <li>"특수문자 제거해"</li>
                                 </ul>
                             </div>
 
@@ -181,6 +186,7 @@ import { useState } from 'react';
 // 3. Format Guide Modal
 export function FormatGuideModal({ open, onClose }: { open: boolean; onClose: () => void }) {
     const [activeTab, setActiveTab] = useState<'basic' | 'business' | 'industry' | 'faq'>('basic');
+    useBodyScrollLock(open);
 
     if (!open) return null;
 
@@ -271,6 +277,10 @@ export function FormatGuideModal({ open, onClose }: { open: boolean; onClose: ()
                                 </h4>
                                 <GuideTable items={[
                                     { option: "공백 제거", desc: "앞뒤 공백만 제거", input: "  홍길동  ", output: "홍길동" },
+                                    { option: "HTML 태그 제거", desc: "웹소스 코드 삭제", input: "<p>안녕하세요</p>", output: "안녕하세요" },
+                                    { option: "이모지 제거", desc: "이모티콘, 특수 그림문자 삭제", input: "반가워요 👋✨", output: "반가워요 " },
+                                    { option: "대문자 변환", desc: "영문 소문자를 대문자로", input: "apple", output: "APPLE" },
+                                    { option: "소문자 변환", desc: "영문 대문자를 소문자로", input: "USA", output: "usa" },
                                     { option: "날짜 형식", desc: "YYYY.MM.DD 통일", input: "2024-1-1", output: "2024.01.01" },
                                     { option: "일시 형식", desc: "초 포함 YYYY.MM.DD HH:mm:ss", input: "24/1/1 9:30", output: "2024.01.01 09:30:00" },
                                     { option: "숫자 콤마", desc: "천단위 구분 기호", input: "1234500", output: "1,234,500" },
@@ -367,6 +377,7 @@ export function FormatGuideModal({ open, onClose }: { open: boolean; onClose: ()
 
 // 4. Help Modal
 export function HelpModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+    useBodyScrollLock(open);
     if (!open) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-in fade-in duration-200 p-4">
@@ -475,6 +486,7 @@ export function HelpModal({ open, onClose }: { open: boolean; onClose: () => voi
 
 // 4. Terms Modal
 export function TermsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+    useBodyScrollLock(open);
     if (!open) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-in fade-in duration-200 p-4">
@@ -541,6 +553,7 @@ interface FixModalProps {
 }
 
 export function FixModal({ open, onClose, targetIssue, replacementValue, setReplacementValue, onApply }: FixModalProps) {
+    useBodyScrollLock(open);
     if (!open || !targetIssue) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-in fade-in duration-200 p-4">
@@ -579,3 +592,91 @@ export function FixModal({ open, onClose, targetIssue, replacementValue, setRepl
     );
 }
 
+// 6. Confirm Modal
+interface ConfirmModalProps {
+    open: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    title: string;
+    description: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    icon?: React.ReactNode;
+}
+
+export function ConfirmModal({ open, onClose, onConfirm, title, description, confirmLabel = "확인", cancelLabel = "취소", icon }: ConfirmModalProps) {
+    useBodyScrollLock(open);
+    if (!open) return null;
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 animate-in fade-in duration-200 p-4">
+            <Card className="w-[400px] shadow-2xl border-slate-200 animate-in zoom-in-95 duration-200 overflow-hidden">
+                <CardHeader className="pb-3 text-center">
+                    <div className="mx-auto w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-2">
+                        {icon || <AlertCircle className="text-amber-600 h-6 w-6" />}
+                    </div>
+                    <CardTitle className="text-xl font-bold text-slate-900">{title}</CardTitle>
+                    <CardDescription className="text-slate-500 mt-2 whitespace-pre-wrap leading-relaxed">{description}</CardDescription>
+                </CardHeader>
+
+                {/* AD Slot: Modal-Confirm (Center) - [Moved] */}
+                <div className="py-2 border-y border-slate-50">
+                    <AdBanner slot="9999990001" className="bg-transparent" />
+                </div>
+
+                <CardFooter className="flex justify-center gap-3 p-6 pt-2">
+                    <Button variant="outline" onClick={onClose} className="flex-1 py-6 border-slate-200 text-slate-600 hover:bg-slate-50">
+                        {cancelLabel}
+                    </Button>
+                    <Button onClick={onConfirm} className="flex-1 py-6 bg-slate-900 hover:bg-slate-800 text-white font-bold">
+                        {confirmLabel}
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
+    );
+}
+
+// 7. Alert Modal (Simple Success/Info)
+interface AlertModalProps {
+    open: boolean;
+    onClose: () => void;
+    title: string;
+    description: string;
+    buttonLabel?: string;
+    type?: 'success' | 'info';
+}
+
+export function AlertModal({ open, onClose, title, description, buttonLabel = "확인", type = 'success' }: AlertModalProps) {
+    useBodyScrollLock(open);
+    if (!open) return null;
+
+    const icon = type === 'success'
+        ? <Sparkles className="text-green-600 h-6 w-6" />
+        : <AlertCircle className="text-blue-600 h-6 w-6" />;
+    const bg = type === 'success' ? 'bg-green-100' : 'bg-blue-100';
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 animate-in fade-in duration-200 p-4">
+            <Card className="w-[380px] shadow-2xl border-slate-200 animate-in zoom-in-95 duration-200 overflow-hidden">
+                <CardHeader className="pb-3 text-center">
+                    <div className={`mx-auto w-12 h-12 ${bg} rounded-full flex items-center justify-center mb-2`}>
+                        {icon}
+                    </div>
+                    <CardTitle className="text-xl font-bold text-slate-900">{title}</CardTitle>
+                    <CardDescription className="text-slate-500 mt-2 whitespace-pre-wrap leading-relaxed">{description}</CardDescription>
+                </CardHeader>
+
+                {/* AD Slot: Modal-Alert (Center) - [Moved] */}
+                <div className="py-2 border-y border-slate-50">
+                    <AdBanner slot="9999990002" className="bg-transparent" />
+                </div>
+
+                <CardFooter className="p-6 pt-2">
+                    <Button onClick={onClose} className="w-full py-6 bg-blue-600 hover:bg-blue-700 text-white font-bold">
+                        {buttonLabel}
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
+    );
+}

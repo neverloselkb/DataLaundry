@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { DataIssue, DataRow, ColumnOptionType, CleaningPreset } from '@/types';
 import { useDataFlow } from '@/hooks/useDataFlow';
-import { useCleaningOptions } from '@/hooks/useCleaningOptions';
+import { useCleaningOptions, INITIAL_OPTIONS } from '@/hooks/useCleaningOptions';
 import { downloadData } from '@/lib/core/exporters';
 
 // Components
@@ -15,8 +15,10 @@ import { AnalysisReport } from '@/components/dashboard/AnalysisReport';
 import { ResultSummary } from '@/components/dashboard/ResultSummary';
 import { DataPreviewTable } from '@/components/dashboard/DataPreviewTable';
 import { DownloadSection } from '@/components/dashboard/DownloadSection';
-import { DonateModal, GuideModal, HelpModal, TermsModal, FixModal, FormatGuideModal } from '@/components/dashboard/Modals';
+import { DonateModal, GuideModal, HelpModal, TermsModal, FixModal, FormatGuideModal, ConfirmModal, AlertModal } from '@/components/dashboard/Modals';
 import { LoadingOverlay } from '@/components/processing/LoadingOverlay';
+import { AdBanner } from '@/components/dashboard/AdBanner';
+import { checkNLPTargetAmbiguity } from '@/lib/core/processors'; // [NEW]
 
 export default function DataCleanDashboard() {
   // 1. Custom Hooks
@@ -47,14 +49,62 @@ export default function DataCleanDashboard() {
     detectedDateColumns,
     columnOptions,
     updateColumnOption,
-    initialStats
+    initialStats,
+    applyProcessedToOriginal
   } = useDataFlow();
+
+  const handleApplyProcessed = () => {
+    applyProcessedToOriginal(() => {
+      // 1. 기존 옵션 및 프롬프트 초기화 [Rule 9]
+      setOptions(INITIAL_OPTIONS);
+      setPrompt("");
+
+      // 2. 성공 팝업 노출
+      setAlertConfig({
+        open: true,
+        title: "결과 확정 완료",
+        description: "정제된 데이터가 원본으로 확정되었습니다.\n모든 체크박스와 명령어도 초기화되었습니다. ✨",
+        type: 'success'
+      });
+    });
+  };
 
   const { options, setOptions, prompt, setPrompt } = useCleaningOptions();
 
   // 2. UI State (Modals & Filters)
   const [showAllIssues, setShowAllIssues] = useState(false);
   const [filterIssue, setFilterIssue] = useState<DataIssue | null>(null);
+  const [delayedShowLoading, setDelayedShowLoading] = useState(false); // [NEW]
+  const previewRef = useRef<HTMLDivElement>(null); // [NEW]
+
+  // 로딩 팝업 지연 노출 제어 (3초 이상 소요 시에만 표시)
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (isProcessing) {
+      // 3초 후에도 여전히 처리 중이라면 팝업 표시
+      timer = setTimeout(() => {
+        setDelayedShowLoading(true);
+      }, 3000);
+    } else {
+      // 처리가 완료되면 즉시 팝업 제거
+      setDelayedShowLoading(false);
+    }
+
+    return () => clearTimeout(timer);
+  }, [isProcessing]);
+
+  // [New] 정제 완료 시 미리보기 섹션으로 자동 스크롤
+  useEffect(() => {
+    // isProcessing이 true였다가 false로 바뀌는 순간을 감지
+    // (완료 메시지 팝업 등이 뜰 시간이나 렌더링 시간을 고려해 아주 짧은 지연시간 추가 가능)
+    if (!isProcessing && processedData.length > 0) {
+      const timer = setTimeout(() => {
+        previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300); // 렌더링 완료 후 부드럽게 이동
+      return () => clearTimeout(timer);
+    }
+  }, [isProcessing, processedData.length]);
 
   // Modals State
   const [donateModalOpen, setDonateModalOpen] = useState(false);
@@ -68,6 +118,14 @@ export default function DataCleanDashboard() {
   const [fixModalOpen, setFixModalOpen] = useState(false);
   const [targetFixIssue, setTargetFixIssue] = useState<DataIssue | null>(null);
   const [replacementValue, setReplacementValue] = useState("");
+
+  // Generic Alert/Confirm State [NEW]
+  const [alertConfig, setAlertConfig] = useState<{ open: boolean; title: string; description: string; type?: 'success' | 'info' }>({
+    open: false, title: "", description: ""
+  });
+  const [confirmConfig, setConfirmConfig] = useState<{ open: boolean; title: string; description: string; onConfirm: () => void }>({
+    open: false, title: "", description: "", onConfirm: () => { }
+  });
 
   // 3. Handlers
   const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,6 +144,22 @@ export default function DataCleanDashboard() {
   };
 
   const handleProcess = () => {
+    // [New] 타겟 컬럼이 미지정된 경우 사용자 확인 로직 추가
+    const { isAmbiguous, hasAction } = checkNLPTargetAmbiguity(prompt, headers);
+
+    if (isAmbiguous && hasAction) {
+      setConfirmConfig({
+        open: true,
+        title: "전체 적용 확인",
+        description: "특정 컬럼이 지정되지 않았습니다.\n모든 컬럼을 대상으로 정제를 진행하시겠습니까?",
+        onConfirm: () => {
+          setConfirmConfig(prev => ({ ...prev, open: false }));
+          startProcessing(prompt, options);
+        }
+      });
+      return;
+    }
+
     startProcessing(prompt, options);
   };
 
@@ -101,7 +175,12 @@ export default function DataCleanDashboard() {
 
     if (issue.promptSuggestion) {
       setPrompt(prev => prev ? `${prev}, ${issue.promptSuggestion}` : issue.promptSuggestion!);
-      alert("프롬프트에 제안 내용이 추가되었습니다. '데이터 정제하기' 버튼을 눌러 적용해 보세요.");
+      setAlertConfig({
+        open: true,
+        title: "제안 추가 완료",
+        description: "프롬프트에 제안 내용이 추가되었습니다.\n'데이터 정제하기' 버튼을 눌러 적용해 보세요.",
+        type: 'info'
+      });
       return;
     }
 
@@ -157,7 +236,12 @@ export default function DataCleanDashboard() {
         const updatedColOptions = { ...columnOptions, [issue.column]: targetOption };
         startProcessing(prompt, options, lockedColumns, columnLimits, updatedColOptions);
 
-        alert(`'${issue.column}' 컬럼에 해당 정제 설정이 적용되었습니다. ✨`);
+        setAlertConfig({
+          open: true,
+          title: "자동 정제 적용",
+          description: `'${issue.column}' 컬럼에 최적화된 정제 설정이 적용되었습니다. ✨`,
+          type: 'success'
+        });
       } else {
         // 매핑 실패 시 기존처럼 전역 옵션 시도 (폴백)
         const newOptions = { ...options, ...issue.suggestion };
@@ -181,7 +265,12 @@ export default function DataCleanDashboard() {
     // 3. 즉시 정제 시작 (상태가 아직 반영 안되었을 수 있으므로 직접 전달)
     startProcessing(preset.prompt, preset.options, lockedColumns, columnLimits, preset.columnOptions);
 
-    alert(`'${preset.name}' 프리셋이 성공적으로 적용되었습니다. ✨`);
+    setAlertConfig({
+      open: true,
+      title: "프리셋 적용 완료",
+      description: `'${preset.name}' 프리셋이 성공적으로 적용되었습니다. ✨`,
+      type: 'success'
+    });
   }, [setOptions, setPrompt, updateColumnOption, startProcessing, lockedColumns, columnLimits]);
 
   // Bulk Fix Handler (Max Length, etc.)
@@ -216,7 +305,20 @@ export default function DataCleanDashboard() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
       <Header onOpenGuide={() => setFormatGuideModalOpen(true)} />
 
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Top Wide Ad - AD-1 (전체 높이 94px 고정으로 출렁임 제거) */}
+      <div className="container mx-auto px-2 sm:px-4 mt-4 max-w-7xl flex-shrink-0">
+        <div
+          className="bg-white rounded-xl border border-slate-200 p-2 shadow-sm overflow-hidden flex flex-col items-center w-full flex-shrink-0"
+          style={{ height: '94px', overflow: 'hidden' }}
+        >
+          <span className="text-[8px] text-blue-600 font-black mb-1.5 uppercase tracking-[0.2em] flex items-center gap-1">
+            <span className="bg-blue-600 text-white px-1 rounded-sm">AD-1</span> Sponsored
+          </span>
+          <AdBanner slot="5555555555" format="horizontal" isTest={true} className="w-full" />
+        </div>
+      </div>
+
+      <main className="container mx-auto px-2 sm:px-4 py-6 sm:py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* Left Panel: Upload & Controls */}
@@ -231,6 +333,17 @@ export default function DataCleanDashboard() {
               onFileSelect={onFileSelect}
             />
 
+            {/* Ad Slot - AD-2 (전체 높이 102px 고정) */}
+            <div
+              className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm overflow-hidden animate-fade-in flex-shrink-0"
+              style={{ height: '102px', overflow: 'hidden' }}
+            >
+              <span className="text-[9px] text-blue-600 font-black block mb-1 uppercase tracking-tighter flex items-center gap-1">
+                <span className="bg-blue-600 text-white px-1 rounded-sm">AD-2</span> 데이터 세탁 후원 광고
+              </span>
+              <AdBanner slot="3333333333" format="horizontal" isTest={true} className="w-full" />
+            </div>
+
             <CleaningOptions
               options={options}
               setOptions={setOptions}
@@ -240,7 +353,6 @@ export default function DataCleanDashboard() {
               progress={progress}
               progressMessage={progressMessage}
               onProcess={handleProcess}
-              onReset={resetData}
               fileLoaded={!!file}
               detectedDateColumns={detectedDateColumns}
               columnOptions={columnOptions}
@@ -265,15 +377,14 @@ export default function DataCleanDashboard() {
             )}
           </div>
 
-          {/* Right Panel: Data Preview */}
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-blue-600 rounded-full inline-block"></span>
+          <div className="lg:col-span-2 space-y-4" ref={previewRef}>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2 flex-wrap">
+              <span className="w-1.5 h-5 sm:h-6 bg-blue-600 rounded-full inline-block"></span>
               데이터 미리보기
               {file && (
                 <>
-                  <span className="text-sm font-normal text-slate-500 ml-2">({file.name})</span>
-                  <span className="ml-auto text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 flex items-center gap-1.5 animate-fade-in shadow-sm">
+                  <span className="text-xs sm:text-sm font-normal text-slate-500 ml-1 sm:ml-2">({file.name})</span>
+                  <span className="flex-1 sm:flex-none sm:ml-auto text-[10px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 flex items-center gap-1.5 animate-fade-in shadow-sm w-fit">
                     <span className="flex h-2 w-2 relative">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -297,7 +408,23 @@ export default function DataCleanDashboard() {
               filterIssue={filterIssue}
               columnOptions={columnOptions}
               onColumnOptionChange={updateColumnOption}
+              onReset={resetData}
+              onApply={handleApplyProcessed}
             />
+
+            {/* Ad Slot - AD-3 (전체 높이 110px 고정) */}
+            <div
+              className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm overflow-hidden animate-fade-in flex-shrink-0"
+              style={{ height: '110px', overflow: 'hidden' }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[9px] text-blue-600 font-black uppercase tracking-widest flex items-center gap-1">
+                  <span className="bg-blue-600 text-white px-1 rounded-sm text-[7px]">AD-3</span> Recommended Tool
+                </span>
+                <span className="text-[8px] text-slate-300">AD</span>
+              </div>
+              <AdBanner slot="4444443333" format="horizontal" isTest={true} className="w-full" />
+            </div>
 
             {file && (
               <div className="mt-8 animation-fade-in">
@@ -316,14 +443,16 @@ export default function DataCleanDashboard() {
           </div>
         </div>
 
-        {/* AdSense Test Area */}
-        <div className="mt-8">
-          <div className="bg-slate-100/50 border-2 border-dashed border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center min-h-[100px] text-slate-400">
-            <span className="text-xs font-bold uppercase tracking-widest mb-2">Advertisement (Test Mode)</span>
-            {/* AdSense code would go here */}
-            <p className="text-[10px] mt-2 italic text-slate-400">
-              * 'data-adtest="on"' 속성이 적용된 테스트용 광고 영역입니다.
-            </p>
+        {/* Bottom Banner Ad - AD-4 (전체 높이 96px 고정) */}
+        <div className="mt-8 mb-6 max-w-7xl mx-auto px-4 flex-shrink-0">
+          <div
+            className="bg-white rounded-xl border border-slate-200 p-2 shadow-sm overflow-hidden flex flex-col items-center flex-shrink-0"
+            style={{ height: '96px', overflow: 'hidden' }}
+          >
+            <span className="text-[8px] text-blue-600 font-black mb-2 uppercase tracking-widest flex items-center gap-1">
+              <span className="bg-blue-600 text-white px-1 rounded-sm">AD-4</span> RECOMMENDED
+            </span>
+            <AdBanner slot="1111111111" format="horizontal" isTest={true} className="w-full" />
           </div>
         </div>
       </main>
@@ -354,9 +483,24 @@ export default function DataCleanDashboard() {
 
       {/* Full Screen Loading Overlay */}
       <LoadingOverlay
-        isVisible={isProcessing}
+        isVisible={delayedShowLoading}
         progress={progress}
         message={progressMessage}
+      />
+      {/* Alert & Confirm Modals [NEW] */}
+      <AlertModal
+        open={alertConfig.open}
+        onClose={() => setAlertConfig(prev => ({ ...prev, open: false }))}
+        title={alertConfig.title}
+        description={alertConfig.description}
+        type={alertConfig.type}
+      />
+      <ConfirmModal
+        open={confirmConfig.open}
+        onClose={() => setConfirmConfig(prev => ({ ...prev, open: false }))}
+        onConfirm={confirmConfig.onConfirm}
+        title={confirmConfig.title}
+        description={confirmConfig.description}
       />
     </div>
   );

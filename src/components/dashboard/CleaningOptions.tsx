@@ -23,9 +23,8 @@ interface CleaningOptionsProps {
     progress: number;
     progressMessage: string;
     onProcess: () => void;
-    onReset: () => void;
     fileLoaded: boolean;
-    detectedDateColumns?: number; // Optional to prevent breaking other usages immediately
+    detectedDateColumns?: number;
     columnOptions?: ColumnSpecificOptions;
     onApplyPreset: (preset: CleaningPreset) => void;
 }
@@ -43,7 +42,6 @@ export function CleaningOptions({
     progress,
     progressMessage,
     onProcess,
-    onReset,
     fileLoaded,
     detectedDateColumns = 0,
     columnOptions = {},
@@ -138,9 +136,7 @@ export function CleaningOptions({
                         />
                     </div>
                     <div className="flex justify-end gap-2">
-                        <button className="text-xs text-blue-600 hover:underline" onClick={() => handleQuickAction('all')}>전체 선택</button>
-                        <span className="text-xs text-slate-300">|</span>
-                        <button className="text-xs text-slate-500 hover:underline" onClick={() => handleQuickAction('none')}>해제</button>
+                        <button className="text-xs text-slate-500 hover:underline" onClick={() => handleQuickAction('none')}>전체 선택 해제</button>
                     </div>
                 </div>
 
@@ -289,31 +285,22 @@ export function CleaningOptions({
                 onExport={exportPresets}
                 onImport={importPresets}
             />
-
-            <CardFooter className="pt-2 flex gap-2">
+            <CardFooter className="pt-2 flex flex-col gap-2">
                 {isProcessing ? (
                     <ProcessingStatus progress={progress} message={progressMessage} />
                 ) : (
-                    <>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full">
                         <Button
-                            variant="outline"
-                            className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200 h-11 px-4 shadow-sm"
-                            onClick={onReset}
-                            title="설정 및 결과 초기화"
-                        >
-                            초기화
-                        </Button>
-                        <Button
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white gap-2 h-11 text-base shadow-md hover:shadow-lg transition-all"
+                            className="flex-1 w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 h-11 text-base shadow-md hover:shadow-lg transition-all order-1 sm:order-3"
                             onClick={onProcess}
                             disabled={!prompt && !Object.values(options).some(Boolean) && !Object.values(columnOptions).some(Boolean)}
                         >
                             <Sparkles size={18} />
                             데이터 정제 실행
                         </Button>
-                    </>
+                    </div>
                 )}
             </CardFooter>
-        </Card>
+        </Card >
     );
 }

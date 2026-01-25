@@ -377,6 +377,23 @@ export function detectDataIssues(data: DataRow[], maxLengthConstraints: ColumnLi
                 });
             }
         }
+
+        // 13. 카드번호 (Card Number)
+        if (/카드|card/i.test(key)) {
+            const invalidCards = relevantRows.filter(r => {
+                const clean = r.val.replace(/[-\s]/g, '');
+                // [Fix] 10자리 미만이나 19자리 초과(송장번호 등 제외) 또는 숫자가 아닌 경우
+                return clean.length < 10 || clean.length > 19 || /[^0-9]/.test(clean);
+            });
+            if (invalidCards.length > 0) {
+                issues.push({
+                    column: key,
+                    type: 'warning',
+                    message: `'${key}' 컬럼에 유효하지 않은 카드번호(길이 부적합 등)가 있습니다.`,
+                    affectedRows: invalidCards.map(r => r.idx)
+                });
+            }
+        }
     }
 
     return issues;

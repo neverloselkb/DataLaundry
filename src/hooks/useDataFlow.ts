@@ -205,6 +205,16 @@ export function useDataFlow() {
         // 훅 사용자(Component)가 setIssues를 호출하도록 유도하거나, 여기서 effect를 사용.
     }, []);
 
+    // [NEW] 현재 정제된 데이터를 원본으로 확정 (Apply)
+    const applyProcessedToOriginal = useCallback((onSuccess?: () => void) => {
+        if (processedData.length === 0) return;
+        setData(processedData);
+        setColumnOptions({}); // 정제된 상태가 원본이 되므로 기존 옵션 초기화
+        setInitialStats(stats); // 통계 기준점 업데이트
+        setIssues(detectDataIssues(processedData)); // 이슈 재검사
+        if (onSuccess) onSuccess();
+    }, [processedData, stats]);
+
     // 데이터 초기화 (Reset)
     const resetData = useCallback(() => {
         if (data.length === 0) return;
@@ -245,6 +255,7 @@ export function useDataFlow() {
         detectedDateColumns,
         initialStats,      // [NEW]
         setError,
-        resetData // Export
+        resetData,
+        applyProcessedToOriginal // Export
     };
 }

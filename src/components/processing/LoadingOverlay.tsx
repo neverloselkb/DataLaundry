@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, Lightbulb } from 'lucide-react';
+import { AdBanner } from '@/components/dashboard/AdBanner';
 
 interface LoadingOverlayProps {
     isVisible: boolean;
@@ -60,20 +61,6 @@ export function LoadingOverlay({ isVisible, progress, message }: LoadingOverlayP
                             </p>
                         </div>
                     </div>
-                </div>
-
-                {/* 3. 광고 영역 (AdSense Placeholder) */}
-                <div className="w-full h-[250px] bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center relative overflow-hidden group">
-                    {/* Placeholder Content */}
-                    <div className="text-gray-500 font-medium group-hover:text-gray-400 transition-colors">
-                        광고 영역 (300x250 or Responsive)
-                    </div>
-                    <div className="text-gray-600 text-xs mt-2">
-                        이곳에 애드센스나 스폰서 배너가 표시됩니다.
-                    </div>
-
-                    {/* Visual Effect for Placeholder */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 transform" />
                 </div>
 
                 {/* 닫기 버튼 (개발 단계 편의용, 실제 서비스 시에는 제거하거나 보이지 않게 처리 가능) */}

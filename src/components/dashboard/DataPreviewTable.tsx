@@ -3,7 +3,7 @@ import {
     Lock, Unlock, Table as TableIcon, Settings, Calendar, Clock, RefreshCw,
     Smartphone, Phone as PhoneIcon, Mail, Link as LinkIcon, UserCheck,
     Banknote, Landmark, Hash, Globe, CreditCard, ShoppingCart, Ruler,
-    Instagram, Tag, Sparkles, CheckCircle2, MapPin
+    Instagram, Tag, Sparkles, CheckCircle2, MapPin, Code, Smile, Type
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -26,6 +26,8 @@ interface DataPreviewTableProps {
     filterIssue: DataIssue | null;
     columnOptions: ColumnSpecificOptions;
     onColumnOptionChange: (header: string, type: ColumnOptionType) => void;
+    onReset: () => void;
+    onApply: () => void;
 }
 
 /**
@@ -42,6 +44,8 @@ interface DataPreviewTableProps {
  * @param onHeaderRename 헤더 이름 변경 핸들러
  * @param onCellUpdate 셀 데이터 수정 핸들러
  * @param filterIssue 필터링 중인 이슈 (필터링 시 해당 이슈가 있는 행만 표시)
+ * @param onReset 초기화 핸들러
+ * @param onApply 결과 확정 핸들러
  */
 export function DataPreviewTable({
     processedData,
@@ -55,7 +59,9 @@ export function DataPreviewTable({
     onCellUpdate,
     filterIssue,
     columnOptions = {},
-    onColumnOptionChange
+    onColumnOptionChange,
+    onReset,
+    onApply
 }: DataPreviewTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
@@ -199,6 +205,15 @@ export function DataPreviewTable({
                                                                                             { id: 'date', label: '날짜 (YYYY-MM-DD)', icon: Calendar },
                                                                                             { id: 'datetime', label: '일시 (YYYY-MM-DD HH:mm)', icon: Clock },
                                                                                             { id: 'dateTruncate', label: '날짜 절삭 (연/월)', icon: Calendar },
+                                                                                        ]
+                                                                                    },
+                                                                                    {
+                                                                                        label: '고급 텍스트 정제',
+                                                                                        items: [
+                                                                                            { id: 'htmlRemove', label: 'HTML 태그 제거', icon: Code },
+                                                                                            { id: 'emojiRemove', label: '이모지 제거', icon: Smile },
+                                                                                            { id: 'upperCase', label: '대문자 변환', icon: Type },
+                                                                                            { id: 'lowerCase', label: '소문자 변환', icon: Type },
                                                                                         ]
                                                                                     },
                                                                                     {
@@ -403,7 +418,7 @@ export function DataPreviewTable({
                                                         {isModified && (
                                                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-[11px] rounded shadow-xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-[100] whitespace-nowrap border border-slate-700">
                                                                 <div className="text-slate-400 mb-0.5 font-bold uppercase tracking-tighter">Original</div>
-                                                                <div className="font-medium line-through decoration-slate-500 decoration-1">{originalVal || '(empty)'}</div>
+                                                                <HighlightDiff original={originalVal} modified={processedVal} />
                                                                 <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900" />
                                                             </div>
                                                         )}
@@ -418,13 +433,37 @@ export function DataPreviewTable({
                     </div>
 
                     {/* Pagination Footer */}
-                    <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                        <div className="text-sm text-slate-500">
+                    <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="text-sm text-slate-500 order-2 sm:order-1 w-full sm:w-auto text-center sm:text-left">
                             총 <span className="font-bold text-slate-700">{totalCount}</span>행 중
                             <span className="font-bold text-slate-700"> {totalCount === 0 ? 0 : startIndex + 1} - {Math.min(startIndex + rowsPerPage, totalCount)}</span>행 표시
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        {/* Action Buttons (Center) */}
+                        <div className="flex items-center gap-2 order-1 sm:order-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={onReset}
+                                className="bg-white hover:bg-red-50 text-slate-600 hover:text-red-600 border-slate-200 h-9 px-3 text-xs"
+                                title="모든 작업 초기화"
+                            >
+                                <RefreshCw size={14} className="mr-1.5" />
+                                초기화
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={onApply}
+                                className="bg-slate-800 hover:bg-slate-900 text-white border border-slate-700 h-9 px-3 text-xs shadow-sm"
+                                title="현재 결과를 원본으로 확정"
+                            >
+                                <CheckCircle2 size={14} className="mr-1.5" />
+                                결과 확정
+                            </Button>
+                        </div>
+
+                        <div className="flex items-center gap-2 order-3 sm:order-3 w-full sm:w-auto justify-center sm:justify-end">
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -450,14 +489,66 @@ export function DataPreviewTable({
                     </div>
                 </>
             ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 min-h-[400px]">
-                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                        <TableIcon size={32} />
+                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-6 sm:p-8 min-h-[300px] sm:min-h-[400px] text-center">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                        <TableIcon size={24} className="sm:w-8 sm:h-8" />
                     </div>
-                    <p className="text-lg font-medium text-slate-500 mb-1">데이터 미리보기</p>
-                    <p className="text-sm text-slate-400">파일을 업로드하면 정제된 결과가 여기에 표시됩니다.</p>
+                    <p className="text-base sm:text-lg font-medium text-slate-500 mb-1">데이터 미리보기</p>
+                    <p className="text-xs sm:text-sm text-slate-400 max-w-[250px] sm:max-w-none">파일을 업로드하면 정제된 결과가 여기에 표시됩니다.</p>
                 </div>
             )}
         </Card>
+    );
+}
+
+/**
+ * 변경된 내용(Diff)을 시각화하는 컴포넌트
+ * 원본(Before) 문자열을 기준으로 수정본(After)과 비교하여 삭제된 공백 등을 표시합니다.
+ */
+function HighlightDiff({ original, modified }: { original: string, modified: string }) {
+    if (!original) return <span className="text-slate-500 italic">(empty)</span>;
+
+    const result = [];
+    let mIdx = 0;
+
+    for (let oIdx = 0; oIdx < original.length; oIdx++) {
+        const oChar = original[oIdx];
+        const mChar = modified[mIdx];
+
+        // 1. 매칭 성공 (그대로 유지됨)
+        if (mIdx < modified.length && oChar === mChar) {
+            result.push(<span key={oIdx}>{oChar}</span>);
+            mIdx++;
+        }
+        // 2. 불일치 -> 원본에서 삭제된 것으로 간주 (정제 로직 특성상 대부분 삭제/치환)
+        else {
+            // 특히 공백이 삭제된 경우 빨간색 블록으로 강조
+            if (/\s/.test(oChar)) {
+                result.push(
+                    <span
+                        key={oIdx}
+                        className="bg-red-500/80 text-transparent inline-block align-middle mx-[0.5px] w-[4px] h-[10px] rounded-[1px] select-none"
+                        title="제거된 공백"
+                    >
+                        _
+                    </span>
+                );
+            }
+            // 일반 문자가 삭제/변경됨
+            else {
+                result.push(
+                    <span key={oIdx} className="text-red-400 line-through decoration-red-400/50 decoration-2 font-semibold">
+                        {oChar}
+                    </span>
+                );
+            }
+            // mIdx는 증가시키지 않음 (다음 원본 문자와 현재 수정본 문자를 다시 비교)
+        }
+    }
+
+    return (
+        <div className="font-mono text-[10px] leading-tight tracking-wide break-all max-w-[200px] whitespace-pre-wrap">
+            {result}
+        </div>
     );
 }

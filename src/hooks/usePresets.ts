@@ -1,50 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CleaningPreset, ProcessingOptions, ColumnSpecificOptions } from '@/types';
+import { INITIAL_OPTIONS } from './useCleaningOptions';
 
 const STORAGE_KEY = 'data_laundry_presets';
 
-const DEFAULT_OPTIONS: ProcessingOptions = {
-    removeWhitespace: false,
-    formatMobile: false,
-    formatGeneralPhone: false,
-    formatDate: false,
-    formatDateTime: false,
-    formatNumber: false,
-    cleanEmail: false,
-    formatZip: false,
-    cleanGarbage: false,
-    cleanAmount: false,
-    cleanName: false,
-    formatBizNum: false,
-    formatCorpNum: false,
-    formatUrl: false,
-    maskPersonalData: false,
-    maskAccount: false,
-    maskCard: false,
-    maskName: false,
-    maskEmail: false,
-    maskAddress: false,
-    maskPhoneMid: false,
-    categoryAge: false,
-    truncateDate: false,
-    restoreExponential: false,
-    extractBuilding: false,
-    normalizeSKU: false,
-    unifyUnit: false,
-    standardizeCurrency: false,
-    highlightChanges: false,
-    cleanCompanyName: false,
-    removePosition: false,
-    extractDong: false,
-    cleanAreaUnit: false,
-    cleanSnsId: false,
-    formatHashtag: false,
-    formatTaxDate: false,
-    formatAccountingNum: false,
-    formatTrackingNum: false,
-    cleanOrderId: false,
-    useAI: false
-};
+const DEFAULT_OPTIONS = INITIAL_OPTIONS;
 
 // 1. 전문가 추천 시스템 기본 프리셋 정의
 const SYSTEM_PRESETS: CleaningPreset[] = [
