@@ -18,7 +18,9 @@ import { DownloadSection } from '@/components/dashboard/DownloadSection';
 import { DonateModal, GuideModal, HelpModal, TermsModal, FixModal, FormatGuideModal, ConfirmModal, AlertModal } from '@/components/dashboard/Modals';
 import { LoadingOverlay } from '@/components/processing/LoadingOverlay';
 import { AdBanner } from '@/components/dashboard/AdBanner';
-import { checkNLPTargetAmbiguity } from '@/lib/core/processors'; // [NEW]
+import { Zap, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { checkNLPTargetAmbiguity } from '@/lib/core/processors';
 
 export default function DataCleanDashboard() {
   // 1. Custom Hooks
@@ -94,16 +96,26 @@ export default function DataCleanDashboard() {
     return () => clearTimeout(timer);
   }, [isProcessing]);
 
-  // [New] 정제 완료 시 미리보기 섹션으로 자동 스크롤
+  const prevIsProcessingRef = useRef(false);
+
+  // [New] 정제 완료 시 미리보기 섹션으로 자동 스크롤 및 광고 팝업 노출
   useEffect(() => {
-    // isProcessing이 true였다가 false로 바뀌는 순간을 감지
-    // (완료 메시지 팝업 등이 뜰 시간이나 렌더링 시간을 고려해 아주 짧은 지연시간 추가 가능)
-    if (!isProcessing && processedData.length > 0) {
-      const timer = setTimeout(() => {
+    // isProcessing이 true였다가 false로 바뀌는 순간(정제 완료)을 정확히 감지
+    const justFinished = prevIsProcessingRef.current === true && isProcessing === false;
+
+    if (justFinished && processedData.length > 0) {
+      // 1. 미리보기 섹션으로 스크롤 이동
+      const scrollTimer = setTimeout(() => {
         previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300); // 렌더링 완료 후 부드럽게 이동
-      return () => clearTimeout(timer);
+      }, 300);
+
+      return () => {
+        clearTimeout(scrollTimer);
+      };
     }
+
+    // 현재 상태를 ref에 저장하여 다음 렌더링 시 비교
+    prevIsProcessingRef.current = isProcessing;
   }, [isProcessing, processedData.length]);
 
   // Modals State
@@ -112,6 +124,7 @@ export default function DataCleanDashboard() {
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const [formatGuideModalOpen, setFormatGuideModalOpen] = useState(false);
+
 
 
   // Fix Modal State
@@ -305,130 +318,88 @@ export default function DataCleanDashboard() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
       <Header onOpenGuide={() => setFormatGuideModalOpen(true)} />
 
-      {/* Top Wide Ad - AD-1 (전체 높이 94px 고정으로 출렁임 제거) */}
-      <div className="container mx-auto px-2 sm:px-4 mt-4 max-w-7xl flex-shrink-0">
-        <div
-          className="bg-white rounded-xl border border-slate-200 p-2 shadow-sm overflow-hidden flex flex-col items-center w-full flex-shrink-0"
-          style={{ height: '94px', overflow: 'hidden' }}
-        >
-          <span className="text-[8px] text-blue-600 font-black mb-1.5 uppercase tracking-[0.2em] flex items-center gap-1">
-            <span className="bg-blue-600 text-white px-1 rounded-sm">AD-1</span> Sponsored
-          </span>
-          <AdBanner slot="5555555555" format="horizontal" isTest={true} className="w-full" />
+      {/* Main Layout Wrapper: Flex container to center content and float ads */}
+      <div className="flex justify-center items-start gap-4 px-4 2xl:gap-8">
+
+        {/* [AD-2] Left Hugging Ad - Vertical Sidebar */}
+        <aside className="hidden min-[1440px]:flex sticky top-24 w-[140px] flex-col items-center shrink-0 py-4 ml-[-140px]">
+          <div className="bg-white rounded-xl border border-slate-200 p-2 shadow-sm overflow-hidden flex flex-col items-center w-full">
+            <span className="text-[8px] text-blue-600 font-black mb-1.5 uppercase tracking-widest [writing-mode:vertical-lr] rotate-180">
+              <span className="bg-blue-600 text-white px-1 rounded-sm mb-1">AD-2</span> Sponsored
+            </span>
+            <AdBanner slot="3333333333" format="vertical" isTest={true} className="w-full" height="500px" />
+          </div>
+        </aside>
+
+        {/* Floating Quick Navigation Sidebar (Sticky on screen) */}
+        <div className="fixed bottom-12 right-12 flex flex-col gap-4 z-[100]">
+          <Button
+            onClick={() => document.getElementById('section-options')?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-16 h-16 rounded-full bg-white shadow-[0_20px_50px_rgba(8,_112,_184,_0.2)] border-2 border-slate-100 hover:border-blue-400 hover:bg-blue-50 transition-all group flex flex-col items-center justify-center gap-1 p-0 scale-100 hover:scale-110 active:scale-95"
+            variant="outline"
+          >
+            <Zap size={22} className="text-blue-600 group-hover:scale-110 transition-transform" />
+            <span className="text-[10px] font-black text-slate-600">정제설정</span>
+          </Button>
+          <Button
+            onClick={() => document.getElementById('section-preview')?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-16 h-16 rounded-full bg-blue-600 shadow-[0_20px_50px_rgba(37,_99,_235,_0.4)] hover:bg-blue-700 transition-all group border-0 flex flex-col items-center justify-center gap-1 p-0 scale-100 hover:scale-110 active:scale-95"
+          >
+            <CheckCircle2 size={22} className="text-white group-hover:scale-110 transition-transform" />
+            <span className="text-[10px] font-black text-white">미리보기</span>
+          </Button>
         </div>
-      </div>
 
-      <main className="container mx-auto px-2 sm:px-4 py-6 sm:py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-          {/* Left Panel: Upload & Controls */}
-          <div className="space-y-6 lg:col-span-1">
-            <UploadSection
-              file={file}
-              isDragging={false} // Drag state handling logic moved to simpler version or can add state
-              error={error}
-              onDragOver={handleDragOver}
-              onDragLeave={() => { }}
-              onDrop={handleDrop}
-              onFileSelect={onFileSelect}
-            />
-
-            {/* Ad Slot - AD-2 (전체 높이 102px 고정) */}
+        {/* Center Content Section (Fixed max-width) */}
+        <div className="w-full max-w-7xl flex-shrink-1 px-4">
+          {/* Top Wide Ad - AD-1 */}
+          <div className="mt-4 flex-shrink-0">
             <div
-              className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm overflow-hidden animate-fade-in flex-shrink-0"
-              style={{ height: '102px', overflow: 'hidden' }}
+              className="bg-white rounded-xl border border-slate-200 p-2 shadow-sm overflow-hidden flex flex-col items-center w-full"
+              style={{ height: '94px', overflow: 'hidden' }}
             >
-              <span className="text-[9px] text-blue-600 font-black block mb-1 uppercase tracking-tighter flex items-center gap-1">
-                <span className="bg-blue-600 text-white px-1 rounded-sm">AD-2</span> 데이터 세탁 후원 광고
+              <span className="text-[8px] text-blue-600 font-black mb-1.5 uppercase tracking-[0.2em] flex items-center gap-1">
+                <span className="bg-blue-600 text-white px-1 rounded-sm">AD-1</span> Sponsored
               </span>
-              <AdBanner slot="3333333333" format="horizontal" isTest={true} className="w-full" />
+              <AdBanner slot="5555555555" format="horizontal" isTest={true} className="w-full" />
             </div>
-
-            <CleaningOptions
-              options={options}
-              setOptions={setOptions}
-              prompt={prompt}
-              setPrompt={setPrompt}
-              isProcessing={isProcessing}
-              progress={progress}
-              progressMessage={progressMessage}
-              onProcess={handleProcess}
-              fileLoaded={!!file}
-              detectedDateColumns={detectedDateColumns}
-              columnOptions={columnOptions}
-              onApplyPreset={handleApplyPreset}
-            />
-
-            {file && (
-              <>
-                <ResultSummary
-                  stats={stats}
-                  initialStats={initialStats}
-                  issues={issues}
-                  processedData={processedData}
-                  setIssues={setIssues}
-                />
-
-                <DownloadSection
-                  handleDownload={handleDownload}
-                  rowCount={processedData.length}
-                />
-              </>
-            )}
           </div>
 
-          <div className="lg:col-span-2 space-y-4" ref={previewRef}>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2 flex-wrap">
-              <span className="w-1.5 h-5 sm:h-6 bg-blue-600 rounded-full inline-block"></span>
-              데이터 미리보기
-              {file && (
-                <>
-                  <span className="text-xs sm:text-sm font-normal text-slate-500 ml-1 sm:ml-2">({file.name})</span>
-                  <span className="flex-1 sm:flex-none sm:ml-auto text-[10px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 flex items-center gap-1.5 animate-fade-in shadow-sm w-fit">
-                    <span className="flex h-2 w-2 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                    </span>
-                    더블클릭하여 셀 직접 수정 가능
-                  </span>
-                </>
-              )}
-            </h2>
+          <main className="py-6 sm:py-8 space-y-10">
+            {/* 1. Data Upload (Top, Full Width) */}
+            <section id="section-upload" className="animation-fade-in">
+              <UploadSection
+                file={file}
+                isDragging={false}
+                error={error}
+                onDragOver={handleDragOver}
+                onDragLeave={() => { }}
+                onDrop={handleDrop}
+                onFileSelect={onFileSelect}
+              />
+            </section>
 
-            <DataPreviewTable
-              processedData={processedData}
-              originalData={data}
-              headers={headers}
-              lockedColumns={lockedColumns}
-              toggleLock={toggleLock}
-              columnLimits={columnLimits}
-              onLimitChange={updateColumnLimit}
-              onHeaderRename={updateHeader}
-              onCellUpdate={updateCell}
-              filterIssue={filterIssue}
-              columnOptions={columnOptions}
-              onColumnOptionChange={updateColumnOption}
-              onReset={resetData}
-              onApply={handleApplyProcessed}
-            />
+            {/* 2. Cleaning Options (Full Width, Multi-column inside) */}
+            <section id="section-options" className="animation-fade-in">
+              <CleaningOptions
+                options={options}
+                setOptions={setOptions}
+                prompt={prompt}
+                setPrompt={setPrompt}
+                isProcessing={isProcessing}
+                progress={progress}
+                progressMessage={progressMessage}
+                onProcess={handleProcess}
+                fileLoaded={!!file}
+                detectedDateColumns={detectedDateColumns}
+                columnOptions={columnOptions}
+                onApplyPreset={handleApplyPreset}
+              />
+            </section>
 
-            {/* Ad Slot - AD-3 (전체 높이 110px 고정) */}
-            <div
-              className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm overflow-hidden animate-fade-in flex-shrink-0"
-              style={{ height: '110px', overflow: 'hidden' }}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] text-blue-600 font-black uppercase tracking-widest flex items-center gap-1">
-                  <span className="bg-blue-600 text-white px-1 rounded-sm text-[7px]">AD-3</span> Recommended Tool
-                </span>
-                <span className="text-[8px] text-slate-300">AD</span>
-              </div>
-              <AdBanner slot="4444443333" format="horizontal" isTest={true} className="w-full" />
-            </div>
-
+            {/* 3. Analysis Report (Immediately below options) */}
             {file && (
-              <div className="mt-8 animation-fade-in">
-                {/* Detailed Analysis Report */}
+              <section id="section-report" className="animation-fade-in">
                 <AnalysisReport
                   issues={issues}
                   showAllIssues={showAllIssues}
@@ -438,24 +409,95 @@ export default function DataCleanDashboard() {
                   onApplySuggestion={handleApplySuggestion}
                   onOpenFixModal={handleOpenFixModal}
                 />
+              </section>
+            )}
+
+            {/* 4. Data Preview (Main Area) */}
+            <section id="section-preview" className="space-y-4" ref={previewRef}>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2 flex-wrap px-4">
+                <span className="w-1.5 h-5 sm:h-6 bg-blue-600 rounded-full inline-block"></span>
+                데이터 미리보기
+                {file && (
+                  <>
+                    <span className="text-xs sm:text-sm font-normal text-slate-500 ml-1 sm:ml-2">({file.name})</span>
+                    <span className="flex-1 sm:flex-none sm:ml-auto text-[10px] font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 flex items-center gap-1.5 animate-fade-in shadow-sm w-fit">
+                      <span className="flex h-2 w-2 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                      </span>
+                      더블클릭하여 셀 직접 수정 가능
+                    </span>
+                  </>
+                )}
+              </h2>
+
+              <div className="w-full h-[85vh] overflow-hidden bg-white rounded-xl border border-slate-200 shadow-xl ring-1 ring-slate-200/50 flex flex-col">
+                <DataPreviewTable
+                  processedData={processedData}
+                  originalData={data}
+                  headers={headers}
+                  lockedColumns={lockedColumns}
+                  toggleLock={toggleLock}
+                  columnLimits={columnLimits}
+                  onLimitChange={updateColumnLimit}
+                  onHeaderRename={updateHeader}
+                  onCellUpdate={updateCell}
+                  filterIssue={filterIssue}
+                  columnOptions={columnOptions}
+                  onColumnOptionChange={updateColumnOption}
+                  onReset={resetData}
+                  onApply={handleApplyProcessed}
+                />
+              </div>
+            </section>
+
+            {/* 5. Result Summary & 6. Download (Below Preview, Single row each) */}
+            {file && (
+              <div className="space-y-6">
+                <div id="section-stats" className="animation-fade-in">
+                  <ResultSummary
+                    stats={stats}
+                    initialStats={initialStats}
+                    issues={issues}
+                    processedData={processedData}
+                    setIssues={setIssues}
+                  />
+                </div>
+
+                <div id="section-download" className="animation-fade-in">
+                  <DownloadSection
+                    handleDownload={handleDownload}
+                    rowCount={processedData.length}
+                  />
+                </div>
               </div>
             )}
-          </div>
+
+            {/* Bottom Banner Ad - AD-4 */}
+            <div className="mt-8 mb-6 flex-shrink-0">
+              <div
+                className="bg-white rounded-xl border border-slate-200 p-2 shadow-sm overflow-hidden flex flex-col items-center w-full"
+                style={{ height: '96px', overflow: 'hidden' }}
+              >
+                <span className="text-[8px] text-blue-600 font-black mb-2 uppercase tracking-widest flex items-center gap-1">
+                  <span className="bg-blue-600 text-white px-1 rounded-sm">AD-4</span> RECOMMENDED
+                </span>
+                <AdBanner slot="1111111111" format="horizontal" isTest={true} className="w-full" />
+              </div>
+            </div>
+          </main>
         </div>
 
-        {/* Bottom Banner Ad - AD-4 (전체 높이 96px 고정) */}
-        <div className="mt-8 mb-6 max-w-7xl mx-auto px-4 flex-shrink-0">
-          <div
-            className="bg-white rounded-xl border border-slate-200 p-2 shadow-sm overflow-hidden flex flex-col items-center flex-shrink-0"
-            style={{ height: '96px', overflow: 'hidden' }}
-          >
-            <span className="text-[8px] text-blue-600 font-black mb-2 uppercase tracking-widest flex items-center gap-1">
-              <span className="bg-blue-600 text-white px-1 rounded-sm">AD-4</span> RECOMMENDED
+        {/* [AD-3] Right Hugging Ad - Vertical Sidebar */}
+        <aside className="hidden min-[1440px]:flex sticky top-24 w-[140px] flex-col items-center shrink-0 py-4 mr-[-140px]">
+          <div className="bg-white rounded-xl border border-slate-200 p-2 shadow-sm overflow-hidden flex flex-col items-center w-full">
+            <span className="text-[8px] text-blue-600 font-black mb-1.5 uppercase tracking-widest [writing-mode:vertical-lr]">
+              <span className="bg-blue-600 text-white px-1 rounded-sm mb-1">AD-3</span> Recommended
             </span>
-            <AdBanner slot="1111111111" format="horizontal" isTest={true} className="w-full" />
+            <AdBanner slot="4444443333" format="vertical" isTest={true} className="w-full" height="500px" />
           </div>
-        </div>
-      </main>
+        </aside>
+      </div>
 
       <Footer
         setTermsModalOpen={setTermsModalOpen}
@@ -471,6 +513,7 @@ export default function DataCleanDashboard() {
       <HelpModal open={helpModalOpen} onClose={() => setHelpModalOpen(false)} />
       <TermsModal open={termsModalOpen} onClose={() => setTermsModalOpen(false)} />
       <FormatGuideModal open={formatGuideModalOpen} onClose={() => setFormatGuideModalOpen(false)} />
+
       <FixModal
         open={fixModalOpen}
         onClose={() => setFixModalOpen(false)}
@@ -480,14 +523,14 @@ export default function DataCleanDashboard() {
         onApply={handleApplyFix}
       />
 
-
       {/* Full Screen Loading Overlay */}
       <LoadingOverlay
         isVisible={delayedShowLoading}
         progress={progress}
         message={progressMessage}
       />
-      {/* Alert & Confirm Modals [NEW] */}
+
+      {/* Alert & Confirm Modals */}
       <AlertModal
         open={alertConfig.open}
         onClose={() => setAlertConfig(prev => ({ ...prev, open: false }))}

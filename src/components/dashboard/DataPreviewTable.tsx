@@ -63,9 +63,6 @@ export function DataPreviewTable({
     onReset,
     onApply
 }: DataPreviewTableProps) {
-    const [currentPage, setCurrentPage] = useState(1);
-    const rowsPerPage = 10;
-
     // Local editing states
     const [editingHeader, setEditingHeader] = useState<string | null>(null);
     const [tempHeaderName, setTempHeaderName] = useState('');
@@ -75,22 +72,22 @@ export function DataPreviewTable({
     // Dropdown state
     const [activeMenuHeader, setActiveMenuHeader] = useState<string | null>(null);
 
-    // Pagination Logic
+    // Pagination Logic Removed -> Scroll View Mode
+    // 데이터가 적을 때도 화면을 꽉 채우기 위해 빈 행을 계산
+    const MIN_ROWS = 20;
+
+    // totalCount 선언 추가
     const totalCount = filterIssue?.affectedRows ? filterIssue.affectedRows.length : processedData.length;
-    const totalPages = Math.ceil(totalCount / rowsPerPage);
 
-    // Reset page if filtered
-    useMemo(() => {
-        setCurrentPage(1);
-    }, [filterIssue]);
-
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    const currentIndices = useMemo(() => {
+    const currentDataIndices = useMemo(() => {
         if (filterIssue?.affectedRows) {
-            return filterIssue.affectedRows.slice(startIndex, startIndex + rowsPerPage);
+            return filterIssue.affectedRows;
         }
-        return Array.from({ length: Math.min(rowsPerPage, totalCount - startIndex) }, (_, i) => startIndex + i);
-    }, [currentPage, filterIssue, processedData.length, startIndex, rowsPerPage, totalCount]);
+        return Array.from({ length: processedData.length }, (_, i) => i);
+    }, [filterIssue, processedData.length]);
+
+    // 빈 행 개수 계산
+    const emptyRows = Math.max(0, MIN_ROWS - currentDataIndices.length);
 
     const handleHeaderSaveInternal = (header: string, newName: string) => {
         onHeaderRename(header, newName);
@@ -98,13 +95,17 @@ export function DataPreviewTable({
     };
 
     return (
-        <Card className="min-h-[600px] border-slate-200 shadow-sm flex flex-col bg-white overflow-visible">
+        <Card className="h-full border-slate-200 shadow-sm flex flex-col bg-white overflow-visible">
             {processedData.length > 0 ? (
                 <>
                     <div className="flex-1 overflow-auto relative z-0">
                         <Table>
                             <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-sm">
                                 <TableRow className="bg-slate-50 border-b border-slate-200">
+                                    {/* Row Number Header */}
+                                    <TableHead className="w-12 min-w-[3rem] px-0 text-center font-bold text-slate-400 bg-slate-50 border-r border-slate-200 sticky left-0 z-20 select-none">
+                                        #
+                                    </TableHead>
                                     {headers.map((header, idx) => {
                                         const isLocked = lockedColumns.includes(header);
                                         const isLastCols = idx >= headers.length - 2 && headers.length > 2;
@@ -362,13 +363,17 @@ export function DataPreviewTable({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {currentIndices.map((originalIdx) => {
+                                {currentDataIndices.map((originalIdx) => {
                                     const row = processedData[originalIdx];
                                     const originalRow = originalData[originalIdx];
                                     if (!row) return null;
 
                                     return (
                                         <TableRow key={originalIdx} className="hover:bg-blue-50/30 transition-colors group/row">
+                                            {/* Row Number Cell */}
+                                            <TableCell className="w-12 min-w-[3rem] p-0 text-center font-mono text-xs text-slate-400 bg-slate-50 border-r border-slate-200 sticky left-0 z-10 select-none group-hover/row:bg-blue-50/50 group-hover/row:text-slate-500">
+                                                {originalIdx + 1}
+                                            </TableCell>
                                             {headers.map((header) => {
                                                 const isLocked = lockedColumns.includes(header);
                                                 const processedVal = row[header]?.toString() || '';
@@ -428,18 +433,31 @@ export function DataPreviewTable({
                                         </TableRow>
                                     );
                                 })}
+                                {/* Empty Rows Filling to maintain grid look */}
+                                {Array.from({ length: emptyRows }).map((_, i) => (
+                                    <TableRow key={`empty-${i}`} className="hover:bg-transparent">
+                                        {/* Empty Row Number */}
+                                        <TableCell className="w-12 min-w-[3rem] p-0 text-center font-mono text-xs text-slate-300 bg-slate-50 border-r border-slate-200 sticky left-0 z-10 select-none">
+                                            {currentDataIndices.length + i + 1}
+                                        </TableCell>
+                                        {headers.map((header) => (
+                                            <TableCell key={`empty-cell-${i}-${header}`} className="py-3 text-transparent select-none bg-[url('/grid-pattern.svg')] bg-[length:4px_4px] opacity-10">
+                                                -
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))}
                             </TableBody>
                         </Table>
                     </div>
 
-                    {/* Pagination Footer */}
+                    {/* Footer Actions (Simplified) */}
                     <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="text-sm text-slate-500 order-2 sm:order-1 w-full sm:w-auto text-center sm:text-left">
-                            총 <span className="font-bold text-slate-700">{totalCount}</span>행 중
-                            <span className="font-bold text-slate-700"> {totalCount === 0 ? 0 : startIndex + 1} - {Math.min(startIndex + rowsPerPage, totalCount)}</span>행 표시
+                            <span className="font-bold text-slate-700">{totalCount}</span>개의 데이터가 정제되었습니다. (스크롤하여 전체 확인)
                         </div>
 
-                        {/* Action Buttons (Center) */}
+                        {/* Action Buttons (Right) */}
                         <div className="flex items-center gap-2 order-1 sm:order-2">
                             <Button
                                 variant="outline"
@@ -460,30 +478,6 @@ export function DataPreviewTable({
                             >
                                 <CheckCircle2 size={14} className="mr-1.5" />
                                 결과 확정
-                            </Button>
-                        </div>
-
-                        <div className="flex items-center gap-2 order-3 sm:order-3 w-full sm:w-auto justify-center sm:justify-end">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                disabled={currentPage === 1}
-                                className="h-8 px-3"
-                            >
-                                이전
-                            </Button>
-                            <div className="text-sm font-medium px-4">
-                                {currentPage} / {totalPages || 1} 페이지
-                            </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                disabled={currentPage === totalPages || totalPages === 0}
-                                className="h-8 px-3"
-                            >
-                                다음
                             </Button>
                         </div>
                     </div>

@@ -168,7 +168,7 @@ export function CleaningOptions({
                                 {searchQuery.trim() && (
                                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{category.label}</h4>
                                 )}
-                                <div className="grid grid-cols-1 gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                                     {category.items.map(item => {
                                         // 날짜/일시 전역 옵션 비활성화 로직
                                         const isDateOption = item.id === 'formatDate' || item.id === 'formatDateTime';
