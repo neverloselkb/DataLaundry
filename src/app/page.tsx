@@ -431,7 +431,7 @@ export default function DataCleanDashboard() {
                 )}
               </h2>
 
-              <div className="w-full h-[85vh] overflow-hidden bg-white rounded-xl border border-slate-200 shadow-xl ring-1 ring-slate-200/50 flex flex-col">
+              <div className="w-full overflow-hidden bg-white rounded-xl border border-slate-200 shadow-xl ring-1 ring-slate-200/50 flex flex-col">
                 <DataPreviewTable
                   processedData={processedData}
                   originalData={data}

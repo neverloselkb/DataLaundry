@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import {
     Lock, Unlock, Table as TableIcon, Settings, Calendar, Clock, RefreshCw,
     Smartphone, Phone as PhoneIcon, Mail, Link as LinkIcon, UserCheck,
@@ -68,13 +68,75 @@ export function DataPreviewTable({
     const [tempHeaderName, setTempHeaderName] = useState('');
     const [editingLength, setEditingLength] = useState<string | null>(null);
     const [editingCell, setEditingCell] = useState<{ rowIdx: number, col: string } | null>(null);
+    const [selectedCell, setSelectedCell] = useState<{ rowIdx: number, col: string } | null>(null);
+
+    const tableContainerRef = useRef<HTMLDivElement>(null);
+
+    // Keyboard Navigation Handler
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (!selectedCell || editingCell) return; // 편집 중이거나 선택된 게 없으면 무시
+
+        const { rowIdx, col } = selectedCell;
+        const colIdx = headers.indexOf(col);
+
+        // 데이터 행 개수 (필터링 고려)
+        const totalRows = currentDataIndices.length;
+
+        let nextRow = rowIdx;
+        let nextColIdx = colIdx;
+
+        switch (e.key) {
+            case 'ArrowUp':
+                e.preventDefault();
+                nextRow = Math.max(0, rowIdx - 1);
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                nextRow = Math.min(totalRows - 1, rowIdx + 1);
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                nextColIdx = Math.max(0, colIdx - 1);
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                nextColIdx = Math.min(headers.length - 1, colIdx + 1);
+                break;
+            case 'Enter':
+                e.preventDefault();
+                // 편집 모드 진입
+                if (!lockedColumns.includes(col)) {
+                    setEditingCell({ rowIdx, col });
+                }
+                return;
+            default:
+                return; // 다른 키는 무시
+        }
+
+        const nextCol = headers[nextColIdx];
+        setSelectedCell({ rowIdx: nextRow, col: nextCol });
+
+        // 스크롤 처리는 브라우저 기본 동작에 맡기거나 필요 시 추가 구현 (scrollIntoView 등)
+    };
+
+    // [Auto Scroll] Scroll to selected cell
+    useEffect(() => {
+        if (selectedCell) {
+            const cellId = `cell-${selectedCell.rowIdx}-${selectedCell.col}`;
+            const element = document.getElementById(cellId);
+            if (element) {
+                // block: 'nearest', inline: 'nearest' ensures minimal scrolling just to reveal the element
+                element.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
+            }
+        }
+    }, [selectedCell]);
 
     // Dropdown state
     const [activeMenuHeader, setActiveMenuHeader] = useState<string | null>(null);
 
     // Pagination Logic Removed -> Scroll View Mode
     // 데이터가 적을 때도 화면을 꽉 채우기 위해 빈 행을 계산
-    const MIN_ROWS = 20;
+    const MIN_ROWS = 10;
 
     // totalCount 선언 추가
     const totalCount = filterIssue?.affectedRows ? filterIssue.affectedRows.length : processedData.length;
@@ -95,10 +157,15 @@ export function DataPreviewTable({
     };
 
     return (
-        <Card className="h-full border-slate-200 shadow-sm flex flex-col bg-white overflow-visible">
+        <Card className="border-slate-200 shadow-sm flex flex-col bg-white overflow-visible">
             {processedData.length > 0 ? (
                 <>
-                    <div className="flex-1 overflow-auto relative z-0">
+                    <div
+                        ref={tableContainerRef}
+                        className="flex-1 overflow-auto relative z-0 w-full max-w-full overflow-x-auto max-h-[400px] border border-slate-300 rounded-md outline-none focus:ring-1 focus:ring-blue-200"
+                        tabIndex={0}
+                        onKeyDown={handleKeyDown}
+                    >
                         <Table>
                             <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-sm">
                                 <TableRow className="bg-slate-50 border-b border-slate-200">
@@ -371,7 +438,7 @@ export function DataPreviewTable({
                                     return (
                                         <TableRow key={originalIdx} className="hover:bg-blue-50/30 transition-colors group/row">
                                             {/* Row Number Cell */}
-                                            <TableCell className="w-12 min-w-[3rem] p-0 text-center font-mono text-xs text-slate-400 bg-slate-50 border-r border-slate-200 sticky left-0 z-10 select-none group-hover/row:bg-blue-50/50 group-hover/row:text-slate-500">
+                                            <TableCell className="w-12 min-w-[3rem] p-0 text-center font-mono text-xs text-slate-400 bg-slate-50 border-r border-slate-200 sticky left-0 z-10 select-none group-hover/row:!bg-slate-100 group-hover/row:text-slate-600 shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
                                                 {originalIdx + 1}
                                             </TableCell>
                                             {headers.map((header) => {
@@ -383,7 +450,16 @@ export function DataPreviewTable({
                                                 return (
                                                     <TableCell
                                                         key={`${originalIdx}-${header}`}
-                                                        className="whitespace-nowrap text-slate-600 py-3 relative group overflow-visible cursor-cell max-w-[200px]"
+                                                        id={`cell-${originalIdx}-${header}`}
+                                                        className={cn(
+                                                            "whitespace-nowrap text-slate-600 py-3 relative group overflow-visible cursor-cell max-w-[200px] transition-colors duration-75",
+                                                            selectedCell?.rowIdx === originalIdx && selectedCell?.col === header && "!ring-2 !ring-blue-600 !z-20 !bg-blue-100 text-blue-900 font-bold shadow-md"
+                                                        )}
+                                                        onClick={() => {
+                                                            setSelectedCell({ rowIdx: originalIdx, col: header });
+                                                            // 클릭 시 테이블 컨테이너에 포커스 (스크롤 튐 방지)
+                                                            tableContainerRef.current?.focus({ preventScroll: true });
+                                                        }}
                                                         onDoubleClick={() => {
                                                             if (isLocked) return;
                                                             setEditingCell({ rowIdx: originalIdx, col: header });
@@ -483,7 +559,7 @@ export function DataPreviewTable({
                     </div>
                 </>
             ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-6 sm:p-8 min-h-[300px] sm:min-h-[400px] text-center">
+                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-6 sm:p-8 min-h-[200px] text-center">
                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                         <TableIcon size={24} className="sm:w-8 sm:h-8" />
                     </div>

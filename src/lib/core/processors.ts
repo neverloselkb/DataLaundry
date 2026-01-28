@@ -1,5 +1,24 @@
-import { DataRow, ProcessingOptions, ColumnSpecificOptions } from '@/types';
 import { normalizeDate, normalizeDateTime, parseKoreanAmount, GARBAGE_REGEX } from './utils';
+import { DataRow, ProcessingOptions, ColumnSpecificOptions } from '@/types';
+
+// [Refactoring] Helper to extract target column from complex sentences (e.g. "msg랑 memo에서 html 제거")
+function extractConjunctiveTarget(lowerPrompt: string, keywords: string[]): string | null {
+    const keywordPattern = keywords.join('|');
+    const intervener = `(?:(?:[^\\s]+)(?:이랑|하고|와|과|,|\\s+)+\\s*)?`;
+    const finalRegex = new RegExp(`([가-힣a-zA-Z0-9_\\(\\)]+)(?:에서|의|쪽|부분)?(?:에)?\\s*(?:있는|들어있는)?\\s*${intervener}(?:${keywordPattern})`, 'i');
+
+    const m = lowerPrompt.match(finalRegex);
+    return m ? m[1] : null;
+}
+
+// [Refactoring] Helper to check if a column should be processed based on targets
+function isTargetColumn(key: string, specificTarget: string | null, allPotentialTargets: string[]): boolean {
+    const lowerKey = key.toLowerCase();
+    if (specificTarget && (lowerKey.includes(specificTarget) || specificTarget.includes(lowerKey))) return true;
+    if (allPotentialTargets.some(t => lowerKey.includes(t))) return true;
+    if (!specificTarget && allPotentialTargets.length === 0) return true;
+    return false;
+}
 
 /**
  * 로컬 브라우저 환경에서 데이터를 정제하는 핵심 함수입니다.
@@ -30,29 +49,40 @@ export function processDataLocal(
     const wantsOnlyDigits = filterBy(['숫자만', '숫자 추출', '숫자남겨']);
     const wantsOnlyKorean = filterBy(['한글만', '한글 추출', '한글남겨']);
     const wantsOnlyEnglish = filterBy(['영어만', '영문만', 'english only']);
-    const wantsNoSpecial = filterBy(['특수문자', '기호']) && filterBy(['제거', '삭제', '빼', '지워']);
-    const wantsNoBrackets = filterBy(['괄호', 'bracket']) && filterBy(['제거', '삭제', '내용삭제', '지워', '빼', '없애', '지우']);
+    const wantsNoSpecial = filterBy(['특수문자', '기호']) && filterBy(['제거', '삭제', '빼', '지워', '정리', '정규화']);
+    const wantsNoBrackets = filterBy(['괄호', 'bracket']) && filterBy(['제거', '삭제', '내용삭제', '지워', '빼', '없애', '지우', '정리', '정규화']);
+    const targetNoBrackets = wantsNoBrackets ? extractConjunctiveTarget(lowerPrompt, ['괄호', 'bracket']) : null;
+
     const wantsCompanyClean = filterBy(['업체명', '회사명', '상호', '주식회사', '(주)']) && filterBy(['정리', '정규화', '제거', '삭제', '빼', '지워', '없애', '지우']);
-    const wantsPositionRemoval = filterBy(['직함', '직위', '직책', '네임']) && filterBy(['제거', '삭제', '빼', '지워', '없애', '지우']);
+    const targetCompanyClean = wantsCompanyClean ? extractConjunctiveTarget(lowerPrompt, ['업체명', '회사명', '상호', '주식회사', '\\(주\\)']) : null;
+
+    const wantsPositionRemoval = filterBy(['직함', '직위', '직책', '네임']) && filterBy(['제거', '삭제', '빼', '지워', '없애', '지우', '정리', '정규화']);
+    const targetPositionRemoval = wantsPositionRemoval ? extractConjunctiveTarget(lowerPrompt, ['직함', '직위', '직책', '네임']) : null;
     const wantsDongExtraction = filterBy(['동/읍/면', '동읍면', '상세주소']) && filterBy(['추출', '분리', '남겨', '따로']);
     const wantsMasking = filterBy(['마스킹', '가림', '별표', '숨김']) && (filterBy(['계좌', '카드', '번호']) || filterBy(['뒷자리', '중간']));
 
     // [NEW NLP Flags]
     const wantsLower = filterBy(['소문자', 'lowercase', '소문자변경']);
     const wantsUpper = filterBy(['대문자', 'uppercase', '대문자변경']);
-    const wantsNoHtml = filterBy(['html', '태그', 'tag']) && filterBy(['제거', '삭제', '빼', '지워', '없애', '지우']);
-    const wantsNoEmoji = filterBy(['이모지', '이모티콘', 'emoji']) && filterBy(['제거', '삭제', '빼', '지워', '없애', '지우']);
+    const wantsNoHtml = filterBy(['html', '태그', 'tag']) && filterBy(['제거', '삭제', '빼', '지워', '없애', '지우', '정리', '정규화']);
+    const targetNoHtml = wantsNoHtml ? extractConjunctiveTarget(lowerPrompt, ['html', '태그', 'tag']) : null;
+
+    const wantsNoEmoji = filterBy(['이모지', '이모티콘', 'emoji']) && filterBy(['제거', '삭제', '빼', '지워', '없애', '지우', '정리', '정규화']);
+    const targetNoEmoji = wantsNoEmoji ? extractConjunctiveTarget(lowerPrompt, ['이모지', '이모티콘', 'emoji']) : null;
     const wantsDomain = filterBy(['도메인', 'domain']) && filterBy(['추출', '분리', '남겨']);
-    const wantsPrefixMatch = lowerPrompt.match(/(?:([가-힣a-zA-Z0-9_\(\)]+)(?:은|는|이|가|을|를|의|에서|컬럼|필드)?\s*)?(?:앞에|앞에다가|prefix)\s*['"]?([^'"]+)['"]?\s*(?:붙여|추가|넣어|끼워|삽입)/);
-    const wantsSuffixMatch = lowerPrompt.match(/(?:([가-힣a-zA-Z0-9_\(\)]+)(?:은|는|이|가|을|를|의|에서|컬럼|필드)?\s*)?(?:뒤에|뒤에다가|suffix)\s*['"]?([^'"]+)['"]?\s*(?:붙여|추가|넣어|끼워|삽입|붙이고|넣고)/);
+    const wantsPrefixMatch = prompt.match(/(?:([가-힣a-zA-Z0-9_\(\)]+)(?:은|는|이|가|을|를|의|에서|컬럼|필드)?\s*)?(?:앞에|앞에다가|prefix)\s*['"]?([^'"]+)['"]?\s*(?:붙여|붙이|추가|넣어|넣으|끼워|끼우|삽입)/i);
+    const wantsSuffixMatch = prompt.match(/(?:([가-힣a-zA-Z0-9_\(\)]+)(?:은|는|이|가|을|를|의|에서|컬럼|필드)?\s*)?(?:뒤에|뒤에다가|suffix)\s*['"]?([^'"]+)['"]?\s*(?:붙여|붙이|추가|넣어|넣으|끼워|끼우|삽입|붙이고|넣고)/i);
     // [Modified] Padding command with optional subject capture
-    const wantsPaddingMatch = lowerPrompt.match(/(?:([가-힣a-zA-Z0-9_\(\)]+)(?:은|는|이|가|을|를|의|에서|컬럼|필드)?\s*)?(\d+)\s*(?:자리|글자)(?:\s*로)?(?:\s*(?:0|영|공|제로|공백))?(?:\s*(?:으로))?\s*(?:맞춰|패딩|padding|채워|만들어|늘려)/);
+    const wantsPaddingMatch = lowerPrompt.match(/(?:([가-힣a-zA-Z0-9_\(\)]+)(?:은|는|이|가|을|를|의|에서|컬럼|필드)?\s*)?(\d+)\s*(?:자리|글자)(?:\s*로)?(?:\s*(?:0|영|공|제로|공백))?(?:\s*(?:으로))?\s*(?:맞춰|맞추|패딩|padding|채워|채우|만들어|만들|늘려|늘리)/);
     const wantsPaddingLen = wantsPaddingMatch && wantsPaddingMatch[2] ? parseInt(wantsPaddingMatch[2]) : 0;
     const wantsPaddingTarget = wantsPaddingMatch && wantsPaddingMatch[1] ? wantsPaddingMatch[1] : null;
 
     // [New] Contextual Target Extractor
     // Find the first mentioned potential column name (not a quantifier)
-    const allPotentialTargets = Array.from(lowerPrompt.matchAll(/([가-힣a-zA-Z0-9_\(\)]+)(?:\s*(?:은|는|이|가|을|를|의|에서|컬럼|필드|앞에|뒤에|쪽|부분))/g)).map(m => m[1]);
+    // [New] Contextual Target Extractor
+    // Find the first mentioned potential column name (not a quantifier)
+    // [Modified] Add conjunctions (랑, 와, 과, 하고, and, or, comma) to capture "A랑 B에서"
+    const allPotentialTargets = Array.from(lowerPrompt.matchAll(/([가-힣a-zA-Z0-9_\(\)]+)(?:\s*(?:은|는|이|가|을|를|의|에서|컬럼|필드|앞에|뒤에|쪽|부분|랑|와|과|하고|및|and|or|,))/g)).map(m => m[1]);
     const quantifiers = /^(전부|싹|모두|다|전체|all|싹다|값|데이터|내용|모든)$/;
     const primaryTarget = allPotentialTargets.find(t => !quantifiers.test(t)) || null;
 
@@ -80,15 +110,18 @@ export function processDataLocal(
     }
 
     // [New] Prefix/Suffix targets extracted outside loop
+    // 연결어(채우고, 하고 등)가 타겟으로 오인되는 것을 방지하기 위한 블랙리스트
+    const invalidTargets = /^(채우고|하고|한뒤|해서|넣고|바꾸고|지우고|없애고|변경하고|삭제하고|된다면|있으면|없으면|아니면|그리고|그런다음|이어서)$/;
+
     let prefixTarget = wantsPrefixMatch && wantsPrefixMatch[1] ? wantsPrefixMatch[1] : null;
-    if (prefixTarget && quantifiers.test(prefixTarget)) {
+    if (prefixTarget && (quantifiers.test(prefixTarget) || invalidTargets.test(prefixTarget))) {
         prefixTarget = primaryTarget ? primaryTarget : null;
     } else if (!prefixTarget && wantsPrefixMatch) {
         prefixTarget = primaryTarget;
     }
 
     let suffixTarget = wantsSuffixMatch && wantsSuffixMatch[1] ? wantsSuffixMatch[1] : null;
-    if (suffixTarget && quantifiers.test(suffixTarget)) {
+    if (suffixTarget && (quantifiers.test(suffixTarget) || invalidTargets.test(suffixTarget))) {
         suffixTarget = primaryTarget ? primaryTarget : null;
     } else if (!suffixTarget && wantsSuffixMatch) {
         suffixTarget = primaryTarget;
@@ -124,8 +157,10 @@ export function processDataLocal(
 
         // [수정] 특수문자(@, ., (, ), / 등) 허용 범위 확장
         // [수정] 중간 노이즈(컬럼, 데이터 등) 처리를 위한 반복 패턴 적용
-        const mappingRegex = /([\[\]%A-Za-z0-9가-힣_\-@./()+]+)(?:\s*(?:컬럼|필드|데이터|값|문구|텍스트|형식|패턴|의))*\s*(?:는|은|->|:|를|을|=>)\s*([\[\]%A-Za-z0-9가-힣_\-\s/.@()+!?'""]+)/g;
-        const matches = Array.from(lowerPrompt.matchAll(mappingRegex));
+        // [수정] 특수문자(@, ., (, ), / 등) 허용 범위 확장
+        // [수정] 중간 노이즈(컬럼, 데이터 등) 처리를 위한 반복 패턴 적용
+        const mappingRegex = /([\[\]%A-Za-z0-9가-힣_\-@./()+]+)(?:\s*(?:컬럼|필드|데이터|값|문구|텍스트|형식|패턴|의))*\s*(?:는|은|->|:|를|을|=>)\s*([\[\]%A-Za-z0-9가-힣_\-\s/.@()+!?'""]+)/gi;
+        const matches = Array.from(prompt.matchAll(mappingRegex));
         matches.forEach(m => {
             let from = m[1].trim().toLowerCase();
             let to = m[2].trim();
@@ -177,6 +212,125 @@ export function processDataLocal(
     }
     const wantsEmptyOnError = filterBy(['오류', '에러', '잘못', 'fail', 'error']) && filterBy(['빈칸', '공백', '삭제', '지워', 'empty', 'blank']);
 
+    // [New] Numeric Condition Logic (e.g. "price가 10000 이상이면 'High'로 바꿔")
+    // Pattern: [Column] [Value] [Operator] [TargetValue] [Action]
+    interface NumericCondition {
+        column: string;
+        value: number;
+        operator: 'ge' | 'le' | 'gt' | 'lt' | 'eq'; // >=, <=, >, <, =
+        targetValue: string;
+    }
+    const numericConditions: NumericCondition[] = [];
+
+    // [New] Null/Empty Fill Logic (e.g. "grade가 비어있으면 'Unknown'으로 채워")
+    interface NullFilling {
+        column: string;
+        fillValue: string;
+    }
+    const nullFillings: NullFilling[] = [];
+
+    // Check triggers
+    const triggerNumericOps = filterBy(['이상', '이하', '초과', '미만', '크면', '작으면', '같으면']);
+    const triggerActions = filterBy(['바꿔', '변경', '치환', '수정']);
+
+    // [Revised Logic V4] Unified Token Parser (Numeric + Null + Actions)
+    const hasTrigger = triggerNumericOps || triggerActions || filterBy(['비어', '없으', '공백', '빈값', 'null']);
+
+    if (hasTrigger) {
+        const tokens = lowerPrompt.split(/\s+/);
+        // Define Keywords
+        const nullKeywords = ['비어', '없으', '공백', '빈값', 'null'];
+        const actionPattern = /바꿔|바꾸|변경|치환|수정|설정|채워|넣어/;
+
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
+
+            // --- A. Numeric Condition Logic ---
+            if (/^[\d,]+$/.test(token)) {
+                const valNum = parseFloat(token.replace(/,/g, ''));
+                if (!isNaN(valNum)) {
+                    let operator: any = null;
+                    for (let j = 1; j <= 2 && i + j < tokens.length; j++) {
+                        const next = tokens[i + j];
+                        if (next.includes('이상') || next.includes('크거나')) operator = 'ge';
+                        else if (next.includes('이하') || next.includes('작거나')) operator = 'le';
+                        else if (next.includes('초과') || next.includes('크면')) operator = 'gt';
+                        else if (next.includes('미만') || next.includes('작으면')) operator = 'lt';
+                        else if (next.includes('같으면') || next.includes('동일')) operator = 'eq';
+                        if (operator) break;
+                    }
+
+                    if (operator) {
+                        let col = "";
+                        if (i > 0) {
+                            let prev = tokens[i - 1];
+                            prev = prev.replace(/(이|가|은|는)$/, '');
+                            col = prev.trim();
+                        }
+
+                        let target = "";
+                        let actionIdx = -1;
+                        for (let k = i + 1; k < tokens.length; k++) {
+                            if (actionPattern.test(tokens[k])) {
+                                actionIdx = k;
+                                break;
+                            }
+                        }
+
+                        if (actionIdx !== -1 && actionIdx > i) {
+                            let targetIdx = actionIdx - 1;
+                            if (targetIdx > i && /^(으로|로)$/.test(tokens[targetIdx])) targetIdx--;
+
+                            let possible = tokens[targetIdx];
+                            const quoteMatch = possible.match(/['"]([^'"]+)['"]/);
+                            if (quoteMatch) { target = quoteMatch[1]; }
+                            else { target = possible.replace(/(으)?로$/, ''); }
+                        }
+
+                        if (col && target && valNum !== undefined) {
+                            numericConditions.push({ column: col, value: valNum, operator: operator, targetValue: target });
+                        }
+                    }
+                }
+            }
+
+            // --- B. Null Filling Logic ---
+            let isNullTrigger = false;
+            for (const nk of nullKeywords) { if (token.includes(nk)) { isNullTrigger = true; break; } }
+
+            if (isNullTrigger) {
+                let col = "";
+                if (i > 0) {
+                    let prev = tokens[i - 1];
+                    prev = prev.replace(/(이|가|은|는)$/, '');
+                    col = prev.trim();
+                }
+
+                let fillVal = "";
+                let actionIdx = -1;
+                for (let k = i + 1; k < tokens.length; k++) {
+                    if (actionPattern.test(tokens[k])) {
+                        actionIdx = k;
+                        break;
+                    }
+                }
+
+                if (actionIdx !== -1 && actionIdx > i) {
+                    let targetIdx = actionIdx - 1;
+                    if (targetIdx > i && /^(으로|로)$/.test(tokens[targetIdx])) targetIdx--;
+                    let possible = tokens[targetIdx];
+                    const quoteMatch = possible.match(/['"]([^'"]+)['"]/);
+                    if (quoteMatch) { fillVal = quoteMatch[1]; }
+                    else { fillVal = possible.replace(/(으)?로$/, ''); }
+                }
+
+                if (col && fillVal) {
+                    nullFillings.push({ column: col, fillValue: fillVal });
+                }
+            }
+        }
+    }
+
     // --- [통합 정제 루프] ---
     return data.map(row => {
         const newRow = { ...row };
@@ -192,6 +346,37 @@ export function processDataLocal(
             // [NEW] 0단계: 컬럼 전체 일괄 치환 (Column-based Replacement) [Rule 0]
             if (mappings[lowerKey] !== undefined) {
                 val = mappings[lowerKey];
+            }
+
+            // [NEW] 0.5단계: 조건부 로직 적용 (Numeric Condition)
+            const numCond = numericConditions.find(c => lowerKey.includes(c.column) || c.column.includes(lowerKey));
+            if (numCond) {
+                // Try parse current value as number (remove all non-numeric chars except dot and minus)
+                const cleanNumStr = val.replace(/[^0-9.-]/g, '');
+                const currentNum = parseFloat(cleanNumStr);
+
+                if (!isNaN(currentNum) && cleanNumStr !== '') {
+                    let match = false;
+                    switch (numCond.operator) {
+                        case 'ge': match = currentNum >= numCond.value; break;
+                        case 'le': match = currentNum <= numCond.value; break;
+                        case 'gt': match = currentNum > numCond.value; break;
+                        case 'lt': match = currentNum < numCond.value; break;
+                        case 'eq': match = currentNum === numCond.value; break;
+                    }
+                    if (match) {
+                        val = numCond.targetValue;
+                    }
+                }
+            }
+
+            // [NEW] 0.6단계: 결측치 채우기 (Null Filling)
+            const nullFill = nullFillings.find(c => key.includes(c.column) || c.column.includes(key));
+            if (nullFill) {
+                const lowerVal = val.toLowerCase().trim();
+                if (val === "" || lowerVal === "null" || lowerVal === "undefined" || newRow[key] === null || newRow[key] === undefined) {
+                    val = nullFill.fillValue;
+                }
             }
 
             // -----------------------------------------------------------------
@@ -289,16 +474,21 @@ export function processDataLocal(
             // 2단계: 자연어 처리 (NLP Smart) [Rule 4]
             // -----------------------------------------------------------------
             if (wantsNoSpecial) val = val.replace(/[^\w\s가-힣]/g, '');
-            if (wantsNoBrackets) val = val.replace(/\(.*?\)|\[.*?\]|\{.*?\}/g, '').trim();
+            if (wantsNoBrackets && isTargetColumn(key, targetNoBrackets, allPotentialTargets)) {
+                val = val.replace(/\(.*?\)|\[.*?\]|\{.*?\}/g, '').trim();
+            }
             if (wantsOnlyDigits) val = val.replace(/\D/g, '');
             else if (wantsOnlyKorean) val = val.replace(/[^가-힣\s]/g, '');
             else if (wantsOnlyEnglish) val = val.replace(/[^a-zA-Z\s]/g, '');
 
             // NEW NLP Actions
 
-
-            if (wantsNoHtml) val = val.replace(/<[^>]*>?/gm, '');
-            if (wantsNoEmoji) val = val.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+            if (wantsNoHtml && isTargetColumn(key, targetNoHtml, allPotentialTargets)) {
+                val = val.replace(/<[^>]*>?/gm, '');
+            }
+            if (wantsNoEmoji && isTargetColumn(key, targetNoEmoji, allPotentialTargets)) {
+                val = val.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+            }
 
             if (wantsPaddingLen > 0 && /^\d+$/.test(val)) {
                 // [New] If a specific target column was mentioned, check if current key matches
@@ -356,13 +546,19 @@ export function processDataLocal(
             }
 
             // 업체명 정리 [Rule 5]
-            if ((options.cleanCompanyName || wantsCompanyClean) && (lowerKey.includes('업체') || lowerKey.includes('회사') || lowerKey.includes('상호') || lowerKey.includes('name'))) {
+            const isCompanyCol = lowerKey.includes('업체') || lowerKey.includes('회사') || lowerKey.includes('상호') || lowerKey.includes('name');
+            const isTargetCompany = isCompanyCol || isTargetColumn(key, targetCompanyClean, allPotentialTargets);
+
+            if ((options.cleanCompanyName || wantsCompanyClean) && isTargetCompany) {
                 val = val.replace(/\((?:주|유|합|사|재|특|협|공|사단|재단|법인)\)|(?:주|유|합|사|재)식회사/g, '').trim();
             }
 
             // 직함 제거
-            if ((options.removePosition || wantsPositionRemoval) && (lowerKey.includes('이름') || lowerKey.includes('성함') || lowerKey.includes('담당') || lowerKey.includes('name'))) {
-                val = val.replace(/\s?(?:대리|과장|차장|부장|팀장|본부장|실장|사장|대표|이사|전무|상무|위원|교수|의사|간호사|연구원)$/, '').trim();
+            const isPositionCol = lowerKey.includes('이름') || lowerKey.includes('성함') || lowerKey.includes('담당') || lowerKey.includes('name');
+            const isTargetPosition = isPositionCol || isTargetColumn(key, targetPositionRemoval, allPotentialTargets);
+
+            if ((options.removePosition || wantsPositionRemoval) && isTargetPosition) {
+                val = val.replace(/\s?(?:대표이사|전무이사|상무이사|부사장|대리|과장|차장|부장|팀장|본부장|실장|사장|대표|이사|전무|상무|위원|교수|의사|간호사|연구원|매니저|책임|선임|수석|주임|사원)$/, '').trim();
             }
 
             // 계좌/카드 마스킹
@@ -730,11 +926,27 @@ export function checkNLPTargetAmbiguity(prompt: string, headers: string[] = []):
     // 단, '패턴', '문구', '데이터' 등 일반적인 명사는 타겟 컬럼명으로 보지 않음 (모호함 처리)
     const noiseWords = /^(패턴|문구|단어|텍스트|값|데이터|내용|항목|정보|필드|컬럼)$/;
 
-    const hasValidTarget = targetMatches.some(m => {
+    let hasValidTarget = targetMatches.some(m => {
         const target = m[1].toLowerCase();
         if (noiseWords.test(target)) return false; // 일반 명사는 제외
         return headers.some(h => h.toLowerCase().includes(target) || target.includes(h.toLowerCase()));
     });
+
+    // [Improvement] 조사가 없는 경우(예: "price 10000 이상")에도 컬럼명이 명확하면 허용
+    if (!hasValidTarget && headers.length > 0) {
+        const tokens = lowerPrompt.split(/\s+/);
+        hasValidTarget = tokens.some(token => {
+            // 조사 제거 후 비교 (safety)
+            const cleanToken = token.replace(/(은|는|이|가|을|를|의|에서)$/, '').trim();
+            if (!cleanToken || noiseWords.test(cleanToken)) return false;
+
+            // 헤더와 정확히 일치하거나, 헤더가 토큰을 포함하는 경우 (단, 너무 짧은 토큰 제외)
+            return headers.some(h => {
+                const lowerH = h.toLowerCase();
+                return lowerH === cleanToken || (cleanToken.length >= 2 && lowerH.includes(cleanToken));
+            });
+        });
+    }
 
     // 명시적인 전체 적용 키워드
     const hasGlobalQuantifier = /(전부|싹|모두|다|전체|all|싹다|모든|모든\s*컬럼|전체\s*데이터)/.test(lowerPrompt);

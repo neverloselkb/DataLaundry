@@ -349,6 +349,24 @@ export function FormatGuideModal({ open, onClose }: { open: boolean; onClose: ()
                                             <span className="bg-white px-2 py-0.5 rounded border border-slate-200 text-xs text-slate-500 font-mono">formatTaxDate</span>
                                             <span>옵션이 켜지며 "20240101" 형태로 변환됩니다.</span>
                                         </li>
+                                        <hr className="border-blue-200/50" />
+                                        <li className="flex gap-2 items-start">
+                                            <span className="text-blue-500 font-bold">Q.</span>
+                                            <span>"가격이 10000보다 크면 'High'로 바꾸고 싶어요."</span>
+                                        </li>
+                                        <li className="flex gap-2 items-start">
+                                            <span className="text-green-600 font-bold">A.</span>
+                                            <div className="flex flex-col gap-1">
+                                                <span><strong>조건부 값 변경</strong>도 가능합니다! 단, 띄어쓰기를 꼭 지켜주세요.</span>
+                                                <div className="p-2 bg-white rounded border border-slate-200 text-xs text-slate-600">
+                                                    <span className="text-red-500 font-bold text-[10px] mr-1">[X]</span>
+                                                    price가10000이상이면High로... (인식 불가 🙅‍♂️)<br />
+                                                    <span className="text-green-600 font-bold text-[10px] mr-1">[O]</span>
+                                                    <strong>price가 10000 이상</strong>이면 <strong>'High'</strong>로 바꿔줘 (인식 성공 🙆‍♂️)
+                                                </div>
+                                                <span className="text-[11px] text-slate-400 mt-0.5">* "컬럼명 / 숫자 / 조건" 사이는 반드시 띄어써야 합니다.</span>
+                                            </div>
+                                        </li>
                                     </ul>
                                 </div>
                                 <div className="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-200">

@@ -14,10 +14,10 @@ const defaultOptions: ProcessingOptions = {
 };
 
 const advTestData: DataRow[] = [
-    { id: 1, address: "서울특별시 강남구 테헤란로 152 (역삼동, 강남파이낸스센터)", email: "antigravity@google.com", memo: "비고: [비공개] 데이터입니다." },
-    { id: 2, address: "경기도 성남시 분당구 판교역로 166 (백현동, 카카오판교아지트)", email: "user_test@kb.co.kr", memo: "결제금액: 2,500,000원 (총액)" },
-    { id: 3, address: "부산광역시 해운대구 우동 1514", email: "support@daum.net", memo: "상태: 처리완료(2024-01-26)" },
-    { id: 4, company: "(주)데이터세탁소 대표이사", user: "홍길동 대리", sku: "SKU-12345-ABC", msg: "Hello 😉 <b>World</b>" }
+    { id: 1, address: "서울특별시 강남구 테헤란로 152 (역삼동, 강남파이낸스센터)", email: "antigravity@google.com", memo: "비고: [비공개] 데이터입니다.", price: 5000, grade: "" },
+    { id: 2, address: "경기도 성남시 분당구 판교역로 166 (백현동, 카카오판교아지트)", email: "user_test@kb.co.kr", memo: "결제금액: 2,500,000원 (총액)", price: 150000, grade: "A" },
+    { id: 3, address: "부산광역시 해운대구 우동 1514", email: "support@daum.net", memo: "상태: 처리완료(2024-01-26)", price: 8000, grade: "" },
+    { id: 4, company: "(주)데이터세탁소 대표이사", user: "홍길동 대리", sku: "SKU-12345-ABC", msg: "Hello 😉 <b>World</b>", price: 30000, grade: "B" }
 ];
 
 async function runAdvancedTest() {
@@ -75,6 +75,25 @@ async function runAdvancedTest() {
     assert("값 치환", res6[1].memo?.toString().includes("VIP_PAY"), true, true);
     assert("메시지 대문자", res6[3].msg, "HELLO 😉 <B>WORLD</B>"); // emoji/html intact if not explicitly removed
     console.log("");
+
+    console.log("\n=========================================");
+    console.log("🏁 심화 NLP 테스트 종료");
+    console.log("=========================================");
+    // 7. [NEW] 조건부 값 치환 (Numeric Logic Testing)
+    console.log("[A-7] 조건부 값 치환 (10000원 이상은 'High'로 변경)");
+    // 현재 rule-based processor에는 숫자 비교 로직이 없을 수 있음. AI 모드나 확장된 로직이 필요할 수 있음.
+    // 여기서는 의도를 전달했을 때 어떻게 반응하는지 확인.
+    const res7 = processDataLocal(advTestData, "price가 10000 이상이면 'High'로 바꿔줘", defaultOptions, [], {});
+    // 기대 결과: id 2(150000), id 4(30000) -> 'High', 나머지 유지 혹은 그대로
+    console.log("   - Price(150000) -> Result:", res7[1].price);
+    console.log("   - Price(5000)   -> Result:", res7[0].price);
+
+    // 8. [NEW] 결측치 채우기 (Fill Missing Values)
+    console.log("");
+    console.log("[A-8] 결측치(빈 값) 채우기");
+    const res8 = processDataLocal(advTestData, "grade가 비어있으면 'Unknown'으로 채워줘", defaultOptions, [], {});
+    assert("빈 값 채우기", res8[0].grade, "Unknown");
+    assert("기존 값 유지", res8[3].grade, "B");
 
     console.log("\n=========================================");
     console.log("🏁 심화 NLP 테스트 종료");
