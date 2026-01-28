@@ -28,7 +28,7 @@ export function DonateModal({ open, onClose }: { open: boolean; onClose: () => v
                     <div className="relative group">
                         <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                         <div className="relative bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                            <img src="/kakaopay-qr.png" alt="KakaoPay QR Code" className="w-64 h-auto rounded-lg" />
+                            <img src="./kakaopay-qr.png" alt="KakaoPay QR Code" className="w-64 h-auto rounded-lg" />
                         </div>
                     </div>
                     <div className="mt-8 text-center space-y-2">
