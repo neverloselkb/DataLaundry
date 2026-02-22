@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://data-laundry.com
+
+# Sitemaps
+Sitemap: https://data-laundry.com/sitemap.xml
