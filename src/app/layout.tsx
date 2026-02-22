@@ -1,17 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { Header } from "@/components/dashboard/Header";
+import { Footer } from "@/components/dashboard/Footer";
 
 export const metadata: Metadata = {
   title: "데이터세탁소 (Data Laundry) - 스마트 데이터 정제 솔루션",
@@ -27,17 +18,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="ko">
+      <head>
+        {/* Pretendard — 깔끔한 한글 본문 폰트 */}
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+        <meta name="google-adsense-account" content="ca-pub-6113754179867162" />
+      </head>
+      <body className="antialiased bg-[var(--laundry-bg)] text-[var(--laundry-text)]">
         <Script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0000000000000000"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6113754179867162"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        {children}
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
+        </div>
       </body>
     </html>
   );

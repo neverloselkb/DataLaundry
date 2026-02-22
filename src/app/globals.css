@@ -1,13 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=JetBrains+Mono:wght@400;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* ======================================================
+   데이터세탁소 — Industrial/Utilitarian Design System
+   도구답게 단단하고, 세탁소답게 위트있는 다크 테마
+   ====================================================== */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-pretendard);
+  --font-mono: var(--font-jetbrains);
+  --font-display: "Black Han Sans", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,73 +52,70 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+/* Industrial Dark 테마 — 기본값 */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  --radius: 0.375rem;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* 배경 계층: 어두운 zinc 팔레트 */
+  --background: #18181B;
+  --foreground: #FAFAFA;
+  --card: #27272A;
+  --card-foreground: #FAFAFA;
+  --popover: #27272A;
+  --popover-foreground: #FAFAFA;
+
+  /* 브랜드: 앰버 포인트 — 산업용 경고등 */
+  --primary: #F59E0B;
+  --primary-foreground: #18181B;
+  --secondary: #3F3F46;
+  --secondary-foreground: #FAFAFA;
+  --muted: #27272A;
+  --muted-foreground: #A1A1AA;
+  --accent: #F59E0B;
+  --accent-foreground: #18181B;
+  --destructive: #EF4444;
+
+  /* 경계선 & 입력: 미묘한 zinc 테두리 */
+  --border: #3F3F46;
+  --input: #3F3F46;
+  --ring: #F59E0B;
+
+  /* 차트 컬러 */
+  --chart-1: #F59E0B;
+  --chart-2: #22C55E;
+  --chart-3: #60A5FA;
+  --chart-4: #A78BFA;
+  --chart-5: #FB923C;
+
+  /* 사이드바 */
+  --sidebar: #1F1F23;
+  --sidebar-foreground: #FAFAFA;
+  --sidebar-primary: #F59E0B;
+  --sidebar-primary-foreground: #18181B;
+  --sidebar-accent: #3F3F46;
+  --sidebar-accent-foreground: #FAFAFA;
+  --sidebar-border: #3F3F46;
+  --sidebar-ring: #F59E0B;
+
+  /* 커스텀 시맨틱 변수 — 컴포넌트에서 직접 참조 */
+  --laundry-bg: #18181B;
+  --laundry-surface: #27272A;
+  --laundry-elevated: #2E2E33;
+  --laundry-border: #3F3F46;
+  --laundry-border-light: #52525B;
+  --laundry-text: #FAFAFA;
+  --laundry-muted: #A1A1AA;
+  --laundry-subtle: #71717A;
+  --laundry-accent: #F59E0B;
+  --laundry-accent-hover: #D97706;
+  --laundry-accent-glow: rgba(245, 158, 11, 0.15);
+  --laundry-success: #22C55E;
+  --laundry-danger: #EF4444;
+  --laundry-info: #60A5FA;
+
+  /* 폰트 */
+  --font-pretendard: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  --font-jetbrains: "JetBrains Mono", "Fira Code", monospace;
 }
 
 @layer base {
@@ -122,6 +125,23 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-pretendard);
+  }
+
+  /* 스크롤바 — 다크 테마용 커스텀 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--laundry-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--laundry-border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--laundry-subtle);
   }
 }
 
@@ -132,6 +152,46 @@
 
   .animation-delay-500 {
     animation-delay: 500ms;
+  }
+
+  /* Industrial 카드 — 직각에 가까운 모서리, 미묘한 보더 */
+  .card-industrial {
+    background: var(--laundry-surface);
+    border: 1px solid var(--laundry-border);
+    border-radius: 6px;
+  }
+
+  /* 앰버 글로우 효과 — CTA 버튼에 사용 */
+  .glow-amber {
+    box-shadow: 0 0 20px var(--laundry-accent-glow),
+                0 0 40px rgba(245, 158, 11, 0.05);
+  }
+
+  /* 상태 인디케이터 — 산업용 기기 상태 표시 */
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .status-dot-active { background: var(--laundry-success); }
+  .status-dot-warning { background: var(--laundry-accent); }
+  .status-dot-error { background: var(--laundry-danger); }
+
+  /* 섹션 타이틀 바 — 공장 라벨 느낌 */
+  .section-label {
+    font-family: var(--font-pretendard);
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--laundry-text);
+    letter-spacing: -0.01em;
+  }
+
+  /* 모노 데이터 텍스트 */
+  .font-data {
+    font-family: var(--font-jetbrains);
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -145,6 +205,15 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 세탁기 드럼 스피너 애니메이션 */
+@keyframes spin-drum {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-drum {
+  animation: spin-drum 2s linear infinite;
 }
 
 /* 광고 레이아웃 시프트(출렁임) 방지용 고정 클래스 */

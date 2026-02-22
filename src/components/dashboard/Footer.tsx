@@ -1,87 +1,87 @@
-import { Sparkles, AlertCircle, Bot, FileUp, Github, TableIcon } from 'lucide-react';
+import { AlertCircle, Github } from 'lucide-react';
+import Link from 'next/link';
 
-interface FooterProps {
-    setTermsModalOpen: (open: boolean) => void;
-    setHelpModalOpen: (open: boolean) => void;
-    setGuideModalOpen: (open: boolean) => void;
-    setFormatGuideModalOpen: (open: boolean) => void;
-    setDonateModalOpen: (open: boolean) => void;
-}
+// 데이터세탁소 푸터 — Industrial 다크, 미니멀
+// 왜 이런 디자인: 공장 바닥의 명판처럼 최소한의 정보만 표시
 
-export function Footer({ setTermsModalOpen, setHelpModalOpen, setGuideModalOpen, setFormatGuideModalOpen, setDonateModalOpen }: FooterProps) {
+export function Footer() {
     return (
-        <footer className="mt-auto border-t border-slate-200 bg-slate-50/50 py-12 px-6">
+        <footer className="mt-auto border-t border-[var(--laundry-border)] bg-[var(--laundry-bg)] py-10 px-6">
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div className="col-span-1 md:col-span-1">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Sparkles className="h-6 w-6 text-blue-600 fill-blue-600/10" />
-                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700">
-                            데이터세탁소
+                {/* 브랜드 */}
+                <div className="col-span-1">
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 bg-[var(--laundry-accent)] rounded flex items-center justify-center">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#18181B" strokeWidth="2.5" /><circle cx="12" cy="14" r="5" stroke="#18181B" strokeWidth="2" /></svg>
+                        </div>
+                        <span className="text-lg font-black" style={{ fontFamily: 'var(--font-display)' }}>
+                            데이터<span className="text-[var(--laundry-accent)]">세탁소</span>
                         </span>
                     </div>
-                    <p className="text-sm text-slate-500 leading-relaxed">
-                        로컬 브라우저 엔진을 활용하여 복잡한 세절/마케팅 데이터를<br />
-                        단 몇 초 만에 완벽하게 정제해 드립니다.
+                    <p className="text-xs text-[var(--laundry-muted)] leading-relaxed">
+                        로컬 브라우저 엔진으로 데이터를<br />안전하고 빠르게 정제합니다.
                     </p>
-                    <div className="mt-4 flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg w-fit shadow-sm">
-                        <span className="text-[10px] font-bold text-slate-600">100% Client-Side Engine</span>
+                    <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-[var(--laundry-surface)] border border-[var(--laundry-border)] rounded text-[10px] font-mono text-[var(--laundry-subtle)]">
+                        <span className="status-dot status-dot-active" />
+                        100% CLIENT-SIDE
                     </div>
                 </div>
 
+                {/* 기능 */}
                 <div>
-                    <h4 className="font-semibold text-slate-900 mb-4">서비스 기능</h4>
-                    <ul className="space-y-2 text-sm text-slate-600">
+                    <h4 className="text-xs font-bold text-[var(--laundry-accent)] uppercase tracking-wider mb-3">기능</h4>
+                    <ul className="space-y-2 text-xs text-[var(--laundry-muted)]">
                         <li>자연어 명령어 정제</li>
-                        <li>글로벌 날짜 형식 통일</li>
+                        <li>날짜 형식 통일</li>
                         <li>데이터 무결성 진단</li>
                         <li>자동 매핑 및 치환</li>
                     </ul>
                 </div>
 
+                {/* 지원 */}
                 <div>
-                    <h4 className="font-semibold text-slate-900 mb-4">고객 지원</h4>
-                    <ul className="space-y-2 text-sm text-slate-600">
-                        <li className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => setTermsModalOpen(true)}>
-                            <AlertCircle size={14} className="text-slate-400" />
-                            이용 약관 및 정책
+                    <h4 className="text-xs font-bold text-[var(--laundry-accent)] uppercase tracking-wider mb-3">지원</h4>
+                    <ul className="space-y-2 text-xs text-[var(--laundry-muted)]">
+                        <li>
+                            <Link href="/terms" className="flex items-center gap-1.5 hover:text-[var(--laundry-accent)] transition-colors">
+                                <AlertCircle size={12} className="text-[var(--laundry-subtle)]" />
+                                이용 약관
+                            </Link>
                         </li>
-                        <li className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => setHelpModalOpen(true)}>
-                            <Bot size={14} className="text-slate-400" />
-                            도움말 센터
+                        <li>
+                            <Link href="/privacy" className="hover:text-[var(--laundry-accent)] transition-colors">개인정보처리방침</Link>
                         </li>
-                        <li className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => setGuideModalOpen(true)}>
-                            <FileUp size={14} className="text-slate-400" />
-                            제작 가이드
-                        </li>
-                        <li className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => setFormatGuideModalOpen(true)}>
-                            <TableIcon size={14} className="text-slate-400" />
-                            데이터 형식 가이드
+                        <li>
+                            <Link href="/guide" className="hover:text-[var(--laundry-accent)] transition-colors">제작 가이드</Link>
                         </li>
                     </ul>
                 </div>
 
+                {/* 연락처 */}
                 <div>
-                    <h4 className="font-semibold text-slate-900 mb-4">연락처</h4>
-                    <address className="not-italic space-y-2 text-sm text-slate-600">
-                        <p>Email: pentiumman@naver.com</p>
-                        <p className="flex items-center gap-1.5 cursor-pointer text-blue-600 hover:text-blue-700 font-bold group transition-colors" onClick={() => setDonateModalOpen(true)}>
-                            <Sparkles size={14} className="group-hover:animate-pulse" />
-                            개발자 도와주기
-                        </p>
+                    <h4 className="text-xs font-bold text-[var(--laundry-accent)] uppercase tracking-wider mb-3">연락처</h4>
+                    <address className="not-italic space-y-2 text-xs text-[var(--laundry-muted)] flex flex-col items-start gap-1">
+                        <p className="font-mono text-[11px] mb-1">kblee7782@gmail.com</p>
+                        <Link href="/contact" className="hover:text-[var(--laundry-accent-hover)] font-semibold transition-colors">
+                            이메일 문의하기
+                        </Link>
                         <a
                             href="https://github.com/neverloselkb/DataLaundry"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                            className="flex items-center gap-1.5 hover:text-[var(--laundry-text)] transition-colors"
                         >
-                            <Github size={14} className="text-slate-400" />
-                            GitHub 프로필
+                            <Github size={12} />
+                            GitHub
                         </a>
-                        <p className="pt-2 text-[11px] text-slate-400 font-medium">
-                            © 2026 데이터세탁소. All rights reserved.
-                        </p>
                     </address>
                 </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto mt-8 pt-4 border-t border-[var(--laundry-border)]">
+                <p className="text-[10px] font-mono text-[var(--laundry-subtle)] text-center">
+                    © 2026 데이터세탁소 — All rights reserved
+                </p>
             </div>
         </footer>
     );

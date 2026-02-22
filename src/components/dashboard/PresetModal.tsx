@@ -74,14 +74,14 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+                className="absolute inset-0 bg-[var(--laundry-accent)]/60 backdrop-blur-sm animate-in fade-in duration-300"
                 onClick={onClose}
             />
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col">
+            <div className="relative w-full max-w-md bg-[var(--laundry-surface)] rounded-2xl shadow-2xl border border-[var(--laundry-border)] overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col">
                 {/* Header */}
-                <div className="p-6 bg-slate-900 text-white relative">
+                <div className="p-6 bg-[var(--laundry-accent)] text-[var(--laundry-bg)] relative">
                     <h3 className="text-xl font-bold flex items-center gap-2">
                         {mode === 'list' ? '🔄 정제 프리셋 보관함' : '💾 새 프리셋 저장'}
                     </h3>
@@ -92,7 +92,7 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                     </p>
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-1 hover:bg-white/10 rounded-full transition-colors"
+                        className="absolute top-4 right-4 p-1 hover:bg-[var(--laundry-surface)]/10 rounded-full transition-colors"
                     >
                         <X size={20} className="text-slate-400" />
                     </button>
@@ -100,7 +100,7 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
 
                 {/* Toolbar: Export/Import (Visual Highlight) */}
                 {mode === 'list' && (
-                    <div className="bg-blue-600 px-6 py-3 flex items-center justify-between shadow-inner">
+                    <div className="bg-[var(--laundry-accent)] px-6 py-3 flex items-center justify-between shadow-inner">
                         <span className="text-xs font-black text-blue-100 uppercase tracking-widest flex items-center gap-1.5 font-sans">
                             <Save size={12} />
                             Backup & Share
@@ -108,14 +108,14 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                         <div className="flex gap-2">
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-full text-[11px] font-bold text-white transition-all border border-white/20"
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--laundry-surface)]/20 hover:bg-[var(--laundry-surface)]/30 rounded-full text-[11px] font-bold text-[var(--laundry-bg)] transition-all border border-white/20"
                             >
                                 <Upload size={14} />
                                 가져오기
                             </button>
                             <button
                                 onClick={onExport}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-400 rounded-full text-[11px] font-bold text-white transition-all border border-blue-400 shadow-sm"
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--laundry-accent)] hover:bg-blue-400 rounded-full text-[11px] font-bold text-[var(--laundry-bg)] transition-all border border-blue-400 shadow-sm"
                             >
                                 <Download size={14} />
                                 파일로 내보내기
@@ -132,7 +132,7 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                 )}
 
                 {/* Body */}
-                <div className="p-6 space-y-6 max-h-[450px] overflow-y-auto bg-slate-50/50 scrollbar-thin">
+                <div className="p-6 space-y-6 max-h-[450px] overflow-y-auto bg-[var(--laundry-elevated)] scrollbar-thin">
                     {mode === 'list' ? (
                         <div className="space-y-6">
                             {/* 1. 사용자 전용 커스텀 코스 */}
@@ -142,31 +142,31 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                                     나만의 커스텀 코스
                                 </h4>
                                 {presets.filter(p => !p.isSystem).length === 0 ? (
-                                    <div className="bg-white/50 border border-dashed border-slate-200 rounded-xl p-6 text-center">
+                                    <div className="bg-[var(--laundry-surface)]/50 border border-dashed border-[var(--laundry-border)] rounded-xl p-6 text-center">
                                         <p className="text-xs text-slate-400">아직 저장된 커스텀 프리셋이 없습니다.</p>
                                     </div>
                                 ) : (
                                     presets.filter(p => !p.isSystem).map((preset) => (
                                         <div
                                             key={preset.id}
-                                            className="group bg-white border-2 border-slate-100 rounded-xl p-4 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer relative animate-in slide-in-from-bottom-2"
+                                            className="group bg-[var(--laundry-surface)] border-2 border-[var(--laundry-border)] rounded-xl p-4 hover:border-[var(--laundry-accent)] hover:shadow-xl transition-all cursor-pointer relative animate-in slide-in-from-bottom-2"
                                             onClick={() => {
                                                 onApply(preset);
                                                 onClose();
                                             }}
                                         >
                                             <div className="flex items-start gap-4">
-                                                <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                                                <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 group-hover:bg-[var(--laundry-accent-hover)] group-hover:text-[var(--laundry-bg)] transition-all duration-300">
                                                     {getIcon(preset.id)}
                                                 </div>
                                                 <div className="flex-1 min-w-0 pr-8">
-                                                    <h4 className="font-black text-slate-800 truncate text-base">{preset.name}</h4>
-                                                    <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                                                    <h4 className="font-black text-[var(--laundry-text)] truncate text-base">{preset.name}</h4>
+                                                    <p className="text-xs text-[var(--laundry-subtle)] mt-1 line-clamp-2 leading-relaxed">
                                                         {preset.description || '이 코스에 대한 설명이 없습니다.'}
                                                     </p>
                                                     <div className="flex gap-2 mt-3">
-                                                        <span className="text-[9px] bg-blue-600 text-white font-black px-2 py-0.5 rounded shadow-sm">CUSTOM</span>
-                                                        <span className="text-[9px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded border border-slate-200">
+                                                        <span className="text-[9px] bg-[var(--laundry-accent)] text-[var(--laundry-bg)] font-black px-2 py-0.5 rounded shadow-sm">CUSTOM</span>
+                                                        <span className="text-[9px] bg-[var(--laundry-elevated)] text-[var(--laundry-subtle)] font-bold px-2 py-0.5 rounded border border-[var(--laundry-border)]">
                                                             {Object.values(preset.options).filter(Boolean).length}개 필터링 적용
                                                         </span>
                                                     </div>
@@ -187,12 +187,12 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                                 )}
 
                                 <button
-                                    className="w-full border-dashed border-2 border-blue-200 rounded-xl py-6 bg-blue-50/30 hover:bg-blue-600 hover:border-blue-600 group transition-all duration-500 shadow-sm"
+                                    className="w-full border-dashed border-2 border-blue-200 rounded-xl py-6 bg-blue-50/30 hover:bg-[var(--laundry-accent-hover)] hover:border-blue-600 group transition-all duration-500 shadow-sm"
                                     onClick={() => setMode('save')}
                                 >
                                     <div className="flex flex-col items-center gap-1.5">
-                                        <Save size={24} className="text-blue-400 group-hover:text-white transition-colors" />
-                                        <span className="text-sm font-black text-blue-600 group-hover:text-white">현재 설정을 고유 코스로 저장</span>
+                                        <Save size={24} className="text-blue-400 group-hover:text-[var(--laundry-bg)] transition-colors" />
+                                        <span className="text-sm font-black text-blue-600 group-hover:text-[var(--laundry-bg)]">현재 설정을 고유 코스로 저장</span>
                                     </div>
                                 </button>
                             </div>
@@ -200,29 +200,29 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                             {/* 2. 전문가 추천 시스템 코스 */}
                             <div className="space-y-3 opacity-80 hover:opacity-100 transition-opacity">
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <span className="w-4 h-[1px] bg-slate-200"></span>
+                                    <span className="w-4 h-[1px] bg-[var(--laundry-border)]"></span>
                                     전문가 추천 코스
                                 </h4>
                                 {presets.filter(p => p.isSystem).map((preset) => (
                                     <div
                                         key={preset.id}
-                                        className="group bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-800 hover:shadow-lg transition-all cursor-pointer relative"
+                                        className="group bg-[var(--laundry-surface)] border border-[var(--laundry-border)] rounded-xl p-4 hover:border-slate-800 hover:shadow-lg transition-all cursor-pointer relative"
                                         onClick={() => {
                                             onApply(preset);
                                             onClose();
                                         }}
                                     >
                                         <div className="flex items-start gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-900 group-hover:text-white transition-colors">
+                                            <div className="w-10 h-10 rounded-lg bg-[var(--laundry-bg)] border border-[var(--laundry-border)] flex items-center justify-center shrink-0 group-hover:bg-[var(--laundry-accent)] group-hover:text-[var(--laundry-bg)] transition-colors">
                                                 {getIcon(preset.id)}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="font-bold text-slate-700 truncate">{preset.name}</h4>
-                                                <p className="text-[11px] text-slate-500 mt-1 line-clamp-1">
+                                                <h4 className="font-bold text-[var(--laundry-muted)] truncate">{preset.name}</h4>
+                                                <p className="text-[11px] text-[var(--laundry-subtle)] mt-1 line-clamp-1">
                                                     {preset.description}
                                                 </p>
                                                 <div className="flex gap-2 mt-2">
-                                                    <span className="text-[9px] bg-slate-100 text-slate-400 font-bold px-1.5 py-0.5 rounded border border-slate-200 uppercase tracking-tighter">System</span>
+                                                    <span className="text-[9px] bg-[var(--laundry-elevated)] text-slate-400 font-bold px-1.5 py-0.5 rounded border border-[var(--laundry-border)] uppercase tracking-tighter">System</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -231,12 +231,12 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                             </div>
 
                             {/* 데이터 유지 안내 섹션 */}
-                            <div className="mt-6 p-4 bg-slate-100/80 rounded-xl border border-dashed border-slate-200 space-y-2">
-                                <div className="flex items-center gap-1.5 text-slate-600 font-bold text-xs">
+                            <div className="mt-6 p-4 bg-[var(--laundry-elevated)]/80 rounded-xl border border-dashed border-[var(--laundry-border)] space-y-2">
+                                <div className="flex items-center gap-1.5 text-[var(--laundry-subtle)] font-bold text-xs">
                                     <Info size={14} className="text-blue-500" />
                                     <span>데이터 보관 정책 안내</span>
                                 </div>
-                                <ul className="text-[11px] text-slate-500 space-y-1.5 leading-relaxed list-disc pl-4">
+                                <ul className="text-[11px] text-[var(--laundry-subtle)] space-y-1.5 leading-relaxed list-disc pl-4">
                                     <li>프리셋은 현재 사용 중인 <b>브라우저 내(LocalStorage)</b>에 안전하게 보관됩니다.</li>
                                     <li>브라우저 <b>캐시 및 사이트 데이터를 삭제</b>할 경우 프리셋도 함께 삭제될 수 있습니다.</li>
                                     <li>시크릿 모드에서 작성한 프리셋은 브라우저 <b>창을 닫는 즉시 소멸</b>됩니다.</li>
@@ -247,7 +247,7 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                     ) : (
                         <div className="space-y-4 py-2">
                             <div className="space-y-2">
-                                <Label htmlFor="name" className="text-slate-700 font-bold text-sm">프리셋 이름</Label>
+                                <Label htmlFor="name" className="text-[var(--laundry-muted)] font-bold text-sm">프리셋 이름</Label>
                                 <Input
                                     id="name"
                                     placeholder="예: 월간 매출 보고서 정제"
@@ -258,7 +258,7 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="desc" className="text-slate-700 font-bold text-sm">설명 (선택사항)</Label>
+                                <Label htmlFor="desc" className="text-[var(--laundry-muted)] font-bold text-sm">설명 (선택사항)</Label>
                                 <Input
                                     id="desc"
                                     placeholder="이 코스가 무엇을 세탁하는지 적어주세요."
@@ -278,24 +278,24 @@ export function PresetModal({ isOpen, onClose, presets, onApply, onSave, onDelet
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 bg-slate-100 border-t border-slate-200 flex gap-2">
+                <div className="p-4 bg-[var(--laundry-elevated)] border-t border-[var(--laundry-border)] flex gap-2">
                     {mode === 'list' ? (
                         <button
                             onClick={onClose}
-                            className="w-full h-10 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors"
+                            className="w-full h-10 rounded-lg bg-[var(--laundry-surface)] border border-[var(--laundry-border)] text-[var(--laundry-subtle)] font-bold text-sm hover:bg-[var(--laundry-bg)] transition-colors"
                         >
                             닫기
                         </button>
                     ) : (
                         <>
                             <button
-                                className="flex-1 h-10 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors"
+                                className="flex-1 h-10 rounded-lg bg-[var(--laundry-surface)] border border-[var(--laundry-border)] text-[var(--laundry-subtle)] font-bold text-sm hover:bg-[var(--laundry-bg)] transition-colors"
                                 onClick={() => setMode('list')}
                             >
                                 취소
                             </button>
                             <button
-                                className="flex-1 h-10 rounded-lg bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                className="flex-1 h-10 rounded-lg bg-[var(--laundry-accent)] text-[var(--laundry-bg)] font-bold text-sm hover:bg-blue-700 disabled:opacity-50 transition-colors"
                                 onClick={handleSave}
                                 disabled={!newName.trim()}
                             >

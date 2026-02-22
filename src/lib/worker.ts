@@ -17,6 +17,8 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
 
     if (type === 'PROCESS') {
         try {
+
+
             // 원본 데이터 백업 (잠금 복구용 - worker에 전달된 시점의 상태)
             const originalDataBackup = data;
             // =================================================================================

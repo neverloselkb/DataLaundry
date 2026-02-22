@@ -42,12 +42,12 @@ export function AdBanner({ slot, format = 'auto', style, className, isTest = fal
 
     return (
         <div
-            className={cn("relative bg-slate-50/20 overflow-hidden w-full", className)}
+            className={cn("relative bg-[var(--laundry-elevated)] overflow-hidden w-full", className)}
             style={{ height: height, maxHeight: height, minHeight: height, ...style }} // Wrapper Height Flexible
         >
             <ins
                 className="adsbygoogle"
-                data-ad-client="ca-pub-0000000000000000"
+                data-ad-client="ca-pub-6113754179867162"
                 data-ad-slot={slot}
                 // data-ad-format을 vertical/horizontal/auto로 설정
                 data-ad-format={format}

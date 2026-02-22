@@ -37,7 +37,7 @@ export function LoadingOverlay({ isVisible, progress, message }: LoadingOverlayP
             <div className="w-full max-w-2xl px-6 flex flex-col items-center space-y-8">
 
                 {/* 1. 로딩 인디케이터 & 메시지 */}
-                <div className="flex flex-col items-center space-y-4 text-white">
+                <div className="flex flex-col items-center space-y-4 text-[var(--laundry-bg)]">
                     <div className="relative">
                         <Loader2 className="w-16 h-16 animate-spin text-blue-500" />
                         <div className="absolute inset-0 flex items-center justify-center text-xs font-bold">
@@ -49,14 +49,14 @@ export function LoadingOverlay({ isVisible, progress, message }: LoadingOverlayP
                 </div>
 
                 {/* 2. 팁 영역 (Tip Carousel) */}
-                <div className="w-full bg-white/10 rounded-xl p-6 border border-white/20 backdrop-blur-md">
+                <div className="w-full bg-[var(--laundry-surface)]/10 rounded-xl p-6 border border-white/20 backdrop-blur-md">
                     <div className="flex items-start gap-4">
                         <div className="p-2 bg-yellow-500/20 rounded-full">
                             <Lightbulb className="w-6 h-6 text-yellow-500" />
                         </div>
                         <div className="flex-1">
                             <h3 className="text-yellow-500 font-bold mb-1 text-sm uppercase tracking-wider">Useful Tip</h3>
-                            <p className="text-white text-lg font-medium leading-relaxed transition-all duration-500 min-h-[3.5rem] flex items-center">
+                            <p className="text-[var(--laundry-bg)] text-lg font-medium leading-relaxed transition-all duration-500 min-h-[3.5rem] flex items-center">
                                 {TIPS[currentTipIndex]}
                             </p>
                         </div>
@@ -64,7 +64,7 @@ export function LoadingOverlay({ isVisible, progress, message }: LoadingOverlayP
                 </div>
 
                 {/* 닫기 버튼 (개발 단계 편의용, 실제 서비스 시에는 제거하거나 보이지 않게 처리 가능) */}
-                {/* <button className="text-gray-500 text-xs hover:text-white underline mt-4">백그라운드로 숨기기</button> */}
+                {/* <button className="text-gray-500 text-xs hover:text-[var(--laundry-bg)] underline mt-4">백그라운드로 숨기기</button> */}
             </div>
         </div>
     );
